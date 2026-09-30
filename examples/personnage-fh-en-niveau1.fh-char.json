@@ -26,7 +26,7 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "7b0801cc9b35280f3c2bafec90a1221b46f3b9aaa5897615564edb9a8a679173",
+        "hash": "4f3926c17502ceeb82328a24ca9f211f276192b5ec807152b4f4116cb9996885",
         "name": "SRFH — Mechanics (EN)"
       },
       {
@@ -452,7 +452,7 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "7b0801cc9b35280f3c2bafec90a1221b46f3b9aaa5897615564edb9a8a679173",
+          "hash": "4f3926c17502ceeb82328a24ca9f211f276192b5ec807152b4f4116cb9996885",
           "name": "SRFH — Mechanics (EN)"
         },
         {
@@ -806,6 +806,22 @@
       }
     ],
     "tools": [],
+    "training": {
+      "armor": [
+        {
+          "id": "class",
+          "text": "None",
+          "source": "Wizard"
+        }
+      ],
+      "weapons": [
+        {
+          "id": "class",
+          "text": "Simple weapons",
+          "source": "Wizard"
+        }
+      ]
+    },
     "actions": [],
     "spellcasting": {
       "id": "wizard",
@@ -937,6 +953,12 @@
         "name": "Trance",
         "source": "Elf",
         "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
+      },
+      {
+        "id": "background:fh:feat:en:auspicious",
+        "name": "Auspicious (fh)",
+        "category": "feat",
+        "text": "+2 Destiny · fate leans toward you (replaces Lucky)"
       },
       {
         "id": "splinter-of-anon",

@@ -137,11 +137,12 @@ test("4 — le Guerrier choisit un DON de style : ses jetons sont les records, n
 test("5 — la fiche nomme la réponse : « Primal Order: Warden », « Fighting Style: Archery »", () => {
   const h = PILES.SRD;
   const druide = decisionsDe(h, [{ path: "class", ref: { kind: "class", id: cls("druid") } }, { path: "class.primal-order[0]", value: "warden" }]);
-  assert.deepEqual(capacitesChoisies(ctxDe(h, druide, "class")), [{ name: "Primal Order: Warden", source: "Druid" }]);
+  /* 🔄 LOT 372 — le compositeur porte l'`id` du trait que `derive` pose : la Sheet REMPLACE ce trait. */
+  assert.deepEqual(capacitesChoisies(ctxDe(h, druide, "class")), [{ id: "primal-order:warden", name: "Primal Order: Warden", source: "Druid" }]);
   const guerrier = decisionsDe(h, [{ path: "class", ref: { kind: "class", id: cls("fighter") } },
     { path: "class.fighting-style[0]", ref: { kind: "feat", id: "srd:feat:en:archery" } }]);
   const choix = capacitesChoisies(ctxDe(h, guerrier, "class"));
-  assert.deepEqual(choix, [{ name: "Fighting Style: Archery", source: "Fighter" }]);
+  assert.deepEqual(choix, [{ id: "srd:feat:en:archery", name: "Fighting Style: Archery", source: "Fighter" }]);
   assert.deepEqual(capacitesChoisies(ctxDe(h, decisionsDe(h, [{ path: "class", ref: { kind: "class", id: cls("druid") } }]), "class")), [],
     "rien de posé, rien de nommé");
   const fiche = texteDe(renderFicheTemporaire({ resolved: {}, choix }));

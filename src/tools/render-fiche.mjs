@@ -444,6 +444,8 @@ export const LIBELLES = {
   saves: "Jets de sauvegarde",
   skills: "Compétences",
   tools: "Outils",
+  /* LOT 372 — les maîtrises d'armes et d'armures (ARCHI 35, Q1 → a). */
+  training: "Armures · Armes",
   actions: "Actions",
   spellcasting: "Incantation",
   resources: "Ressources",
@@ -508,6 +510,8 @@ export const LIBELLES_EN = {
   saves: "Saving throws",
   skills: "Skills",
   tools: "Tools",
+  /* LOT 372 — weapon and armor training (ARCHI 35, Q1 → a). */
+  training: "Armor · Weapons",
   actions: "Actions",
   spellcasting: "Spellcasting",
   resources: "Resources",

@@ -59,9 +59,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=923";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=923";
-import { etapeParId } from "./etapes.mjs?v=923";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=924";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=924";
+import { etapeParId } from "./etapes.mjs?v=924";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -81,6 +81,9 @@ export const MOTS_FICHE = {
   aucun: "None",
   partiel: "Some entries are not derived yet.",
   pied: "Expert view shows every value with its path, and why a part is not derived.",
+  /* LOT 372 — les deux lignes de « Armor · Weapons » (les mots d'ARCHI 35, Q1). */
+  armures: "Armor",
+  armes: "Weapons",
   espece: "Species",
   classe: "Class",
   niveau: "Level",
@@ -388,6 +391,22 @@ function blocNoms(cle, r, etat, nomDe) {
   return bloc(cle, titre, [liste, etat === "partielle" ? motPartiel() : null]);
 }
 
+/* ══ LOT 372 — LES MAÎTRISES D'ARMES ET D'ARMURES (ARCHI 35, Q1 → a) ══════════════════════
+   Une ligne par entrée de `resolved.training`, le texte TEL QUE LE MOTEUR LE PORTE (celui de la
+   source, jamais décomposé), et dessous, en provenance, ce qui l'accorde : la classe, ou le choix
+   de capacité (« Divine Order: Protector »). ⛔ Rien d'additionné ni de dédoublonné ici. */
+function blocTraining(r, etat) {
+  const titre = LIBELLES_EN.training;
+  if (etat === "absente" || etat === "vide") return bloc("training", titre, [motDAbsence(etat)]);
+  const liste = el("ul", "perso-liste");
+  for (const [mot, cle] of [[MOTS_FICHE.armures, "armor"], [MOTS_FICHE.armes, "weapons"]]) {
+    for (const entree of Array.isArray(r.training[cle]) ? r.training[cle] : []) {
+      if (entree && typeof entree.text === "string") liste.append(ligne(mot, entree.text, { provenance: entree.source || null }));
+    }
+  }
+  return bloc("training", titre, [liste, etat === "partielle" ? motPartiel() : null]);
+}
+
 function blocSorts(r, etat, reg, declarees) {
   const sc = r.spellcasting;
   if (etat === "absente" || etat === "vide") return bloc("spellcasting", LIBELLES_EN.spellcasting, [motDAbsence(etat)]);
@@ -540,6 +559,7 @@ export function renderFicheTemporaire(ctx) {
   fiche.append(blocSens(r, etat("senses"), unite));
   fiche.append(blocNoms("languages", r, etat("languages"), (l) => [estObjet(l) ? l.name : l]));
   fiche.append(blocMaitrises("tools", r, etat("tools"), reg, paliers));
+  fiche.append(blocTraining(r, etat("training")));
   fiche.append(blocSorts(r, etat("spellcasting"), reg, declarees));
   fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name]));
   /* ⭐ LOT 360 — LES CHOIX DE CAPACITÉ (Divine Order, Primal Order, Fighting Style) ENTRENT
@@ -547,10 +567,20 @@ export function renderFicheTemporaire(ctx) {
      on MONTRE, les effets attendent leur lot sur `derive` — donc c'est l'interface qui les
      nomme (`capacitesChoisies`, class-step), comme le lignage (`lignageChoisi`). Une
      rubrique vide ou absente qui reçoit un choix se dit PARTIELLE : le reste n'est pas dérivé. */
+  /* 🎯 LOT 372 — ET DEPUIS QUE `derive` LES POSE, UN SEUL ÉCRIVAIN PAR ENTRÉE : le moteur porte le
+     trait (la donnée), l'interface compose ses MOTS (« Primal Order: Warden », « Versatile: Magic
+     Initiate (Wizard) » — §0.13 interdit au moteur de composer un affichable). Un choix composé dont
+     l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place ; ⛔ jamais deux lignes pour
+     une réponse (mesuré au banc : « Primal Order: Magician » deux fois). L'appariement se fait par
+     l'`id` du record, jamais par le nom. */
   const choix = ctx && Array.isArray(ctx.choix) ? ctx.choix.filter((c) => c && typeof c.name === "string") : [];
+  const parId = new Map(choix.filter((c) => typeof c.id === "string").map((c) => [c.id, c]));
+  const traitsDuMoteur = (Array.isArray(r.traits) ? r.traits : []).map((t) => (t && parId.has(t.id) ? { ...t, ...parId.get(t.id) } : t));
+  const lus = new Set((Array.isArray(r.traits) ? r.traits : []).map((t) => t && t.id));
+  const enPlus = choix.filter((c) => !lus.has(c.id));
   const etatDesTraits = etat("traits");
   fiche.append(blocNoms("traits",
-    choix.length > 0 ? { ...r, traits: [...(Array.isArray(r.traits) ? r.traits : []), ...choix] } : r,
+    choix.length > 0 ? { ...r, traits: [...traitsDuMoteur, ...enPlus] } : r,
     choix.length > 0 && (etatDesTraits === "absente" || etatDesTraits === "vide") ? "partielle" : etatDesTraits,
     (t) => [t && t.name, t && t.source]));
   fiche.append(blocNoms("resources", r, etat("resources"), (x) => [x && x.name,

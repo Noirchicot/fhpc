@@ -109,9 +109,9 @@
    animation (le `Flash`, et chaque rendu d'un lot déjà tiré) gardait son contexte
    pour toujours, et un dé retiré EN PLEIN VOL aussi. Voir `poserLesDes`. */
 
-import { mount, createDieHost, rollDurationMs, rendreLeContexte } from "./dice3d.mjs?v=923";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=923";
-import { swapContent } from "./socle.mjs?v=923";
+import { mount, createDieHost, rollDurationMs, rendreLeContexte } from "./dice3d.mjs?v=924";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=924";
+import { swapContent } from "./socle.mjs?v=924";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */

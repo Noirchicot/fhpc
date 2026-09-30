@@ -299,11 +299,18 @@ test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac dep
      `vision-dans-le-noir` de `darkvision` — deux identifiants différents — donc
      à les rapprocher par leur NOM AFFICHABLE, ce que la loi §0.13 interdit. La
      dérivation recopie la liste du record ; elle ne la trie pas. */
-  assert.deepEqual(got.traits.map((trait) => trait.id),
+  /* 🔄 LOT 372 — LES TRAITS D'ESPÈCE SE LISENT PARMI LES TRAITS : le don d'arrière-plan CHOISI y
+     entre aussi (catégorie `feat`, ARCHI 35, Q3 → a). Le compte reste exact, sur son objet. */
+  const traitsDEspece = got.traits.filter((trait) => trait.category === undefined);
+  assert.deepEqual(traitsDEspece.map((trait) => trait.id),
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],
     "les CINQ traits de l'Elfe, dans l'ordre du record");
-  assert.equal(got.traits.length, 5);
-  for (const trait of got.traits) {
+  assert.equal(traitsDEspece.length, 5);
+  assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.id),
+    ["background:srd:feat:en:magic-initiate"], "🔄 lot 372 — et le don d'arrière-plan, un seul, après eux");
+  /* 🔄 lot 372 — le don porte le nom du record QUI LE DÉTIENT (l'arrière-plan), recopié lui aussi. */
+  assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.source), ["Sage"]);
+  for (const trait of traitsDEspece) {
     assert.equal(trait.source, "Elfe", "`source` est le NOM DU RECORD d'espèce, recopié, jamais composé");
     assert.ok(typeof trait.text === "string" && trait.text.length > 0,
       `« ${trait.id} » doit porter son texte — il vient du record, sans raison de le laisser tomber`);
@@ -330,6 +337,10 @@ test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac dep
      — haut-elfe »), exactement comme il complète `identity.species`. */
   assert.deepEqual(divergences(FICHIER.resolved.traits, got.traits, "traits"), [
     "traits[ascendance-feerique].text",
+    /* 🔄 LOT 372 — le don d'arrière-plan choisi entre en trait sous `<détenteur>:<id du record>` ; le
+       fichier le nomme `initie-a-la-magie` (un slug éditorial, juste dessous). Les rapprocher
+       demanderait de comparer des noms affichables : la loi §0.13 l'interdit. */
+    "traits[background:srd:feat:en:magic-initiate]",
     "traits[initie-a-la-magie]",
     "traits[lecteur-de-marges]",
     "traits[lignage-elfique].name",
@@ -515,8 +526,9 @@ test("`validate` ne trouve rien à redire au personnage d'acceptation", () => {
      c'est le seul endroit qui dise à un joueur « ce que tu as coché ne change
      rien à ta fiche ». */
   const inertes = verdict.warnings.filter((line) => line.includes("n'a été consommé"));
-  assert.deepEqual(inertes.length, 3,
-    "lignage, don d'arrière-plan, don homebrew. ⚠️ « langue » est SORTIE le 2026-09-08 : " +
+  assert.deepEqual(inertes.length, 2,
+    "lignage, don homebrew. 🔄 LOT 372 : le don d'arrière-plan est LU (il entre en trait, catégorie `feat`) — " +
+    "il sort de cette liste parce qu'il a un effet, pas parce qu'on l'a tu. ⚠️ « langue » est SORTIE le 2026-09-08 : " +
     "`languages[0] = \"draconique\"` a été RETIRÉ du personnage — une intention sans effet. " +
     "⛔ ET LE TROU QU'ELLE RÉVÉLAIT RESTE, IL N'EST PAS RÉPARÉ : ce personnage est SRD + " +
     "homebrew, et la couche SRD porte ZÉRO record `training` — le SRD SEUL NE SAIT PAS " +

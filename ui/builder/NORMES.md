@@ -9925,6 +9925,7 @@ fichier serait vert pour rien)*.
 > ✅ **RATIFIÉE PAR ERIC LE 30/09** — relayée par ARCHI 35 après l'audit du lot 370, qui relevait que cette décision
 > ne tenait que de la parole de l'architecte : à *« Les effets en attente (Orders, Fighting Style, Skilled) »* →
 > **« a »** — leurs effets feront un lot à la suite.
+> 🔄 **30/09 (lot 372)** — ce lot est fait : les réponses sont LUES (`class-un-choix-de-capacite-a-ses-effets`), et la Sheet ne les liste plus sous « Recorded, but no rule reads them ».
 
 📌 **CE QUI LES TIENT** : `tests/choix-du-niveau-1.test.mjs` (la couverture, la forme, la création relue à l'écrivain, la dette, les clefs, trois témoins) et `tests/portes-360.test.mjs` (les plans, la porte, les acquis, la fiche, le palier 2 et la Sheet) — dix-neuf mutations vues rouges.
 
@@ -9936,6 +9937,36 @@ fichier serait vert pour rien)*.
 📏 **CE QUI SE PASSAIT** — relevé du lot 360 sur v913 : Weapon Mastery (Barbarian, Fighter, Paladin, Ranger, Rogue) et Eldritch Invocations (Warlock) se lisaient à la fois comme porte et dans « Granted automatically ». Le rapprochement lisait le nom des `feature_choices`, et leurs portes n'en sont pas.
 ⭐ **LE LIEN EST DANS LA DONNÉE** : la capacité est celle dont le texte porte l'extrait de la déclaration `creation`, et le chemin de la déclaration nomme la porte. Classées le 29/09 dans `srfh-mecaniques-en`, qui monte dans les deux piles : **9 capacités entières** (Weapon Mastery ×5, Eldritch Invocations, Divine Order, Primal Order, Fighting Style — une déclaration chacune) et **8 partielles** (Spellcasting ×7, Pact Magic — 23 déclarations). Aucune couche Fate's Hand ne déclare de capacité de classe.
 🛡️ `tests/porte-entiere-jamais-acquise.test.mjs` : ① la portée exigée, une seule par capacité ; ② l'écran lu — entière absente, partielle présente ; ③ une porte au libellé égal au nom de sa capacité ne peut pas se déclarer partielle.
+
+📍 `class-un-choix-de-capacite-a-ses-effets` · vivante · 30/09
+⚖️ **Un choix de capacité applique ses effets par la DONNÉE de sa déclaration, jamais par un nom : l'option-valeur porte ce que son texte donne (`armor_training`, `weapon_proficiencies` — un extrait exact du texte —, `check_bonus`, `extra_cantrips`), le don désigné porte le sien (`armor_class_bonus`), et `derive` les applique. Un effet qui est lui-même un choix (le cantrip en plus de Thaumaturge et de Magician) a SA porte, publiée SOUS la réponse (`class.<id>[n].cantrips`) et ouverte DANS la porte de la capacité, avec l'organe des cantrips ; elle retient le `Done`.**
+
+> Eric, 30/09, à la question d'ARCHI 35 sur ces effets : *« tu parles de quoi là, FH ou SRD, FH tout a été décidé ! »* — en Fate's Hand la règle est ÉCRITE dans ses chapitres, en SRD c'est le texte.
+> 📜 **Ce que disent les chapitres FH** (`5.RPG/Fate's Hand/0. D&D 5+ Rules/`) : *Class Modifications* rend le Cleric, le Druid et le Fighter par `{{srd:class-full:…}}` — le SRD tel quel ; leur encadré « What Fate's Hand changes » ne touche que les compétences. *Equipment* et *Trainings* sont MUETS sur les maîtrises d'armes et d'armures : le SRD s'applique. *Skills & Tools* garde Arcana, Nature et Religion en INT.
+> ARCHI 35, 30/09 : Q1 → a) la ligne des maîtrises (`class-les-maitrises-d-armes-et-d-armures-se-lisent`) ; Q2 → a) les lignées au lot 373 ; Q3 → a) un effet de table se lit en trait (`socle-un-choix-sans-chiffre-se-lit-en-trait`). La porte du cantrip, sous la capacité : approuvée.
+
+📏 **CE QUI SE PASSAIT** (mesuré au moteur, v920) : `class.divine-order[0]`, `class.primal-order[0]`, `class.fighting-style[0]` sortaient `unconsumed` — aucun training, aucun bonus, aucun cantrip. Un Protector sans armure lourde, un Thaumaturge sans son cantrip, un Défenseur sans son +1.
+⭐ **CE QUI EST LU** : le training (la ligne des maîtrises) ; le bonus de compétence — la caractéristique, et son plancher (« minimum of +1 ») — APRÈS les paliers, noté dans la provenance (« +1 Divine Order: Thaumaturge » sous le chiffre) ; le +1 de CA de Defense, en armure seulement, noté lui aussi (`effects.applied` admet l'effet d'une RÈGLE : sans `line`, `object` nomme le don) ; le cantrip, qui entre dans l'incantation comme tout sort choisi.
+⛔ **Aucune règle recopiée d'une autre source** : chaque extrait est relu dans son texte (garde E1). L'inventaire du lot 289 (`sources-effets/regles-personnage.effets.json`) porte les mêmes citations ; il reste un précurseur non lu par le moteur.
+🛡️ `tests/effets-des-choix-372.test.mjs` (E1–E8, qui bouclent sur les déclarations), 17 mutations vues rouges.
+
+📍 `class-les-maitrises-d-armes-et-d-armures-se-lisent` · vivante · 30/09
+⚖️ **Les maîtrises d'armes et d'armures sont une rubrique de la fiche (`resolved.training { armor[], weapons[] }`) : d'abord celles de la CLASSE, puis celles qu'un choix y ajoute, chacune avec son `id`, sa source et son texte TEL QUE LA SOURCE L'ÉCRIT — jamais décomposé en catégories. La fiche les montre sous « Armor · Weapons ».**
+
+> ARCHI 35, 30/09, Q1 → a) : *« `resolved.training { armor[], weapons[] }`, champ facultatif au schéma (même forme que `effects` au lot 289 : un document d'avant reste valide). Dérivé du record de classe d'abord (le training de base, qui manquait), puis des Orders ; montré par une ligne « Armor · Weapons » sur la fiche. »*
+
+📏 **LE TROU ÉTAIT PLUS LARGE QUE LES ORDERS** : aucune rubrique n'existait — même `armor_training` et `weapon_proficiencies` de la classe n'étaient dérivés nulle part, et aucune des deux fiches ne les montrait.
+⭐ **LA PROSE DU SRD RESTE UNE LIGNE** : « Light and Medium armor and Shields » n'est pas découpé en trois catégories — ce serait une règle de lecture inventée dans le moteur. « None » (le Magicien) s'écrit tel quel : c'est le mot du livre.
+⭐ **CHAQUE ENTRÉE A SON `id`** (`class`, ou l'id du choix) : la parole du MJ bat le JSON, et un override vise une entrée par son identité.
+
+📍 `socle-un-choix-sans-chiffre-se-lit-en-trait` · vivante · 30/09
+⚖️ **Un choix dont l'effet n'a pas de chiffre sur la fiche — un effet de table (Great Weapon Fighting, Two-Weapon Fighting), un chiffre que le moteur ne dérive pas encore (Archery : aucune attaque n'est dérivée), ou un don d'origine — est LU en posant un trait : son nom, sa catégorie (`feat`, `class-feature`), son texte recopié, et le nom du record qui le détient. ⛔ Jamais un chiffre inventé, jamais une prose analysée.**
+
+> ARCHI 35, 30/09, Q3 → a) : *« L'effet de table est LU en posant le don ou la capacité dans `traits`, nommé et avec son texte. Il quitte « Recorded, but no rule reads them » sans chiffre inventé. »*
+
+⭐ **UN SEUL ÉCRIVAIN PAR ENTRÉE, MESURÉ AU BANC** : la Sheet ajoutait déjà ses propres lignes pour ces choix (`capacitesChoisies`, lot 360 ; `donsDOrigineNommes`, lot 364), parce que le moteur ne les portait pas — « Primal Order: Magician » est sorti DEUX fois. Le moteur porte désormais le trait (la donnée), l'interface compose ses MOTS (§0.13 interdit au moteur de composer un affichable) : un choix composé dont l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place. L'appariement se fait par l'`id`, jamais par le nom. Et l'`id` d'un don d'origine dit QUI le détient (`background:<don>`, `species:<don>`) : un Humain Acolyte porte deux Magic Initiate, deux traits.
+⭐ **ET UN CRÉNEAU EST UN ENFANT DIRECT** (`planSlots`, carnet.mjs) : `base[n]`, rien dessous. Mesuré au banc : Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait les plans publiés SOUS la réponse. Le don d'origine portait le même défaut depuis ses branches.
+📏 **CE QUE ÇA CHANGE AILLEURS** : le don d'origine (Skilled, Magic Initiate, Auspicious…) sortait `unconsumed` en SRD ; il est désormais un trait. Les maîtrises que Skilled fait choisir sont appliquées (la compétence maîtrisée, l'outil possédé). La raison `no-trait-field-for-class-feat-background` est resserrée : les aptitudes de CLASSE en général restent non dérivées.
 
 ---
 

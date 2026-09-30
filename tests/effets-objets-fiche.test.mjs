@@ -200,6 +200,12 @@ test("9 — ⭐ LE PERSONNAGE SANS OBJET MAGIQUE : `resolved` IDENTIQUE À AVANT
      construction, et aucun chiffre du personnage d'exemple ne bouge — mesuré, c'était le SEUL
      écart. La pile reste comparée couche par couche (id, version, nom, ORDRE) ; seule
      l'empreinte, qui change à chaque déclaration ajoutée, sort de la comparaison. */
+  /* 🎯 LOT 372 — DEUX AJOUTS DE CONTENU, SANS UN CHIFFRE CHANGÉ : `training` (les maîtrises d'armes
+     et d'armures, une rubrique neuve) et le don d'arrière-plan choisi, en trait (`feat`). Ils sortent
+     de la comparaison ICI, nommés, et sont gardés par `tests/effets-des-choix-372.test.mjs`. */
+  assert.ok(apres.training && Array.isArray(apres.training.armor), "`training` est posé");
+  delete apres.training;
+  apres.traits = apres.traits.filter((trait) => trait.category !== "feat");
   const sansEmpreinte = (pile) => pile.map(({ hash, ...couche }) => couche);
   apres.derivation.stack = sansEmpreinte(apres.derivation.stack);
   avant.derivation.stack = sansEmpreinte(avant.derivation.stack);

@@ -49,7 +49,7 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=923";
+import { lireLeFichier } from "./ouvrir.mjs?v=924";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 

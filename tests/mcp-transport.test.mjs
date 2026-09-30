@@ -112,7 +112,8 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      SENS (le nombre) ; le sens porte l'adresse `darkvision`, le trait porte la
      clef du record. Les rapprocher demanderait de les apparier par leur nom
      affichable — ce que la loi §0.13 interdit. */
-  assert.deepEqual(got.traits.map((trait) => trait.id),
+  /* 🔄 LOT 372 — les traits d'ESPÈCE parmi les traits (le don d'arrière-plan choisi y entre aussi). */
+  assert.deepEqual(got.traits.filter((trait) => trait.category === undefined).map((trait) => trait.id),
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],
     "LES CINQ TRAITS DE L'ELFE ONT TRAVERSÉ 3,1 Mo DE COUCHE ET UN TUYAU JSON-RPC");
   assert.match(got.traits.find((trait) => trait.id === "transe").text, /Repos long/,

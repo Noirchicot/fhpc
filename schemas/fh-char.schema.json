@@ -686,6 +686,77 @@
             }
           }
         },
+        "training": {
+          "$comment": "LOT 372 (ARCHI 35, 30/09, Q1 → a) — LES MAÎTRISES D'ARMES ET D'ARMURES. Elles n'avaient aucune rubrique : même le training de base de la classe (`armor_training`, `weapon_proficiencies`) n'était dérivé nulle part. D'abord la classe, puis les choix de capacité qui en ajoutent (Protector, Warden). ⚠️ FACULTATIVE AU SCHÉMA, même forme d'ajout que `effects` (lot 289) : un document d'avant ce lot reste valide ; `derive` la pose toujours.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "armor",
+            "weapons"
+          ],
+          "properties": {
+            "armor": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "text",
+                  "source"
+                ],
+                "properties": {
+                  "id": {
+                    "$comment": "L'identité de l'entrée, pour qu'un override la vise (`resolved.training.armor[class].text`) : `class`, ou l'id du choix de capacité.",
+                    "$ref": "#/$defs/slug"
+                  },
+                  "text": {
+                    "$comment": "Le texte tel que la source l'écrit (« Light and Medium armor and Shields », « Heavy armor ») — jamais décomposé en catégories : ce serait une règle de lecture inventée.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "source": {
+                    "$comment": "Ce qui l'accorde : la classe, ou le choix de capacité (« Divine Order: Protector »). Recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                }
+              }
+            },
+            "weapons": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "text",
+                  "source"
+                ],
+                "properties": {
+                  "id": {
+                    "$comment": "L'identité de l'entrée, pour qu'un override la vise (`resolved.training.armor[class].text`) : `class`, ou l'id du choix de capacité.",
+                    "$ref": "#/$defs/slug"
+                  },
+                  "text": {
+                    "$comment": "Le texte tel que la source l'écrit (« Light and Medium armor and Shields », « Heavy armor ») — jamais décomposé en catégories : ce serait une règle de lecture inventée.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "source": {
+                    "$comment": "Ce qui l'accorde : la classe, ou le choix de capacité (« Divine Order: Protector »). Recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        },
         "actions": {
           "$comment": "Attaques ET actions dans une seule collection : une attaque est une action de catégorie `attack`. Vocabulaire porté du panneau v1 fh-panel-actions.js (economy action/bonus/reaction, catégories Attack/Check/Damage/Utility), mis en minuscules — clefs machine.",
           "type": "array",
@@ -1040,7 +1111,9 @@
                 "enum": [
                   "eldritch-invocation",
                   "training",
-                  "weapon-mastery"
+                  "weapon-mastery",
+                  "feat",
+                  "class-feature"
                 ]
               }
             }
@@ -1285,7 +1358,6 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "line",
                   "object",
                   "item",
                   "target",
@@ -1297,7 +1369,7 @@
                 ],
                 "properties": {
                   "line": {
-                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet.",
+                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet. ⚖️ LOT 372 — facultatif : l'effet d'une RÈGLE (Defense, le bonus d'un Thaumaturge) n'a pas de ligne ; `object` et `item` nomment alors le don ou l'option.",
                     "type": "integer",
                     "minimum": 0
                   },

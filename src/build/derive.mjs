@@ -862,6 +862,42 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     chosenBy[root] = answers;
   }
 
+  /* ══ LOT 372 — LES DONS D'ORIGINE, ET LES MAÎTRISES QU'UN DON FAIT CHOISIR ═══════════
+     Un don d'origine a deux détenteurs, `background.originFeat[0]` et `species.originFeat[0]`
+     (lot 364). Le don lui-même devient un TRAIT (plus bas) ; les maîtrises qu'il fait choisir
+     (`data.proficiency_choice` — Skilled : « You gain proficiency in any combination of three
+     skills or tools of your choice ») arrivent sous `<racine>.originFeat[0].proficiencies[n]`,
+     un ref de compétence ou d'outil. ⭐ La compétence est MAÎTRISÉE comme toute compétence
+     accordée ; l'outil entre avec les outils possédés.
+     ⛔ Un ref qui n'est pas du genre que le don déclare, ou introuvable, reste `unconsumed`. */
+  const donsDOrigine = [];
+  const outilsDesDons = [];
+  for (const racine of ["background", "species"]) {
+    const reponse = picked.order.find((entry) => entry.choice.path === `${racine}.originFeat[0]` &&
+      entry.choice.ref && entry.choice.ref.kind === "feat");
+    const view = reponse ? reader.maybe("feat", reponse.choice.ref.id) : null;
+    if (!view) continue;
+    donsDOrigine.push({ racine, entry: reponse, view });
+    const declaration = view.record.data && view.record.data.proficiency_choice;
+    const genres = declaration && Array.isArray(declaration.from) ? declaration.from : [];
+    const prefixe = `${racine}.originFeat[0].proficiencies[`;
+    for (const entry of picked.order.filter((e) => typeof e.choice.path === "string" && e.choice.path.startsWith(prefixe))) {
+      const ref = entry.choice.ref;
+      if (!ref || !genres.includes(ref.kind)) continue;
+      if (ref.kind === "skill") {
+        const skill = skills.byId.get(ref.id);
+        if (!skill) continue;
+        entry.consumed = true;
+        proficientSkills.set(skill.id, racine);
+      } else if (ref.kind === "tool") {
+        const outil = reader.maybe("tool", ref.id);
+        if (!outil) continue;
+        entry.consumed = true;
+        outilsDesDons.push(outil);
+      }
+    }
+  }
+
   /* Les imposés, GÉNÉRIQUEMENT (aucun mot de FH) : la liste plate des slugs
      que ce bloc vient de placer, tous root confondus. C'est l'unique donnée
      qu'un module a besoin de recevoir pour savoir OÙ poser un plancher — la
@@ -1040,6 +1076,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     } else {
       underived.declare("tools", "underived.background-missing-tool-field", {});
     }
+  }
+  /* LOT 372 — les outils qu'un don d'origine a fait choisir (Skilled), un par un. */
+  for (const outil of outilsDesDons) {
+    if (!toolViews.some((v) => v.id === outil.id)) toolViews.push(outil);
   }
   for (const view of toolViews) {
     const abilityKey = view.record.data && view.record.data.ability_key;
@@ -1314,8 +1354,89 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     traits.push(trait);
   }
 
+  /* ══ LOT 372 — LES CHOIX DE CAPACITÉ DÉCLARÉS, LUS : `class.<id>[n]` ══════════════════
+     Divine Order, Primal Order, Fighting Style : la classe DÉCLARE le choix
+     (`data.feature_choices`, lot 360) ; ce bloc le LIT, sans un nom de capacité ici.
+     · une option-VALEUR (Protector) : un trait « Divine Order: Protector », avec son texte,
+       et ses effets DÉCLARÉS sur l'option (`armor_training`, `weapon_proficiencies`,
+       `check_bonus`) ;
+     · une option-RECORD (un don de style) : le don devient un trait, avec sa description,
+       et son effet déclaré (`armor_class_bonus`).
+     ⭐ ARCHI 35, Q3 → a) : un effet DE TABLE (Great Weapon Fighting, Two-Weapon Fighting) ou
+     sans chiffre sur la fiche (Archery : le moteur ne dérive aucune attaque) est LU en posant
+     le trait — nommé, avec son texte — jamais par un chiffre inventé.
+     ⛔ Une réponse que la déclaration ne connaît pas reste `unconsumed` : le carnet la juge. */
+  const capacites = [];
+  for (const declaration of Array.isArray(classData.feature_choices) ? classData.feature_choices : []) {
+    if (!declaration || typeof declaration.id !== "string" || !/^[a-z][a-z0-9-]*$/.test(declaration.id)) continue;
+    const exact = new RegExp(`^class\\.${declaration.id}(\\[[0-9]+\\])?$`);
+    const source = declaration.options_from && typeof declaration.options_from.kind === "string" ? declaration.options_from : null;
+    for (const entry of picked.order.filter((e) => typeof e.choice.path === "string" && exact.test(e.choice.path))) {
+      if (source) {
+        const ref = entry.choice.ref;
+        const view = ref && ref.kind === source.kind ? reader.maybe(source.kind, ref.id) : null;
+        const data = view ? (view.record.data || {}) : null;
+        if (!view || (source.category && data.category !== source.category)) continue;
+        entry.consumed = true;
+        const trait = { id: view.id, name: view.record.name, category: "feat", source: `${classView.record.name} — ${declaration.name}` };
+        if (typeof data.description === "string") trait.text = data.description;
+        traits.push(trait);
+        capacites.push({ id: view.id, nom: view.record.name, effets: data });
+      } else if (typeof entry.choice.value === "string") {
+        const option = (Array.isArray(declaration.options) ? declaration.options : []).find((o) => o && o.id === entry.choice.value);
+        if (!option) continue;
+        entry.consumed = true;
+        const nom = `${declaration.name}: ${option.name}`;
+        const trait = { id: `${declaration.id}:${option.id}`, name: nom, category: "class-feature", source: classView.record.name };
+        if (typeof option.text === "string") trait.text = option.text;
+        traits.push(trait);
+        capacites.push({ id: `${declaration.id}:${option.id}`, nom, effets: option });
+      }
+    }
+  }
+  /* LE DON D'ORIGINE, EN TRAIT — le don lui-même (Skilled, Alert, Magic Initiate…) : ce qu'il
+     fait choisir est lu ailleurs (maîtrises plus haut, sorts à l'incantation). */
+  /* ⚠️ L'`id` DIT AUSSI QUI LE DÉTIENT (`<racine>:<id du don>`) : un Humain Acolyte prend DEUX
+     Magic Initiate (l'arrière-plan et Versatile), deux traits — un id nu en aurait fondu deux en un. */
+  for (const { racine, entry, view } of donsDOrigine) {
+    entry.consumed = true;
+    /* La source est le NOM DU RECORD détenteur (l'Inheritance en Fate's Hand, Acolyte en SRD), comme
+       pour les traits d'espèce — jamais un mot écrit ici. */
+    const detenteur = racine === "species" ? speciesView : backgroundView;
+    const trait = { id: `${racine}:${view.id}`, name: view.record.name, category: "feat" };
+    if (detenteur) trait.source = detenteur.record.name;
+    if (typeof view.record.data.description === "string") trait.text = view.record.data.description;
+    traits.push(trait);
+  }
+
   resolved.traits = traits;
   underived.declare("traits (classe, don, arrière-plan)", "underived.no-trait-field-for-class-feat-background", {});
+
+  /* ══ LOT 372 — LES MAÎTRISES D'ARMES ET D'ARMURES (`resolved.training`) ═══════════════
+     ARCHI 35, Q1 → a) : elles n'avaient AUCUNE rubrique — même le training de base de la
+     classe (`armor_training`, `weapon_proficiencies`) n'était dérivé nulle part. D'abord la
+     classe, puis ce que les choix de capacité y ajoutent (Protector : « training with Heavy
+     armor », « proficiency with Martial weapons »).
+     ⛔ LE TEXTE TEL QUE LA SOURCE L'ÉCRIT, JAMAIS DÉCOMPOSÉ : « Light and Medium armor and
+     Shields » reste une ligne. Découper la prose en catégories serait une règle de lecture
+     inventée ici. Fate's Hand est muet sur ces maîtrises (Equipment, Trainings) : le SRD
+     s'applique. Un record de classe qui ne porte aucun des deux champs le DÉCLARE. */
+  const training = { armor: [], weapons: [] };
+  /* ⭐ CHAQUE ENTRÉE A SON `id` (un slug) : la parole du MJ bat le JSON, et un override vise une
+     entrée par son identité (`resolved.training.armor[class].text`), jamais par son rang. */
+  const ajouterTraining = (liste, id, texte, source) => {
+    if (typeof texte === "string" && texte.trim() !== "") liste.push({ id, text: texte, source });
+  };
+  if (typeof classData.armor_training !== "string" && typeof classData.weapon_proficiencies !== "string") {
+    underived.declare("training", "underived.class-missing-training-fields", { recordId: classView.id });
+  }
+  ajouterTraining(training.armor, "class", classData.armor_training, classView.record.name);
+  ajouterTraining(training.weapons, "class", classData.weapon_proficiencies, classView.record.name);
+  for (const { id, nom, effets: e } of capacites) {
+    ajouterTraining(training.armor, id, e.armor_training, nom);
+    ajouterTraining(training.weapons, id, e.weapon_proficiencies, nom);
+  }
+  resolved.training = training;
 
   resolved.gear = gear;
 
@@ -1589,6 +1710,28 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       return bonus === skill.bonus ? skill : { ...skill, bonus };
     });
   }
+  /* ══ LOT 372 — LE BONUS D'UNE OPTION AUX JETS D'UNE COMPÉTENCE ══════════════════════
+     Thaumaturge : « a bonus to your Intelligence (Arcana or Religion) checks. The bonus
+     equals your Wisdom modifier (minimum of +1) » — l'option le DÉCLARE (`check_bonus` :
+     les compétences, la caractéristique, le plancher). ⭐ APRÈS les paliers, comme les
+     effets d'objets juste au-dessus (un bonus posé avant serait effacé en silence), et
+     NOTÉ dans la provenance : la fiche écrit « +N Divine Order: Thaumaturge » sous le chiffre. */
+  if (Array.isArray(resolved.skills)) {
+    for (const { nom, effets: e } of capacites) {
+      const cb = e && e.check_bonus;
+      if (!cb || !Array.isArray(cb.skills) || !abilities[cb.ability]) continue;
+      const valeur = Math.max(Number.isInteger(cb.minimum) ? cb.minimum : abilities[cb.ability].mod, abilities[cb.ability].mod);
+      for (const recordId of cb.skills) {
+        const skill = skills.byId.get(recordId);
+        const i = skill ? resolved.skills.findIndex((s) => s.id === skill.id) : -1;
+        if (i < 0) continue;
+        const avant = resolved.skills[i].bonus;
+        effets.noter({ valeur, public: { object: nom, item: nom, target: `skill.${skill.id}`, mode: "bonus", condition: "always" } },
+          `resolved.skills[${skill.id}].bonus`, avant, avant + valeur);
+        resolved.skills[i] = { ...resolved.skills[i], bonus: avant + valeur };
+      }
+    }
+  }
   for (let i = 0; i < tools.length; i += 1) {
     const bonus = effets.appliquer("check.all", `resolved.tools[${tools[i].id}].bonus`, tools[i].bonus);
     if (bonus !== tools[i].bonus) tools[i] = { ...tools[i], bonus };
@@ -1678,6 +1821,18 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         variant: `+${piece.plus}` } }, "resolved.ac", ac, apres);
       ac = apres;
     }
+    /* ⚖️ LOT 372 — LE BONUS DE CA D'UN CHOIX DE CAPACITÉ (Defense : « While you're wearing
+       Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class »), DÉCLARÉ sur le don
+       (`armor_class_bonus` : la valeur, et la condition). Sans armure, il dort. */
+    for (const { nom, effets: e } of capacites) {
+      const b = e && e.armor_class_bonus;
+      if (!b || !Number.isInteger(b.value)) continue;
+      const condition = typeof b.condition === "string" ? b.condition : "always";
+      if (condition === "armor-worn" ? sansArmure : condition !== "always") continue;
+      effets.noter({ valeur: b.value, public: { object: nom, item: nom, target: "ac", mode: "bonus", condition } },
+        "resolved.ac", ac, ac + b.value);
+      ac += b.value;
+    }
     /* ② « if you are wearing no armor and using no Shield » (Bracers of Defense). */
     for (const a of effets.effets("ac").filter((x) => x.etat === "no-armor-no-shield")) {
       if (!sansArmure || bouclier) effets.ecarter(a, "state-unmet");
@@ -1688,7 +1843,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   /* Remise dans l'ordre du schéma : un document se relit à l'œil. */
   const ordered = {};
   for (const key of ["derivation", "identity", "abilities", "proficiency", "ac", "vitals", "speeds", "senses",
-    "languages", "saves", "skills", "tools", "actions", "spellcasting", "resources", "traits", "gear",
+    "languages", "saves", "skills", "tools", "training", "actions", "spellcasting", "resources", "traits", "gear",
     "currency", "craft", "stats", "notes"]) {
     if (Object.hasOwn(resolved, key)) ordered[key] = resolved[key];
   }

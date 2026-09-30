@@ -324,8 +324,12 @@ export const FR_UNDERIVED = {
     "`description` est de la prose dont un parseur approximatif ferait une fiche fausse. La couche SRD, elle, " +
     "les porte depuis la réparation de l'extraction à deux colonnes.",
   "underived.no-trait-field-for-class-feat-background": () =>
-    "le contrat ne porte aucun champ de trait pour les genres `class`, `feat` et `background` : " +
-    "`features[].description` et `feat.description` sont de la prose.",
+    "le contrat ne porte aucun champ de trait pour les aptitudes de `class` ni pour `background` : " +
+    "`features[].description` est de la prose. Les dons CHOISIS (d'origine, de style) et les choix de capacité " +
+    "entrent depuis le lot 372.",
+  "underived.class-missing-training-fields": (p) =>
+    `le record de classe « ${p.recordId} » ne porte ni \`armor_training\` ni \`weapon_proficiencies\` : ` +
+    "ses maîtrises d'armes et d'armures ne se dérivent pas.",
   "underived.no-craft-module": () =>
     "une entrée d'artisanat vient d'un module moteur activé par un drapeau (décision Q4) ; aucun module " +
     "d'artisanat n'existe au M2.",
@@ -476,8 +480,12 @@ export const EN_UNDERIVED = {
     "`description` is prose an approximate parser would turn into a false sheet. The SRD layer, itself, has " +
     "carried them since the two-column extraction was repaired.",
   "underived.no-trait-field-for-class-feat-background": () =>
-    "the contract carries no trait field for the `class`, `feat` and `background` genres: " +
-    "`features[].description` and `feat.description` are prose.",
+    "the contract carries no trait field for `class` features nor for `background`: " +
+    "`features[].description` is prose. CHOSEN feats (origin, fighting style) and feature choices " +
+    "enter since lot 372.",
+  "underived.class-missing-training-fields": (p) =>
+    `the class record "${p.recordId}" carries neither \`armor_training\` nor \`weapon_proficiencies\`: ` +
+    "its weapon and armor training is not derived.",
   "underived.no-craft-module": () =>
     "a crafting entry comes from an engine module gated by a flag (decision Q4); no crafting module exists at M2.",
   "underived.no-active-stat-module": (d) =>

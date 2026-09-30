@@ -98,6 +98,17 @@
           }
         },
         "note": "♻️ LOT 364 (ARCHI 35, 29/09) — LA REPRISE SE DÉCLARE POUR TOUT DON DONT LE TEXTE LA DIT (« Repeatable. You can take this feat more than once. »). Ce don général n'est pas offert au niveau 1 : aucun plan ne le lit aujourd'hui, la déclaration attend le lot Level up. Elle est posée maintenant parce que la garde (`tests/versatile-364.test.mjs`) lit TOUS les dons, sans périmètre par catégorie : le texte trouve, la déclaration tranche."
+      },
+      "srd:feat:en:defense": {
+        "op": "patch",
+        "changes": {
+          "data[armor_class_bonus]": {
+            "value": 1,
+            "condition": "armor-worn",
+            "extrait": "While you’re wearing Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class"
+          }
+        },
+        "note": "🎯 LOT 372 (ARCHI 35, 30/09) — le don de style Defense DÉCLARE son effet chiffré dans la forme que `derive` lit : `armor_class_bonus` (la valeur, et la condition : une armure portée). ⛔ Aucune règle ajoutée : l'extrait est relu dans `data.description` par `tests/effets-des-choix-372.test.mjs`. Archery (+2 aux jets d'attaque à distance) n'a pas de chiffre sur la fiche : le moteur ne dérive aucune attaque (`underived.no-action-genre`) ; le don y vit comme trait, avec son texte. Great Weapon Fighting et Two-Weapon Fighting sont des effets de table (jets de dégâts), même traitement (ARCHI 35, Q3 → a)."
       }
     },
     "shelving": {
@@ -567,12 +578,28 @@
                 {
                   "id": "protector",
                   "name": "Protector",
-                  "text": "Trained for battle, you gain proficiency with Martial weapons and training with Heavy armor."
+                  "text": "Trained for battle, you gain proficiency with Martial weapons and training with Heavy armor.",
+                  "armor_training": "Heavy armor",
+                  "weapon_proficiencies": "Martial weapons"
                 },
                 {
                   "id": "thaumaturge",
                   "name": "Thaumaturge",
-                  "text": "You know one extra cantrip from the Cleric spell list. In addition, your mystical connection to the divine gives you a bonus to your Intelligence (Arcana or Religion) checks. The bonus equals your Wisdom modifier (minimum of +1)."
+                  "text": "You know one extra cantrip from the Cleric spell list. In addition, your mystical connection to the divine gives you a bonus to your Intelligence (Arcana or Religion) checks. The bonus equals your Wisdom modifier (minimum of +1).",
+                  "extra_cantrips": {
+                    "list": "srd:class:en:cleric",
+                    "count": 1,
+                    "extrait": "You know one extra cantrip from the Cleric spell list"
+                  },
+                  "check_bonus": {
+                    "skills": [
+                      "srd:skill:en:arcana",
+                      "srd:skill:en:religion"
+                    ],
+                    "ability": "wis",
+                    "minimum": 1,
+                    "extrait": "a bonus to your Intelligence (Arcana or Religion) checks. The bonus equals your Wisdom modifier (minimum of +1)"
+                  }
                 }
               ]
             }
@@ -649,7 +676,7 @@
             }
           }
         },
-        "note": "⚖️ LOT 360 (ARCHI 35, 29/09) : la capacité de niveau 1 « Divine Order » du Cleric demande un choix, et aucune couche ne le déclarait — le moteur ne publiait pas de plan, l'écran rangeait la capacité dans ce qui est acquis (le test A→Z du lot 358, constat 5). ⭐ `data[feature_choices]` DÉCLARE le choix dans la forme que le carnet lit (`classFeatureChoicePlans`, decisions.mjs) : le chemin `class.<id>`, le compte, et les options. ⛔ Aucune règle inventée : les options sont celles du texte SRD, extraites mot pour mot, ou les records que le texte désigne. ⏳ Q1 d'ARCHI 35 → a) : le choix s'écrit et se MONTRE ; ses effets (armes, armures, bonus, cantrip en plus) attendent leur lot sur `derive`.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "⚖️ LOT 360 (ARCHI 35, 29/09) : la capacité de niveau 1 « Divine Order » du Cleric demande un choix, et aucune couche ne le déclarait — le moteur ne publiait pas de plan, l'écran rangeait la capacité dans ce qui est acquis (le test A→Z du lot 358, constat 5). ⭐ `data[feature_choices]` DÉCLARE le choix dans la forme que le carnet lit (`classFeatureChoicePlans`, decisions.mjs) : le chemin `class.<id>`, le compte, et les options. ⛔ Aucune règle inventée : les options sont celles du texte SRD, extraites mot pour mot, ou les records que le texte désigne. ⏳ Q1 d'ARCHI 35 → a) : le choix s'écrit et se MONTRE ; ses effets (armes, armures, bonus, cantrip en plus) attendent leur lot sur `derive`.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🎯 LOT 372 (ARCHI 35, 30/09) — LES EFFETS DE L'OPTION, DÉCLARÉS DANS LA FORME QUE `derive` LIT. Chaque option porte ce que son texte donne, avec des champs du même nom que ceux du record de classe (`armor_training`, `weapon_proficiencies` : la valeur est un EXTRAIT EXACT du texte de l'option), ou un objet qui cite son extrait (`extra_cantrips` : la liste et le compte ; `check_bonus` : les compétences, la caractéristique et le plancher). ⛔ Aucune règle ajoutée : `tests/effets-des-choix-372.test.mjs` relit chaque extrait dans le texte. Fate's Hand ne change pas ces capacités (Class Modifications : le Cleric et le Druid y sont le SRD tel quel ; Equipment et Trainings sont muets sur les maîtrises d'armes et d'armures)."
       },
       "srd:class:en:druid": {
         "op": "patch",
@@ -664,12 +691,28 @@
                 {
                   "id": "magician",
                   "name": "Magician",
-                  "text": "You know one extra cantrip from the Druid spell list. In addition, your mystical connection to nature gives you a bonus to your Intelligence (Arcana or Nature) checks. The bonus equals your Wisdom modifier (minimum bonus of +1)."
+                  "text": "You know one extra cantrip from the Druid spell list. In addition, your mystical connection to nature gives you a bonus to your Intelligence (Arcana or Nature) checks. The bonus equals your Wisdom modifier (minimum bonus of +1).",
+                  "extra_cantrips": {
+                    "list": "srd:class:en:druid",
+                    "count": 1,
+                    "extrait": "You know one extra cantrip from the Druid spell list"
+                  },
+                  "check_bonus": {
+                    "skills": [
+                      "srd:skill:en:arcana",
+                      "srd:skill:en:nature"
+                    ],
+                    "ability": "wis",
+                    "minimum": 1,
+                    "extrait": "a bonus to your Intelligence (Arcana or Nature) checks. The bonus equals your Wisdom modifier (minimum bonus of +1)"
+                  }
                 },
                 {
                   "id": "warden",
                   "name": "Warden",
-                  "text": "Trained for battle, you gain proficiency with Martial weapons and training with Medium armor."
+                  "text": "Trained for battle, you gain proficiency with Martial weapons and training with Medium armor.",
+                  "armor_training": "Medium armor",
+                  "weapon_proficiencies": "Martial weapons"
                 }
               ]
             }
@@ -738,7 +781,7 @@
             }
           }
         },
-        "note": "⚖️ LOT 360 (ARCHI 35, 29/09) : la capacité de niveau 1 « Primal Order » du Druid demande un choix, et aucune couche ne le déclarait — le moteur ne publiait pas de plan, l'écran rangeait la capacité dans ce qui est acquis (le test A→Z du lot 358, constat 5). ⭐ `data[feature_choices]` DÉCLARE le choix dans la forme que le carnet lit (`classFeatureChoicePlans`, decisions.mjs) : le chemin `class.<id>`, le compte, et les options. ⛔ Aucune règle inventée : les options sont celles du texte SRD, extraites mot pour mot, ou les records que le texte désigne. ⏳ Q1 d'ARCHI 35 → a) : le choix s'écrit et se MONTRE ; ses effets (armes, armures, bonus, cantrip en plus) attendent leur lot sur `derive`.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "⚖️ LOT 360 (ARCHI 35, 29/09) : la capacité de niveau 1 « Primal Order » du Druid demande un choix, et aucune couche ne le déclarait — le moteur ne publiait pas de plan, l'écran rangeait la capacité dans ce qui est acquis (le test A→Z du lot 358, constat 5). ⭐ `data[feature_choices]` DÉCLARE le choix dans la forme que le carnet lit (`classFeatureChoicePlans`, decisions.mjs) : le chemin `class.<id>`, le compte, et les options. ⛔ Aucune règle inventée : les options sont celles du texte SRD, extraites mot pour mot, ou les records que le texte désigne. ⏳ Q1 d'ARCHI 35 → a) : le choix s'écrit et se MONTRE ; ses effets (armes, armures, bonus, cantrip en plus) attendent leur lot sur `derive`.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🎯 LOT 372 (ARCHI 35, 30/09) — LES EFFETS DE L'OPTION, DÉCLARÉS DANS LA FORME QUE `derive` LIT. Chaque option porte ce que son texte donne, avec des champs du même nom que ceux du record de classe (`armor_training`, `weapon_proficiencies` : la valeur est un EXTRAIT EXACT du texte de l'option), ou un objet qui cite son extrait (`extra_cantrips` : la liste et le compte ; `check_bonus` : les compétences, la caractéristique et le plancher). ⛔ Aucune règle ajoutée : `tests/effets-des-choix-372.test.mjs` relit chaque extrait dans le texte. Fate's Hand ne change pas ces capacités (Class Modifications : le Cleric et le Druid y sont le SRD tel quel ; Equipment et Trainings sont muets sur les maîtrises d'armes et d'armures)."
       },
       "srd:class:en:fighter": {
         "op": "patch",

@@ -963,7 +963,43 @@ function classFeatureChoicePlans(query, choices, classView) {
         choices: candidates, root: "class", basePath, options, expected: compte, provenance: from,
         countKey: "feature-choice.count-mismatch"
       }));
+      /* LOT 372 — le cantrip en plus, sous la réponse qui le déclare (voir `cantripsDeLOption`). */
+      entries.push(...cantripsDeLOption(query, choices, classView, declaration, candidates));
     }
+  }
+  return entries;
+}
+
+/* ══ LOT 372 — LE CANTRIP EN PLUS D'UNE OPTION : `class.<id>[n].cantrips[m]` ═════════════
+   Thaumaturge et Magician : « You know one extra cantrip from the Cleric spell list » — un
+   effet qui est lui-même un CHOIX. L'option le DÉCLARE (`extra_cantrips : {list, count,
+   extrait}`, srfh-mecaniques-en) ; ce plan le lit, sans un nom d'option ici.
+   ⭐ IL VIT SOUS LA RÉPONSE, ET C'EST CE QUI EN FAIT LE CONTENU DE LA PORTE : l'étape Class
+   l'ouvre DANS la porte de la capacité (`socle-un-requis-qui-porte-une-decision-est-une-porte`),
+   jamais comme un item à part. Sa provenance (`feature_choices.<id>.extra_cantrips`) le range
+   avec les choix de capacité : la porte n'est pas prête tant qu'il n'est pas répondu.
+   ⭐ LES OPTIONS SONT CELLES DES CANTRIPS DE CLASSE — le croisement `spell.classes × level 0`,
+   le patron de Magic Initiate (`featSpellPlans`), sur la liste que l'option nomme.
+   ⛔ UNE RÉPONSE QUI TRAÎNE (l'option changée pour Protector) publie quand même le plan qui la
+   juge, sans options : `decision.option-unavailable`, et la porte le dit. */
+function cantripsDeLOption(query, choices, classView, declaration, reponses) {
+  const entries = [];
+  for (const reponse of reponses) {
+    const option = (declaration.options || []).find((o) => o && o.id === reponse.value);
+    const grant = option && option.extra_cantrips && typeof option.extra_cantrips === "object" ? option.extra_cantrips : null;
+    const basePath = `${reponse.path}.cantrips`;
+    const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+      choice.path.startsWith(`${basePath}[`));
+    if (!grant && candidates.length === 0) continue;
+    const listView = grant && typeof grant.list === "string" ? query({ kind: "class", id: grant.list }) : null;
+    const nomDeListe = listView ? listView.record.name : null;
+    const options = nomDeListe ? sorted(viewsOf(query, "spell").filter((view) => {
+      const data = view.record.data || {};
+      return Array.isArray(data.classes) && data.classes.includes(nomDeListe) && data.level === 0;
+    }).map((view) => view.id)) : [];
+    const expected = grant && Number.isInteger(grant.count) && grant.count > 0 ? grant.count : null;
+    const from = recordProvenance("offered", "class", classView, `feature_choices.${declaration.id}.extra_cantrips`);
+    entries.push(...refSlotPlans({ basePath, options, expected, candidates, from }));
   }
   return entries;
 }

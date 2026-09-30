@@ -644,8 +644,11 @@ test("🔴 …et un item qui n'a PAS RÉPONDU ne se signe pas : le compte désar
   const corps = shellSource.slice(shellSource.indexOf("function renderSortieEtape("));
   assert.match(corps, /if \(plan && !repondu && done && !done\.dataset\.verrou\) \{/,
     "le compte de l'item désarme le `Done`");
-  /* et `repondu` est bien le compte du carnet, pas un état d'écran */
-  assert.match(corps, /plan\.answered >= plan\.expected && !plan\.lock/);
+  /* et `repondu` est bien le compte du carnet, pas un état d'écran. 🔄 LOT 372 — le compte vit dans
+     `parcours.mjs` (`itemRepondu`, qui compte aussi ce que le carnet publie sous les réponses de
+     l'item) ; la coquille le LIT. */
+  assert.match(corps, /const repondu = itemRepondu\(state\.decisions, state\.parcoursItem\.path\);/);
+  assert.match(fsNode.readFileSync(new URL("../ui/builder/parcours.mjs", import.meta.url), "utf8"), /p\.answered >= p\.expected && !p\.lock/);
   /* ⛔ `Cancel` n'est jamais touché — la sortie reste ouverte (Eric, 29/08) */
   assert.doesNotMatch(corps.slice(corps.indexOf("if (plan && !repondu")), /back\.disabled/);
   /* ⚔️ ATTAQUE — la retirer rend le garde ROUGE */

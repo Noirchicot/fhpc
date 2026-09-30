@@ -10,9 +10,9 @@
    coquille les câble à l'ouverture (démarrage, fichier ouvert) ; `memoire.mjs` garde la
    marque sous sa clef. */
 
-import { canonicalText } from "../../src/doc/canonical.mjs?v=923";
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=923";
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=923";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=924";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=924";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=924";
 
 /** ⚖️ LOT 367 — LE RECALAGE : UN PERSONNAGE SAUVÉ AVANT UNE MISE À JOUR DES RÈGLES S'OUVRE
  *  SUR LES COUCHES D'AUJOURD'HUI. Eric, 30/09, à « comment le perso s'ouvre-t-il ? » →
