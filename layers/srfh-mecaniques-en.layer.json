@@ -130,6 +130,15 @@
           }
         },
         "note": "🎯 LOT 372 (ARCHI 35, 30/09) — le don de style Defense DÉCLARE son effet chiffré dans la forme que `derive` lit : `armor_class_bonus` (la valeur, et la condition : une armure portée). ⛔ Aucune règle ajoutée : l'extrait est relu dans `data.description` par `tests/effets-des-choix-372.test.mjs`. Archery (+2 aux jets d'attaque à distance) n'a pas de chiffre sur la fiche : le moteur ne dérive aucune attaque (`underived.no-action-genre`) ; le don y vit comme trait, avec son texte. Great Weapon Fighting et Two-Weapon Fighting sont des effets de table (jets de dégâts), même traitement (ARCHI 35, Q3 → a)."
+      },
+      "srd:feat:en:alert": {
+        "op": "patch",
+        "changes": {
+          "data[initiative_bonus]": {
+            "add": "proficiency",
+            "extrait": "Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll."
+          }
+        }
       }
     },
     "shelving": {
@@ -1775,6 +1784,27 @@
           }
         },
         "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+      }
+    },
+    "glossary": {
+      "srd:glossary:en:initiative": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_score]": {
+            "ability": "dex",
+            "extrait": "Your Initiative score equals 10 plus your Dexterity modifier."
+          }
+        }
+      },
+      "srd:glossary:en:passive-perception": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_score]": {
+            "base": 10,
+            "skill": "srd:skill:en:perception",
+            "extrait": "A creature’s Passive Perception equals 10 plus the creature’s Wisdom (Perception) check bonus."
+          }
+        }
       }
     }
   }

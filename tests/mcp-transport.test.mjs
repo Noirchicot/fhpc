@@ -105,7 +105,9 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      compte ET les noms — pour la raison écrite juste au-dessus : un compte seul
      resterait vert sur une liste de treize champs faux. */
   /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et DÉCLARÉ (ni lignée qui fasse lancer, ni don). */
-  assert.equal(out.underived.length, 14);
+  /* 🧾 LOT 379 — 14 → 15 : `initiative`, nommée par le glossaire de la pile française, sans formule déclarée. */
+  assert.equal(out.underived.length, 15);
+  assert.equal(out.underived.some((entry) => entry.field === "initiative"), true);
   assert.equal(out.underived.some((entry) => entry.field === "spellSources"), true);
   assert.equal(out.underived.some((entry) => entry.field === "stats"), true);
   assert.equal(out.underived.some((entry) => entry.field === "traits (espèce)"), false);

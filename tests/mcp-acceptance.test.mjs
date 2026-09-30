@@ -194,6 +194,10 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "craft",
     "gear[].weight",
     "identity.species (lignage)",
+    /* 🧾 LOT 379 — l'Initiative ENTRE : la pile française porte le glossaire `initiative`, mais aucune
+       couche n'y déclare la formule (`srfh-mecaniques` n'est pas montée ici). Le moteur NOMME ce qu'il ne
+       sait pas, au lieu de taire la ligne ; la Perception passive reste, pour la même raison. */
+    "initiative",
     "languages",
     "notes",
     "resources",
@@ -224,7 +228,8 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
      treizième champ non dérivé. Le compte est réécrit à la nouvelle vérité, pas
      relâché en `/NON DÉRIVÉ \(\d+\)/` — un compte flou ne verrait plus rien. */
   /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et déclaré (ni lignée qui fasse lancer, ni don). */
-  assert.match(texte, /NON DÉRIVÉ \(14\)/);
+  /* 🧾 LOT 379 — 14 → 15 : `initiative`, nommée par le glossaire de la pile française, sans formule déclarée. */
+  assert.match(texte, /NON DÉRIVÉ \(15\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
     assert.ok(texte.includes(String(entry)), `le texte doit porter la RAISON de « ${entry.field} »`);

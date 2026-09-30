@@ -215,6 +215,12 @@ test("9 — ⭐ LE PERSONNAGE SANS OBJET MAGIQUE : `resolved` IDENTIQUE À AVANT
   assert.equal(specifique.name, "Elven Lineage: High Elf");
   apres.traits = apres.traits.filter((trait) => trait.id !== "elven-lineage");
   avant.traits = avant.traits.filter((trait) => trait.id !== "elven-lineage");
+  /* 🧾 LOT 379 — UN AJOUT DE CONTENU, NOMMÉ : `initiative` (le score SRD 5.2.1, « 10 plus your
+     Dexterity modifier », une rubrique neuve). Gardé par `tests/fiche-vraie.test.mjs` ; ici, sorti
+     de la comparaison — aucun autre chiffre ne bouge (Fate's Hand n'avait pas de Perception passive
+     calculée, et n'en a toujours pas). */
+  assert.equal(apres.initiative.bonus, apres.abilities.dex.mod, "`initiative` est posée, DEX seule");
+  delete apres.initiative;
   const sansEmpreinte = (pile) => pile.map(({ hash, ...couche }) => couche);
   apres.derivation.stack = sansEmpreinte(apres.derivation.stack);
   avant.derivation.stack = sansEmpreinte(avant.derivation.stack);
@@ -311,6 +317,16 @@ test("14 — ⭐ CHAQUE CHIFFRE MODIFIÉ SE RETROUVE DEPUIS `applied`", () => {
     if (chemins.has(c)) return false;
     const m = /^resolved\.abilities\.(\w+)\.mod$/.exec(c);
     if (m) return !scores.has(m[1]);
+    /* 🧾 LOT 379 — un SCORE DE FICHE qui lit une compétence (la Perception passive : « 10 plus the
+       creature’s Wisdom (Perception) check bonus », SRD 5.2.1) bouge avec elle. Il est la conséquence
+       d'un chemin d'`applied` quand une compétence y figure et a bougé d'autant — jamais par son nom. */
+    const sens = /^resolved\.senses\[([^\]]+)\]\.value$/.exec(c)?.[1];
+    if (sens) {
+      const ecart = (r) => r.senses.find((x) => x.id === sens).value;
+      const delta = ecart(out.resolved) - ecart(TEMOIN.resolved);
+      return !out.resolved.skills.some((sk) => chemins.has(`resolved.skills[${sk.id}].bonus`)
+        && sk.bonus - TEMOIN.resolved.skills.find((t) => t.id === sk.id).bonus === delta);
+    }
     const clef = /^resolved\.saves\.(\w+)\.bonus$/.exec(c)?.[1]
       || out.resolved.skills.find((s) => c === `resolved.skills[${s.id}].bonus`)?.ability
       || (/^resolved\.spellcasting\.(dc|attackBonus)$/.test(c) ? out.resolved.spellcasting.ability : null);

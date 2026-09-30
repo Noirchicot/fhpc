@@ -440,6 +440,8 @@ export const LIBELLES = {
   vitals: "Points de vie et états",
   speeds: "Vitesses",
   senses: "Sens",
+  /* 🧾 LOT 379 — le score d'Initiative (SRD 5.2.1 : « 10 plus your Dexterity modifier »). */
+  initiative: "Initiative",
   languages: "Langues",
   saves: "Jets de sauvegarde",
   skills: "Compétences",
@@ -508,6 +510,8 @@ export const LIBELLES_EN = {
   vitals: "Hit points and conditions",
   speeds: "Speeds",
   senses: "Senses",
+  /* 🧾 LOT 379 — the Initiative score (SRD 5.2.1: “10 plus your Dexterity modifier”). */
+  initiative: "Initiative",
   languages: "Languages",
   saves: "Saving throws",
   skills: "Skills",

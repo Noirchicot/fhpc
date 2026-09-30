@@ -52,8 +52,8 @@ function section(html, cle) {
 
 /* ══ 1 — LES 21 RUBRIQUES, EN ANGLAIS ══════════════════════════════════ */
 
-test("les 24 rubriques de `resolved` apparaissent en anglais, et la liste vient du schéma", () => {
-  assert.equal(RUBRIQUES.length, 24, "le contrat en déclare 24 — 21 du lot 25 au lot 289, qui ajoute `effects`, puis `training` au lot 372, puis `spellSources` au lot 373");
+test("les 25 rubriques de `resolved` apparaissent en anglais, et la liste vient du schéma", () => {
+  assert.equal(RUBRIQUES.length, 25, "le contrat en déclare 25 — 21 du lot 25 au lot 289, qui ajoute `effects`, puis `training` au lot 372, `spellSources` au lot 373, `initiative` au lot 379");
   const html = render(exemple.document, exemple.report, "en");
   for (const cle of RUBRIQUES) {
     assert.ok(section(html, cle) !== null, `la rubrique « ${cle} » a sa place à l'écran anglais`);
@@ -177,7 +177,15 @@ test("un personnage SRD pur (aucune couche FH montée) rend une fiche anglaise c
   const sortie = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
 
   const html = render(sortie.document, sortie, "en");
-  for (const cle of RUBRIQUES) {
+  /* 🧾 LOT 379 — UNE rubrique manque, et c'est la pile qui le dit : la pile française porte le glossaire
+     `initiative` sans en déclarer la formule (`srfh-mecaniques` n'est pas montée). La rubrique est absente
+     et DÉCLARÉE — la liste des absentes est exacte, et chacune a sa déclaration. */
+  const absentes = RUBRIQUES.filter((cle) => !(cle in sortie.resolved));
+  assert.deepEqual(absentes, ["initiative"], "une seule rubrique absente, nommée");
+  for (const cle of absentes) {
+    assert.ok(sortie.underived.some((entree) => entree.field === cle), `« ${cle} » absente est déclarée par le moteur`);
+  }
+  for (const cle of RUBRIQUES.filter((c) => !absentes.includes(c))) {
     assert.ok(section(html, cle) !== null, `« ${cle} » est rendue même sans couche FH`);
   }
   /* Sans une ligne de FH : ni les identifiants de stat `fh:destiny` /

@@ -119,8 +119,9 @@ test("le nom du personnage s'affiche en titre — et son absence se dit", () => 
    changent (Eric, 26/09). C'est ICI que le nombre devait bouger, et il a bougé ici. */
 /* 🎯 LOT 372 — 22 → 23 : `training`, les maîtrises d'armes et d'armures (ARCHI 35, Q1 → a). */
 /* 🧬 LOT 373 — 23 → 24 : `spellSources`, les sources d'incantation hors classe (ARCHI 35, Q1 → a). */
-test("les 24 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
-  assert.equal(RUBRIQUES.length, 24, "le contrat en déclare 24 (21 jusqu'au lot 289, + `effects`, + `training` au lot 372, + `spellSources` au lot 373) — si ce nombre bouge, c'est ici qu'on l'apprend");
+/* 🧾 LOT 379 — 24 → 25 : `initiative`, le score d'Initiative du SRD 5.2.1. */
+test("les 25 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
+  assert.equal(RUBRIQUES.length, 25, "le contrat en déclare 25 (21 jusqu'au lot 289, + `effects`, + `training` au lot 372, + `spellSources` au lot 373, + `initiative` au lot 379) — si ce nombre bouge, c'est ici qu'on l'apprend");
   const html = render(exemple.document, exemple.report);
   for (const cle of RUBRIQUES) {
     assert.ok(section(html, cle) !== null, `la rubrique « ${cle} » a sa place à l'écran`);
@@ -347,6 +348,9 @@ test("les familles de chemins INADRESSABLES sont nommées — c'est le livrable 
   assert.deepEqual([...familles].sort(), [
     "resolved.derivation.stack[ID]",
     "resolved.identity.classes[N]",
+    /* 🧾 LOT 379 — le détail de l'Initiative (DEX, un don) : un breakdown, comme celui des stats. On
+       surcharge le chiffre (`resolved.initiative.bonus`, `.score`), jamais une ligne de son calcul. */
+    "resolved.initiative.parts[N]",
     /* 📌 ET LES LANGUES N'Y SONT PAS, ALORS QU'ELLES Y ÉTAIENT PENDANT DIX
        MINUTES LE 2026-08-20. Mon premier jet les publiait en CHAÎNES nues :
        sans `id`, la grammaire d'override ne pouvait pas les désigner, et cette

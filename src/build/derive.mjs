@@ -775,10 +775,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       ? ["senses", "underived.species-no-senses", {}]
       : ["senses", "underived.no-choice", { root: "species" }]));
   }
-  /* La PERCEPTION PASSIVE est calculable (10 + bonus de Perception) mais elle
-     n'a de nom dans AUCUN record : ce n'est pas un sens d'espèce, c'est une
-     ligne de fiche. La nommer ici violerait la loi §0.13. */
-  underived.declare("senses[perception-passive]", "underived.passive-perception-unnamed", {});
+  /* 🧾 LOT 379 — LA PERCEPTION PASSIVE n'est plus « sans nom » : le glossaire SRD la NOMME, et sa
+     formule est déclarée sur ce record. Elle se calcule plus bas, une fois les compétences finales
+     (« LES SCORES DE FICHE »), et elle s'ajoute ici, aux sens. */
 
   /* ── LANGUES ───────────────────────────────────────────────────────
      🔴 UN REFUS QUI AVAIT VIEILLI, RETIRÉ LE 2026-08-20. Il disait : « il
@@ -1929,6 +1928,68 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       }
     }
   }
+  /* ══ 🧾 LOT 379 — LES SCORES DE FICHE : L'INITIATIVE ET LA PERCEPTION PASSIVE ══════════════════════
+     ⭐ LE NOM ET LA FORMULE VIENNENT DE LA PILE. Le glossaire SRD NOMME les deux scores
+     (`srd:glossary:en:initiative`, `…:passive-perception`) — loi §0.13, aucun nom écrit ici —, et
+     `srfh-mecaniques-en` DÉCLARE leur formule sur ce record (`data.sheet_score`), extrait du texte à
+     l'appui : *« Your Initiative score equals 10 plus your Dexterity modifier »* · *« A creature’s
+     Passive Perception equals 10 plus the creature’s Wisdom (Perception) check bonus »*. Le don Alert
+     déclare son bonus (`data.initiative_bonus` : *« you can add your Proficiency Bonus to the roll »*).
+     ⭐ UNE PILE QUI ÉTEINT LE RECORD N'A RIEN À CALCULER NI À DÉCLARER : Fate's Hand éteint la
+     Perception passive (`fh-skills-en`, Rules Glossary : « Nowhere »). ⛔ Jamais un test sur le nom
+     de la pile. ⭐ APRÈS les paliers, les effets d'objets et les `check_bonus` : le bonus lu est le
+     bonus final de la compétence. */
+  const scoreDe = (id) => {
+    const view = reader.maybe("glossary", id);
+    if (!view) return { absent: true };
+    const decl = view.record.data && view.record.data.sheet_score;
+    return { name: view.record.name, decl: decl && typeof decl === "object" ? decl : null };
+  };
+  const initiative = scoreDe("srd:glossary:en:initiative");
+  if (!initiative.absent) {
+    /* ⭐ Chaque déclaration porte le NOM du record : la fiche nomme sa ligne « not derived yet » par la
+       pile, jamais par un mot écrit dans l'écran. */
+    const nom = { name: initiative.name };
+    const cle = initiative.decl && initiative.decl.ability;
+    if (!initiative.decl || !cle) {
+      underived.declare("initiative", "underived.sheet-score-undeclared", { record: "srd:glossary:en:initiative", ...nom });
+    } else if (!abilities[cle]) {
+      underived.declare("initiative", "underived.sheet-score-ability-missing", { ability: cle, ...nom });
+    } else {
+      const parts = [{ name: cle.toUpperCase(), value: abilities[cle].mod }];
+      /* le bonus d'un don (Alert) : ⛔ jamais son nom, sa DÉCLARATION — et la maîtrise doit être connue.
+         ⛔ Jamais un chiffre à moitié : sans la maîtrise, l'Initiative n'est pas écrite du tout. */
+      const dons = donsDOrigine.filter(({ view }) => {
+        const ib = view.record.data && view.record.data.initiative_bonus;
+        return ib && ib.add === "proficiency";
+      });
+      if (dons.length > 0 && proficiency === null) {
+        underived.declare("initiative", "underived.proficiency-not-derived-initiative", nom);
+      } else {
+        for (const { view } of dons) parts.push({ name: view.record.name, value: proficiency });
+        const bonus = parts.reduce((somme, p) => somme + p.value, 0);
+        /* ⚖️ « Your Initiative score equals 10 plus your Dexterity modifier » : le SCORE suit la lettre
+           (10 + le modificateur, sans Alert, qui s'ajoute « to the roll ») ; le BONUS est le jet. */
+        resolved.initiative = { name: initiative.name, bonus, score: 10 + abilities[cle].mod, parts };
+      }
+    }
+  }
+  const passive = scoreDe("srd:glossary:en:passive-perception");
+  if (!passive.absent) {
+    const nom = { name: passive.name };
+    const decl = passive.decl;
+    const entree = decl && typeof decl.skill === "string" ? skills.byId.get(decl.skill) : null;
+    const skill = entree && Array.isArray(resolved.skills) ? resolved.skills.find((s) => s.id === entree.id) : null;
+    if (!decl || !Number.isInteger(decl.base) || typeof decl.skill !== "string") {
+      underived.declare("senses[perception-passive]", "underived.sheet-score-undeclared",
+        { record: "srd:glossary:en:passive-perception", ...nom });
+    } else if (!skill || !Number.isInteger(skill.bonus)) {
+      underived.declare("senses[perception-passive]", "underived.passive-perception-skill-missing", { skill: decl.skill, ...nom });
+    } else {
+      resolved.senses = [...(resolved.senses || []), { id: "perception-passive", name: passive.name, value: decl.base + skill.bonus }];
+    }
+  }
+
   for (let i = 0; i < tools.length; i += 1) {
     const bonus = effets.appliquer("check.all", `resolved.tools[${tools[i].id}].bonus`, tools[i].bonus);
     if (bonus !== tools[i].bonus) tools[i] = { ...tools[i], bonus };
@@ -2039,11 +2100,17 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
 
   /* Remise dans l'ordre du schéma : un document se relit à l'œil. */
   const ordered = {};
-  for (const key of ["derivation", "identity", "abilities", "proficiency", "ac", "vitals", "speeds", "senses",
+  const ordre = ["derivation", "identity", "abilities", "proficiency", "ac", "vitals", "speeds", "senses", "initiative",
     "languages", "saves", "skills", "tools", "training", "actions", "spellcasting", "spellSources", "resources", "traits", "gear",
-    "currency", "craft", "stats", "notes"]) {
+    "currency", "craft", "stats", "notes"];
+  for (const key of ordre) {
     if (Object.hasOwn(resolved, key)) ordered[key] = resolved[key];
   }
+  /* 🧾 LOT 379 — ⛔ UNE LISTE PAR NOM NE DIT PAS QU'ELLE EST INCOMPLÈTE. Cette liste jetait EN SILENCE
+     toute rubrique qu'elle ne nommait pas : `initiative`, calculée, disparaissait ici sans un mot. Elle
+     est inversée : une rubrique écrite plus haut et absente de l'ordre JETTE, elle ne se perd plus. */
+  const perdues = Object.keys(resolved).filter((key) => !ordre.includes(key));
+  if (perdues.length > 0) fail(`la rubrique ${perdues.map((k) => `« ${k} »`).join(", ")} est dérivée mais absente de l'ordre du schéma : elle serait perdue en silence.`);
   /* ⭐ LOT 289 — LA PROVENANCE DES CHIFFRES, EN DERNIER : elle ne se lit qu'une fois
      tous les chiffres nés. Toujours présente — trois listes vides pour un personnage
      sans objet magique, et ce n'est pas un manque (rien n'est à déclarer). */

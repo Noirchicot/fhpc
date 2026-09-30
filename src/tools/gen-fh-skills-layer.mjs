@@ -57,7 +57,8 @@ import {
   CHEMIN_DE_LA_BOURSE_DE_CLASSE,
   CHEMIN_DES_ACHATS_SKILLS,
   CHEMIN_DE_L_OUTIL_DU_KIT,
-  ANCRES_DU_KIT
+  ANCRES_DU_KIT,
+  GLOSSARY_DISABLED
 } from "./fh-skills-source.mjs";
 /* ⭐ LA LISTE DES `ref` PRIS PAR LA COUCHE DES ESPÈCES EST LUE LÀ OÙ ELLE VIT,
    jamais recopiée ici. Elle en portait une COPIE de deux ids jusqu'au
@@ -952,13 +953,27 @@ export function buildLayer({ srd }) {
       skill: skills.skill,
       tool: tools.tool,
       shelving: rangementDesOutils(tools.tool),
-      class: classes.class
+      class: classes.class,
+      glossary: buildGlossary(srd)
     }
   };
 
   assertNoHandWrittenSrdText(layer, srd);
 
   return { layer, skills, tools, classes };
+}
+
+/** 🧾 LOT 379 — LES RECORDS DE GLOSSAIRE QUE FATE'S HAND ÉTEINT (la Perception passive, voir
+ *  `GLOSSARY_DISABLED`). ⛔ Une cible absente du SRD jette : éteindre un record qui n'existe pas
+ *  laisserait croire la règle posée, pendant que la fiche calculerait encore le score. */
+function buildGlossary(srd) {
+  const genre = (srd.records || {}).glossary || {};
+  const glossary = {};
+  for (const entry of GLOSSARY_DISABLED) {
+    if (!genre[entry.target]) fail(`la couche SRD ne porte aucun glossaire « ${entry.target} » : il ne peut pas être éteint.`);
+    glossary[entry.target] = { op: "disable", reason: entry.reason };
+  }
+  return glossary;
 }
 
 /** Le rangement des outils Fate's Hand — `crafting › tools`, la MÊME étagère

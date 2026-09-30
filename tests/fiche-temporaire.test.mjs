@@ -53,6 +53,7 @@ const ILYRA = exempleFhEn();
 function fiche({ document, report }, { flags = FH, resolved = document.resolved } = {}) {
   return renderFicheTemporaire({ resolved, report, document, flags });
 }
+const signeDe = (n) => (n >= 0 ? `+${n}` : String(n));
 const rubrique = (node, cle) => node.querySelector(`[data-rubrique="${cle}"]`);
 const caseDe = (node, chemin) => node.querySelector(`[data-path="${chemin}"]`);
 const valeurDe = (node, chemin) => caseDe(node, chemin).querySelector(".perso-cellule-valeur").textContent;
@@ -155,9 +156,13 @@ test("3 — une rubrique `underived` dit « not derived yet » ; vide et non dé
   delete r.currency;
   const sansBourse = rubrique(fiche(ILYRA, { resolved: r }), "currency").querySelector(".perso-absent");
   assert.equal(sansBourse.textContent, MOTS_FICHE.pasDerive, "une rubrique absente n'est ni un tiret ni un zéro");
-  /* et les deux lignes qu'une fiche de D&D porte sans que le contrat les ait */
-  assert.match(node.querySelector('[data-rubrique="combat"]').textContent, /Initiativenot derived yet/);
-  assert.match(rubrique(node, "senses").textContent, /Passive Perceptionnot derived yet/);
+  /* 🧾 LOT 379 — les deux lignes qui disaient « not derived yet » en dur se lisent dans la pile :
+     Ilyra (Fate's Hand) a son Initiative, calculée, et AUCUNE Perception passive — ni valeur, ni
+     « not derived yet » (le témoin et ses contraires : `tests/fiche-vraie.test.mjs`). */
+  assert.equal(valeurDe(node, "resolved.initiative.bonus"), signeDe(ILYRA.document.resolved.initiative.bonus));
+  assert.ok(!ILYRA.document.resolved.senses.some((x) => x.id === "perception-passive"), "témoin : FH n'en calcule pas");
+  assert.equal(rubrique(node, "senses").querySelectorAll('[data-absence="non-derive"]').length, 0,
+    "⛔ aucune ligne « not derived yet » dans les sens d'une pile Fate's Hand");
   /* ⛔ jamais un tiret muet */
   assert.ok(!/(^|\s)—(\s|$)/.test(node.textContent), "aucun tiret muet dans la fiche");
 });

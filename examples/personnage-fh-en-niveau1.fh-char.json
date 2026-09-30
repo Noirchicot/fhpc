@@ -26,7 +26,7 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "7f79e95deed3263df5be39f78ac6b503548f309809b47ea985d123f670eca8e6",
+        "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
         "name": "SRFH — Mechanics (EN)"
       },
       {
@@ -38,7 +38,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "fabe1079921775c3c9ca659f92c9af2950793b65b05f62d356ff1c7b1e5d124e",
+        "hash": "c37b5416a1ab056a331e3c4458c4fa8dccb0c9b4a3b76f037e2c80d5fd6eae49",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -457,7 +457,7 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "7f79e95deed3263df5be39f78ac6b503548f309809b47ea985d123f670eca8e6",
+          "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
           "name": "SRFH — Mechanics (EN)"
         },
         {
@@ -469,7 +469,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "fabe1079921775c3c9ca659f92c9af2950793b65b05f62d356ff1c7b1e5d124e",
+          "hash": "c37b5416a1ab056a331e3c4458c4fa8dccb0c9b4a3b76f037e2c80d5fd6eae49",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -590,6 +590,17 @@
         "unit": "ft"
       }
     ],
+    "initiative": {
+      "name": "Initiative",
+      "bonus": 2,
+      "score": 12,
+      "parts": [
+        {
+          "name": "DEX",
+          "value": 2
+        }
+      ]
+    },
     "languages": [
       {
         "id": "language-elf",

@@ -508,7 +508,7 @@
           }
         },
         "senses": {
-          "$comment": "`unit` absent = score sans unité (perception passive) ; `unit` présent = portée exprimée dans cette unité.",
+          "$comment": "`unit` absent = score sans unité (la Perception passive : 🧾 lot 379, nommée par le glossaire de la pile, `id` « perception-passive ») ; `unit` présent = portée exprimée dans cette unité.",
           "type": "array",
           "items": {
             "type": "object",
@@ -535,6 +535,51 @@
                   "m",
                   "ft"
                 ]
+              }
+            }
+          }
+        },
+        "initiative": {
+          "$comment": "🧾 LOT 379 (ARCHI 35, 30/09) — L'INITIATIVE, un score de fiche. Son NOM vient du glossaire de la pile (`srd:glossary:en:initiative`), sa FORMULE de la déclaration que `srfh-mecaniques-en` pose sur ce record (`data.sheet_score`, extrait : « Your Initiative score equals 10 plus your Dexterity modifier. »). `bonus` = ce qu'on ajoute au jet d'Initiative : le modificateur de la caractéristique, plus le bonus d'un don qui le DÉCLARE (`data.initiative_bonus`, Alert : « you can add your Proficiency Bonus to the roll »). `score` = 10 + le modificateur, à la lettre du glossaire (le score que le MJ peut employer au lieu d'un jet). `parts` dit d'où vient `bonus`. FACULTATIVE : un document d'avant ce lot reste valide ; une pile qui ne porte pas le record n'en a pas. EXEMPLE (Dex 14, Alert, maîtrise +2) : {\"name\":\"Initiative\",\"bonus\":4,\"score\":12,\"parts\":[{\"name\":\"DEX\",\"value\":2},{\"name\":\"Alert\",\"value\":2}]}",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "bonus",
+            "score",
+            "parts"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "bonus": {
+              "type": "integer"
+            },
+            "score": {
+              "type": "integer"
+            },
+            "parts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "value"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "value": {
+                    "type": "integer"
+                  }
+                }
               }
             }
           }
