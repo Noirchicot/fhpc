@@ -221,6 +221,13 @@ test("9 — ⭐ LE PERSONNAGE SANS OBJET MAGIQUE : `resolved` IDENTIQUE À AVANT
      calculée, et n'en a toujours pas). */
   assert.equal(apres.initiative.bonus, apres.abilities.dex.mod, "`initiative` est posée, DEX seule");
   delete apres.initiative;
+  /* 🗡️ LOT 383 — DEUX RUBRIQUES SE REMPLISSENT, NOMMÉES : `actions` (la dague, le bâton, l'Unarmed
+     Strike, l'Opportunity Attack) et `resources` (les dés de vie). La photo d'avant les portait vides.
+     Gardées par `tests/actions-383.test.mjs` ; ici, ramenées à la photo. */
+  assert.ok(apres.actions.some((a) => a.id === "dagger") && apres.resources.some((x) => x.id === "hit-point-dice"),
+    "`actions` et `resources` sont posées");
+  apres.actions = avant.actions;
+  apres.resources = avant.resources;
   const sansEmpreinte = (pile) => pile.map(({ hash, ...couche }) => couche);
   apres.derivation.stack = sansEmpreinte(apres.derivation.stack);
   avant.derivation.stack = sansEmpreinte(avant.derivation.stack);

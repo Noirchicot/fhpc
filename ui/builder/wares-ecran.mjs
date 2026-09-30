@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=934";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=934";
+} from "./wares-disposition.mjs?v=935";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=935";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=934";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=934";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=934";
+import { REPOS_MS } from "./sac-ecran.mjs?v=935";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=935";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=935";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=934";
+import { portesCarrees } from "./porte-carree.mjs?v=935";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=934";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=935";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,12 +43,12 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=93
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=934";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=935";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=934";
-import { versionQuery } from "./version.mjs?v=934";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=935";
+import { versionQuery } from "./version.mjs?v=935";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=934";
+import { armerEngrenage } from "./engrenage.mjs?v=935";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 

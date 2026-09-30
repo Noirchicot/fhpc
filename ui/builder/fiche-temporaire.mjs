@@ -63,9 +63,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=934";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=934";
-import { etapeParId } from "./etapes.mjs?v=934";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=935";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=935";
+import { etapeParId } from "./etapes.mjs?v=935";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -103,6 +103,11 @@ export const MOTS_FICHE = {
   ddSort: "Save DC",
   attaqueSort: "Spell attack",
   emplacements: "Slots",
+  /* 🗡️ LOT 383 — les mots des actions et des ressources */
+  deuxMains: "two-handed",
+  soigne: (des) => `heals ${des}`,
+  maitriseDArme: (nom) => `Mastery: ${nom}`,
+  rendusAuRepos: (n) => `${n} back on a short rest`,
   niveauDeSort: (n) => (n === 0 ? "Cantrips" : `Level ${n}`),
   nonPrepare: "not prepared",
   sorts: "Spells",
@@ -123,6 +128,24 @@ export const MOTS_FICHE = {
 const TAILLES = { tiny: "Tiny", small: "Small", medium: "Medium", large: "Large", huge: "Huge", gargantuan: "Gargantuan" };
 /* La recharge d'une ressource — même loi. */
 const RECHARGES = { none: "no recharge", short: "short rest", long: "long rest", day: "per day" };
+/* 🗡️ LOT 383 — l'économie d'une action, dans les mots du SRD (« Bonus Action », « Reaction »). */
+const ECONOMIES = { action: "Action", bonus: "Bonus Action", reaction: "Reaction" };
+
+/** 🗡️ LOT 383 — LA LIGNE D'UNE ACTION : l'économie, puis les chiffres du MOTEUR, tels quels —
+ *  jet, dégâts (et à deux mains), soin, portée, maîtrise. ⛔ Aucun calcul ici : la fiche recopie
+ *  `resolved.actions`, et ce que le moteur n'a pas écrit ne s'écrit pas. */
+function motsDUneAction(a) {
+  if (!estObjet(a)) return "";
+  const degats = (liste) => (Array.isArray(liste) ? liste.filter(estObjet).map((d) => `${d.dice} ${d.type}`).join(" + ") : "");
+  const mots = [ECONOMIES[a.economy] || a.economy];
+  if (Number.isInteger(a.bonus)) mots.push(signe(a.bonus));
+  if (degats(a.damage)) mots.push(degats(a.damage));
+  if (degats(a.twoHandedDamage)) mots.push(`${degats(a.twoHandedDamage)} ${MOTS_FICHE.deuxMains}`);
+  if (estObjet(a.healing) && typeof a.healing.dice === "string") mots.push(MOTS_FICHE.soigne(a.healing.dice));
+  if (typeof a.range === "string" && a.range) mots.push(a.range);
+  if (typeof a.mastery === "string" && a.mastery) mots.push(MOTS_FICHE.maitriseDArme(a.mastery));
+  return mots.filter(Boolean).join(" · ");
+}
 /* Les autres vitesses que la marche, par leur clef de contrat. */
 const VITESSES = { walk: "", fly: "fly", swim: "swim", climb: "climb", burrow: "burrow" };
 
@@ -631,7 +654,7 @@ export function renderFicheTemporaire(ctx) {
   /* 🧬 LOT 373 — les sorts de la lignée et des dons, chacun avec SA caractéristique. */
   const sourcesDeSorts = blocSourcesDeSorts(r, declarees);
   if (sourcesDeSorts) fiche.append(sourcesDeSorts);
-  fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name]));
+  fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name, motsDUneAction(a)]));
   /* ⭐ LOT 360 — LES CHOIX DE CAPACITÉ (Divine Order, Primal Order, Fighting Style) ENTRENT
      DANS « Traits and features ». Le moteur ne les compose pas — Q1 d'ARCHI 35 : on écrit et
      on MONTRE, les effets attendent leur lot sur `derive` — donc c'est l'interface qui les
@@ -653,8 +676,11 @@ export function renderFicheTemporaire(ctx) {
     choix.length > 0 ? { ...r, traits: [...traitsDuMoteur, ...enPlus] } : r,
     choix.length > 0 && (etatDesTraits === "absente" || etatDesTraits === "vide") ? "partielle" : etatDesTraits,
     (t) => [t && t.name, t && t.source]));
+  /* 🗡️ LOT 383 — le dé d'une ressource (les dés de vie) et sa recharge partielle (Rage, Second Wind). */
   fiche.append(blocNoms("resources", r, etat("resources"), (x) => [x && x.name,
-    x ? `${x.current} of ${x.max}${x.recharge ? ` · ${RECHARGES[x.recharge] || x.recharge}` : ""}` : ""]));
+    x ? [`${x.current} of ${x.max}`, typeof x.die === "string" ? x.die : "",
+      x.recharge ? RECHARGES[x.recharge] || x.recharge : "",
+      Number.isInteger(x.shortRegain) ? MOTS_FICHE.rendusAuRepos(x.shortRegain) : ""].filter(Boolean).join(" · ") : ""]));
   fiche.append(blocStats(r, etat("stats")));
   fiche.append(blocEquipement(r, etat("gear")));
   fiche.append(blocBourse(r, etat("currency")));

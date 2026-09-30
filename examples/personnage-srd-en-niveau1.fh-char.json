@@ -26,7 +26,7 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
+        "hash": "05527f5ff839c23c2eddaa7cfce96b060c48ebb3818532feb772c2924eafb30e",
         "name": "SRFH — Mechanics (EN)"
       }
     ],
@@ -276,7 +276,7 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
+          "hash": "05527f5ff839c23c2eddaa7cfce96b060c48ebb3818532feb772c2924eafb30e",
           "name": "SRFH — Mechanics (EN)"
         }
       ]
@@ -538,7 +538,72 @@
         }
       ]
     },
-    "actions": [],
+    "actions": [
+      {
+        "id": "dagger",
+        "name": "Dagger",
+        "economy": "action",
+        "category": "attack",
+        "ability": "dex",
+        "bonus": 4,
+        "damage": [
+          {
+            "dice": "1d4+2",
+            "type": "piercing"
+          }
+        ],
+        "range": "Range 20/60",
+        "properties": [
+          "Finesse",
+          "Light",
+          "Thrown (Range 20/60)"
+        ],
+        "gearId": "dagger"
+      },
+      {
+        "id": "dagger:light",
+        "name": "Dagger",
+        "economy": "bonus",
+        "category": "attack",
+        "ability": "dex",
+        "bonus": 4,
+        "damage": [
+          {
+            "dice": "1d4",
+            "type": "piercing"
+          }
+        ],
+        "range": "Range 20/60",
+        "properties": [
+          "Finesse",
+          "Light",
+          "Thrown (Range 20/60)"
+        ],
+        "gearId": "dagger"
+      },
+      {
+        "id": "unarmed-strike",
+        "name": "Unarmed Strike",
+        "economy": "action",
+        "category": "attack",
+        "ability": "str",
+        "bonus": 1,
+        "damage": [
+          {
+            "dice": "0",
+            "type": "bludgeoning"
+          }
+        ],
+        "text": "Your bonus to the roll equals your Strength modifier plus your Proficiency Bonus. On a hit, the target takes Bludgeoning damage equal to 1 plus your Strength modifier."
+      },
+      {
+        "id": "opportunity-attacks",
+        "name": "Opportunity Attacks",
+        "economy": "reaction",
+        "category": "attack",
+        "text": "To make the Opportunity Attack, take a Reaction to make one melee attack with a weapon or an Unarmed Strike against the provoking creature."
+      }
+    ],
     "spellcasting": {
       "id": "wizard",
       "name": "Wizard",
@@ -662,7 +727,16 @@
         ]
       }
     ],
-    "resources": [],
+    "resources": [
+      {
+        "id": "hit-point-dice",
+        "name": "Hit Point Dice",
+        "max": 1,
+        "current": 1,
+        "recharge": "long",
+        "die": "d6"
+      }
+    ],
     "traits": [
       {
         "id": "darkvision",

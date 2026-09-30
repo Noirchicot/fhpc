@@ -10020,6 +10020,7 @@ fichier serait vert pour rien)*.
 ⚖️ **Un choix dont l'effet n'a pas de chiffre sur la fiche — un effet de table (Great Weapon Fighting, Two-Weapon Fighting), un chiffre que le moteur ne dérive pas encore (Archery : aucune attaque n'est dérivée), ou un don d'origine — est LU en posant un trait : son nom, sa catégorie (`feat`, `class-feature`), son texte recopié, et le nom du record qui le détient. ⛔ Jamais un chiffre inventé, jamais une prose analysée.**
 
 > ARCHI 35, 30/09, Q3 → a) : *« L'effet de table est LU en posant le don ou la capacité dans `traits`, nommé et avec son texte. Il quitte « Recorded, but no rule reads them » sans chiffre inventé. »*
+> 🔄 **30/09 (lot 383) — LA PARENTHÈSE D'ARCHERY A VIEILLI, PAS LA RÈGLE.** « aucune attaque n'est dérivée » n'est plus vrai : `derive` calcule les attaques d'armes (`sheet-une-attaque-se-lit-dans-la-regle-declaree`). Mais le +2 d'Archery (*« +2 bonus to attack rolls you make with Ranged weapons »*) n'est DÉCLARÉ nulle part : il reste un trait, et l'attaque à distance d'un Fighter Archery ne le porte pas. ⏳ Sa déclaration est un lot à part (point ouvert du rapport 383).
 
 ⭐ **UN SEUL ÉCRIVAIN PAR ENTRÉE, MESURÉ AU BANC** : la Sheet ajoutait déjà ses propres lignes pour ces choix (`capacitesChoisies`, lot 360 ; `donsDOrigineNommes`, lot 364), parce que le moteur ne les portait pas — « Primal Order: Magician » est sorti DEUX fois. Le moteur porte désormais le trait (la donnée), l'interface compose ses MOTS (§0.13 interdit au moteur de composer un affichable) : un choix composé dont l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place. L'appariement se fait par l'`id`, jamais par le nom. Et l'`id` d'un don d'origine dit QUI le détient (`background:<don>`, `species:<don>`) : un Humain Acolyte porte deux Magic Initiate, deux traits.
 ⭐ **ET UN CRÉNEAU EST UN ENFANT DIRECT** (`planSlots`, carnet.mjs) : `base[n]`, rien dessous. Mesuré au banc : Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait les plans publiés SOUS la réponse. Le don d'origine portait le même défaut depuis ses branches.
@@ -10150,6 +10151,62 @@ step asks any more. Change it on that step; Save character keeps it safe, New ch
 texte — un Elfe qui prend Perception, un Criminal avec Alert ; Alert lu dans sa déclaration ; la pile française
 déclarée ; le choix mort nommé avec son étape, le mot de l'étape suivant la pile ; chaque chemin écrit par un écran a son
 étape ; l'exemple SRD octet pour octet et ses trois chiffres).
+
+---
+
+## 6 pré duodecies. 🗡️ LES ACTIONS ET LES RESSOURCES, PREMIÈRE MARCHE — ce qui est déjà en données *(lot 383, 2026-09-30)*
+📍 `sheet-une-attaque-se-lit-dans-la-regle-declaree` · vivante · 30/09
+⚖️ **Une attaque d'arme se calcule depuis la règle que la pile DÉCLARE sur le glossaire « Attack Roll » (`data.weapon_attack` : la caractéristique du corps à corps et de la distance, la maîtrise, le modificateur aux dégâts, et — par CLEF de propriété — Finesse, Thrown, Range, Versatile, Light), chaque déclaration avec son extrait du SRD 5.2.1. Une arme ÉQUIPÉE donne une action `attack` ; la maîtrise se lit dans `weapon_proficiency_ids` de la classe et dans les catégories qu'un choix déclare ; la propriété de maîtrise ne se pose que si le personnage l'a choisie. L'Unarmed Strike et l'Opportunity Attack se lisent sur leur glossaire (`sheet_action`). ⛔ Le domaine des armes reste verbatim SRD : aucune déclaration ne se pose sur un record d'arme, de propriété ou de maîtrise. ⛔ Une arme qui porte un effet d'objet est DÉCLARÉE, jamais chiffrée sans lui. ⛔ Jamais un nom de classe, d'arme ou de propriété testé.**
+
+> ARCHI 35, 30/09, mandat du lot 383 : *« Les attaques des armes équipées, par la donnée de l'arme […] et ce que le moteur dérive
+> déjà […] le bonus et les dégâts ; Finesse (For ou Dex, le même pour les deux jets) ; Versatile (le dé à deux mains) ; les
+> portées (Thrown, Range) ; Light (l'attaque bonus, sans le modificateur aux dégâts) ; la maîtrise, quand le personnage l'a
+> choisie. S'y ajoutent l'Unarmed Strike et l'Opportunity Attack (réaction). Chaque chiffre vient d'un extrait SRD cité. »*
+> **Les textes** — SRD 5.2.1 p.7 : *« Strength — Melee attack with a weapon or an Unarmed Strike »* · *« Dexterity — Ranged
+> attack with a weapon »* · *« You add your Proficiency Bonus to your attack roll when you attack using a weapon you have
+> proficiency with »* ; p.16 : *« When attacking with a weapon, you add your ability modifier—the same modifier used for the
+> attack roll—to the damage roll. »* Les propriétés, l'Unarmed Strike et l'Opportunity Attack : leurs records, cités à la lettre.
+> Fate's Hand, Equipment : *« Fate's Hand changes nothing here »*.
+
+📏 **CE QUI SE PASSAIT** : `actions = []` pour tout personnage, sous un motif périmé (« `weapon.properties` est une phrase ») —
+les 38 armes portent `property_list` typée, et chaque classe `weapon_proficiency_ids`.
+⭐ **LE DOMAINE DES ARMES RESTE VERBATIM, ET C'EST UNE GARDE QUI ME L'A APPRIS** : mes premières déclarations se posaient
+sur les records de propriété ; `fh-changes` les a comptées comme des changements FH du domaine des armes, qu'Eric a
+déclaré intact (*« pour les armes, je n'ai rien fait de différent du SRD »*). Elles vivent sur la règle d'attaque, par clef.
+⚖️ **Finesse, « your choice »** : la fiche montre la caractéristique qui donne le meilleur jet ; le joueur garde le choix à
+la table. **Light** exige DEUX armes Light portées (deux lignes, ou une ligne de deux) : sinon il n'y a pas d'« other Light
+weapon ». ⏳ **Nick** (l'attaque en plus DANS l'action Attack) et **Archery** (+2 à distance) ne sont pas appliqués : la
+maîtrise est nommée sur l'attaque et son texte vit dans `traits` ; Archery reste un trait.
+
+📍 `sheet-un-compteur-se-lit-dans-sa-colonne-declaree` · vivante · 30/09
+⚖️ **Un compteur de classe se lit dans la COLONNE que la progression déclare (`data.resource_uses` : la colonne, l'aptitude qui la porte, la recharge, la recharge partielle `short_regain`, et l'action qu'il nourrit), jamais dans une liste de noms ; son nom est le libellé de la colonne, le nom de son action celui de l'aptitude ou du sort. Les dés de vie sont une ressource (`sheet_resource` sur le glossaire « Hit Point Dice » : un par niveau, le dé de la classe, rendus au Long Rest). La Pact Magic se lit dans les colonnes que la progression déclare (`data.pact_magic`) et pose `slotsRecharge: short`. Une action de soin est de catégorie `healing`.**
+
+> ARCHI 35, 30/09 : *« Q1 → (a) : les dés de vie sont une ressource comme les autres »* · *« Q4 → (a) : une recharge partielle
+> se dit par une donnée que le repos lira […] Le nom du champ est ta proposition »* (→ `shortRegain` au schéma) · *« Q5 → (a) :
+> une catégorie `healing` »*. Les textes : Rage et Second Wind, *« You regain one expended use when you finish a Short Rest, and
+> you regain all expended uses when you finish a Long Rest. »* ; Second Wind, *« regain Hit Points equal to 1d10 plus your
+> Fighter level »* ; Favored Enemy, *« You can cast it twice without expending a spell slot »* ; Pact Magic, *« You regain all
+> expended Pact Magic spell slots when you finish a Short or Long Rest. »* ; *« At level 1, your character has 1 Hit Die. »* (p.22).
+
+📏 **CE QUI SE PASSAIT** : `resources = []` sous un motif périmé (« des clefs sans nom affichable » — les tables portent
+`resource_columns {key, label}`), et le Warlock n'avait aucun emplacement : sa table les porte en scalaires, que le moteur
+ne lisait pas.
+⭐ **UNE COLONNE N'EST PAS UN COMPTEUR PAR ELLE-MÊME** : `cantrips`, `rage_damage`, `martial_arts` (« 1d6 ») sont des colonnes
+aussi. C'est la déclaration qui dit laquelle compte des usages, et comment elle revient.
+
+📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
+⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**
+
+> ARCHI 35, 30/09 : *« Q2 → (a) : les emplacements restent dans `spellcasting.slots`. La règle « un seul endroit qui compte »
+> devient « un seul endroit par genre » […] Écris-le au schéma. »* · *« `current` : Eric n'a pas encore répondu à « où vit l'état
+> de jeu » […] D'ici là, `current` vaut `max` à chaque dérivation, comme aujourd'hui. ⛔ Aucun écrivain de `current`. Écris
+> l'attente au schéma, et corrige l'en-tête de `derive.mjs`, qui promet ce que le code ne fait pas. »*
+
+📌 **CE QUI LES TIENT** : `tests/actions-383.test.mjs` (la dague, le bâton, l'arc, une arme non maîtrisée, une arme maîtrisée
+par un choix, la maîtrise choisie ; l'Unarmed Strike et l'Opportunity Attack ; Rage, Second Wind, Hunter's Mark ; la Pact
+Magic ; les dés de vie ; sans la déclaration, pas de Rage ; la pile française qui nomme ; l'arme magique déclarée ; aucune
+couche FH sur ces records, et la même fiche dans les deux piles ; chaque extrait à la lettre ; `current` = `max` ; la fiche
+temporaire) — vingt et une mutations vues rouges.
 
 ---
 

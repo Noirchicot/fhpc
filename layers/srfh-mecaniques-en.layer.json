@@ -610,7 +610,10 @@
                   "name": "Protector",
                   "text": "Trained for battle, you gain proficiency with Martial weapons and training with Heavy armor.",
                   "armor_training": "Heavy armor",
-                  "weapon_proficiencies": "Martial weapons"
+                  "weapon_proficiencies": "Martial weapons",
+                  "weapon_proficiency_categories": [
+                    "martial"
+                  ]
                 },
                 {
                   "id": "thaumaturge",
@@ -742,7 +745,10 @@
                   "name": "Warden",
                   "text": "Trained for battle, you gain proficiency with Martial weapons and training with Medium armor.",
                   "armor_training": "Medium armor",
-                  "weapon_proficiencies": "Martial weapons"
+                  "weapon_proficiencies": "Martial weapons",
+                  "weapon_proficiency_categories": [
+                    "martial"
+                  ]
                 }
               ]
             }
@@ -1803,6 +1809,203 @@
             "base": 10,
             "skill": "srd:skill:en:perception",
             "extrait": "A creature’s Passive Perception equals 10 plus the creature’s Wisdom (Perception) check bonus."
+          }
+        }
+      },
+      "srd:glossary:en:attack-roll": {
+        "op": "patch",
+        "changes": {
+          "data[weapon_attack]": {
+            "melee": "str",
+            "ranged": "dex",
+            "proficient_adds": "proficiency",
+            "damage_adds": "attack_modifier",
+            "extraits": [
+              {
+                "page": 7,
+                "text": "Strength — Melee attack with a weapon or an Unarmed Strike (see “Rules Glossary”)"
+              },
+              {
+                "page": 7,
+                "text": "Dexterity — Ranged attack with a weapon"
+              },
+              {
+                "page": 7,
+                "text": "You add your Proficiency Bonus to your attack roll when you attack using a weapon you have proficiency with"
+              },
+              {
+                "page": 16,
+                "text": "When attacking with a weapon, you add your ability modifier—the same modifier used for the attack roll—to the damage roll."
+              }
+            ],
+            "properties": {
+              "finesse": {
+                "attack_ability_choice": {
+                  "abilities": [
+                    "str",
+                    "dex"
+                  ],
+                  "extrait": "use your choice of your Strength or Dexterity modifier for the attack and damage rolls. You must use the same modifier for both rolls.",
+                  "record": "srd:weapon-property:en:finesse"
+                }
+              },
+              "thrown": {
+                "thrown_attack": {
+                  "ability": "as_melee",
+                  "extrait": "If the weapon is a Melee weapon, use the same ability modifier for the attack and damage rolls that you use for a melee attack with that weapon.",
+                  "record": "srd:weapon-property:en:thrown"
+                }
+              },
+              "range": {
+                "attack_range": {
+                  "on": [
+                    "ammunition",
+                    "thrown"
+                  ],
+                  "extrait": "A Range weapon has a range in parentheses after the Ammunition or Thrown property.",
+                  "record": "srd:weapon-property:en:range"
+                }
+              },
+              "versatile": {
+                "two_handed_damage": {
+                  "from": "detail",
+                  "extrait": "A damage value in parentheses appears with the property. The weapon deals that damage when used with two hands to make a melee attack.",
+                  "record": "srd:weapon-property:en:versatile"
+                }
+              },
+              "light": {
+                "extra_attack": {
+                  "economy": "bonus",
+                  "needs": "another_light_weapon",
+                  "damage_modifier": "only_if_negative",
+                  "extrait": "you can make one extra attack as a Bonus Action later on the same turn. That extra attack must be made with a different Light weapon, and you don’t add your ability modifier to the extra attack’s damage unless that modifier is negative.",
+                  "record": "srd:weapon-property:en:light"
+                }
+              }
+            }
+          }
+        }
+      },
+      "srd:glossary:en:unarmed-strike": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_action]": {
+            "economy": "action",
+            "category": "attack",
+            "ability": "str",
+            "proficient": true,
+            "damage": {
+              "fixed": 1,
+              "adds": "ability",
+              "type": "bludgeoning"
+            },
+            "extrait": "Your bonus to the roll equals your Strength modifier plus your Proficiency Bonus. On a hit, the target takes Bludgeoning damage equal to 1 plus your Strength modifier."
+          }
+        }
+      },
+      "srd:glossary:en:opportunity-attacks": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_action]": {
+            "economy": "reaction",
+            "category": "attack",
+            "extrait": "To make the Opportunity Attack, take a Reaction to make one melee attack with a weapon or an Unarmed Strike against the provoking creature."
+          }
+        }
+      },
+      "srd:glossary:en:hit-point-dice": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_resource]": {
+            "per_level": 1,
+            "die": "hit_die",
+            "recharge": "long",
+            "extraits": [
+              {
+                "page": 22,
+                "text": "At level 1, your character has 1 Hit Die."
+              },
+              {
+                "record": "srd:glossary:en:long-rest",
+                "text": "You regain all lost Hit Points and all spent Hit Point Dice."
+              }
+            ]
+          }
+        }
+      }
+    },
+    "class-progression": {
+      "srd:class-progression:en:barbarian": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "column": "rages",
+              "feature": "Rage",
+              "recharge": "long",
+              "short_regain": 1,
+              "extrait": "You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest.",
+              "action": {
+                "economy": "bonus",
+                "category": "utility",
+                "extrait": "You can enter it as a Bonus Action if you aren’t wearing Heavy armor."
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:fighter": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "column": "second_wind",
+              "feature": "Second Wind",
+              "recharge": "long",
+              "short_regain": 1,
+              "extrait": "You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest.",
+              "action": {
+                "economy": "bonus",
+                "category": "healing",
+                "healing": {
+                  "dice": "1d10",
+                  "adds": "class_level"
+                },
+                "extrait": "As a Bonus Action, you can use it to regain Hit Points equal to 1d10 plus your Fighter level."
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:ranger": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "column": "favored_enemy",
+              "feature": "Favored Enemy",
+              "recharge": "long",
+              "extrait": "You can cast it twice without expending a spell slot, and you regain all expended uses of this ability when you finish a Long Rest.",
+              "action": {
+                "spell": "srd:spell:en:hunter-s-mark",
+                "economy": "bonus",
+                "economy_extrait": "Bonus Action",
+                "category": "utility",
+                "extrait": "You always have the Hunter’s Mark spell prepared. You can cast it twice without expending a spell slot"
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:warlock": {
+        "op": "patch",
+        "changes": {
+          "data[pact_magic]": {
+            "feature": "Pact Magic",
+            "slots_column": "spell_slots",
+            "level_column": "slot_level",
+            "recharge": "short",
+            "extrait": "You regain all expended Pact Magic spell slots when you finish a Short or Long Rest."
           }
         }
       }

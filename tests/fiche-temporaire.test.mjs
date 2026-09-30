@@ -142,14 +142,17 @@ test("2 — ⛔ AUCUN CALCUL : on change les chiffres de `resolved`, la fiche su
 
 test("3 — une rubrique `underived` dit « not derived yet » ; vide et non déclarée, elle dit « None »", () => {
   const node = fiche(ILYRA);
-  /* témoin : Ilyra n'a pas d'actions, et le moteur le DÉCLARE */
-  assert.ok(ILYRA.report.underived.some((u) => u.field === "actions"), "témoin : `actions` est déclarée");
-  const actions = rubrique(node, "actions").querySelector(".perso-absent");
+  /* témoin : Ilyra n'a pas d'artisanat, et le moteur le DÉCLARE. 🗡️ LOT 383 — le témoin était
+     `actions`, qui se calcule désormais (la dague, le bâton…) : la rubrique vide ET déclarée est
+     maintenant `craft`, et ce que ce garde prouve n'a pas bougé. */
+  assert.deepEqual(ILYRA.document.resolved.craft, [], "témoin : `craft` est vide");
+  assert.ok(ILYRA.report.underived.some((u) => u.field === "craft"), "témoin : `craft` est déclarée");
+  const actions = rubrique(node, "craft").querySelector(".perso-absent");
   assert.equal(actions.textContent, MOTS_FICHE.pasDerive);
   assert.equal(actions.dataset.absence, "non-derive");
   /* la MÊME rubrique vide, sans déclaration : le moteur a dérivé une liste vide */
-  const sansDeclaration = { ...ILYRA.report, underived: ILYRA.report.underived.filter((u) => u.field !== "actions") };
-  const vide = rubrique(fiche({ document: ILYRA.document, report: sansDeclaration }), "actions").querySelector(".perso-absent");
+  const sansDeclaration = { ...ILYRA.report, underived: ILYRA.report.underived.filter((u) => u.field !== "craft") };
+  const vide = rubrique(fiche({ document: ILYRA.document, report: sansDeclaration }), "craft").querySelector(".perso-absent");
   assert.equal(vide.textContent, MOTS_FICHE.aucun, "⛔ une liste vide non déclarée n'est pas « non dérivée »");
   /* une rubrique ABSENTE de `resolved` — la bourse d'un personnage sans choix de bourse */
   const r = structuredClone(ILYRA.document.resolved);

@@ -190,7 +190,13 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
      L'assertion n'est pas relâchée — elle reste une LISTE EXACTE, et c'est elle
      qui a rougi la première quand le champ est apparu. */
   assert.deepEqual(underived.map((entry) => entry.field), [
-    "actions",
+    /* 🗡️ LOT 383 — les glossaires français sans déclaration nomment chaque attaque et les dés de vie ;
+       la prose se déclare à part (voir build-acceptance, même liste). */
+    "actions (prose)",
+    "actions[dagger]",
+    "actions[opportunity-attacks]",
+    "actions[quarterstaff]",
+    "actions[unarmed-strike]",
     "craft",
     "gear[].weight",
     "identity.species (lignage)",
@@ -200,7 +206,8 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "initiative",
     "languages",
     "notes",
-    "resources",
+    "resources (prose)",
+    "resources[hit-point-dice]",
     "senses[perception-passive]",
     "spellSources",   // 🧬 LOT 373 — vide et déclaré : ni lignée qui fasse lancer, ni don
     "spellcasting.spells[].castType",
@@ -229,7 +236,8 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
      relâché en `/NON DÉRIVÉ \(\d+\)/` — un compte flou ne verrait plus rien. */
   /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et déclaré (ni lignée qui fasse lancer, ni don). */
   /* 🧾 LOT 379 — 14 → 15 : `initiative`, nommée par le glossaire de la pile française, sans formule déclarée. */
-  assert.match(texte, /NON DÉRIVÉ \(15\)/);
+  /* 🗡️ LOT 383 — 15 → 20 : `actions` et `resources` (2) cèdent la place à sept déclarations nommées. */
+  assert.match(texte, /NON DÉRIVÉ \(20\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
     assert.ok(texte.includes(String(entry)), `le texte doit porter la RAISON de « ${entry.field} »`);

@@ -32,11 +32,15 @@
 
    ── CE QUI N'EST PAS RECALCULÉ : L'ÉTAT DE JEU ──────────────────────────
    Une reconstruction ne remet pas les points de vie au maximum. `hpCurrent`,
-   `tempHp`, `conditions`, le `current` des emplacements et celui des
-   ressources sont REPRIS de la tranche précédente quand elle existe. Un MJ
-   qui corrige une compétence en pleine séance ne soigne pas la table
-   (leçon `fix-panel-persistence` n°4 : les ressources comptées vivent dans
-   `resolved` et se décrémentent au règlement).
+   `tempHp`, `conditions` et le `current` des emplacements sont REPRIS de la
+   tranche précédente quand elle existe. Un MJ qui corrige une compétence en
+   pleine séance ne soigne pas la table (leçon `fix-panel-persistence` n°4).
+   🗡️ LOT 383 — ⛔ CETTE PHRASE PROMETTAIT AUSSI LE `current` DES RESSOURCES, et le
+   code ne l'a jamais fait. Il vaut `max` à chaque dérivation, et c'est voulu tant
+   qu'Eric n'a pas dit où vit l'état de jeu — dans le personnage, ou à la table
+   (question 2 de `FHPC fiche questions a Eric.md` ; ARCHI 35 : « Aucun écrivain de
+   `current` »). ⚠️ Rien ne décrémente non plus les emplacements : les « reprendre »
+   rend aujourd'hui leur `max`.
 
    ── §0.13 : LE MOTEUR PRODUIT DES IDENTIFIANTS ──────────────────────────
    Aucun mot affichable n'est écrit ici. Tous ceux qui atterrissent dans
@@ -482,6 +486,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const gear = [];
   const armorPieces = [];
   const lignesDesEffets = [];
+  /* 🗡️ LOT 383 — les armes ÉQUIPÉES, pour les attaques (`resolved.actions`, plus bas) : la ligne,
+     son record, sa quantité, et si elle porte un effet d'objet (un plan, un pouvoir, un +N). */
+  const armesEquipees = [];
   const gearChoices = (picked.byRoot.get("gear") || [])
     .filter((entry) => entry.parsed.segments.length === 2 && entry.parsed.segments[1].kind === "index");
   /* ⭐ LOT 296 — L'ANCRE DE CHAQUE LIGNE, TRANCHÉE AVANT LA BOUCLE ET PAR UNE SEULE FONCTION
@@ -553,6 +560,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     if (attuned) ligne.attuned = true;
     if (typeof note === "string" && note.trim()) ligne.note = note.trim().slice(0, 500);
     gear.push(ligne);
+    if (ref.kind === "weapon" && equipped) {
+      armesEquipees.push({ id: ligne.id, name: nom, view, quantity,
+        magique: objetsDeLaLigne.length > 0 || (bonus !== undefined && bonus !== null && bonus !== "") });
+    }
     lignesDesEffets.push({ index, name: nom, equipped, attuned, refKind: ref.kind, variante, bonus,
       objets: objetsDeLaLigne });
     /* ⚖️ « You have a bonus to Armor Class while wearing this armor » — le +N d'une
@@ -1211,14 +1222,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   resolved.tools = tools;
 
   /* ── ACTIONS ───────────────────────────────────────────────────────
-     Il n'existe pas de genre `action`. Composer une attaque à partir d'une
-     arme (dé de dégâts + caractéristique + propriétés Finesse/Lancer) est une
-     RÈGLE, et le contrat n'en porte aucune : `weapon.properties` est une
-     phrase (« Finesse, Lancer (portée 6/18), Légère »). Quant à Esquive et à
-     l'Attaque d'opportunité, leur texte ne vit que dans le glossaire, en
-     prose. */
-  resolved.actions = [];
-  underived.declare("actions", "underived.no-action-genre", {});
+     🗡️ LOT 383 — calculées APRÈS l'équipement et les choix de capacité (les armes équipées, les
+     maîtrises d'arme, Protector), plus bas : « LES ACTIONS ET LES RESSOURCES ». L'ancien motif
+     (`underived.no-action-genre` : « `weapon.properties` est une phrase ») était périmé — les
+     armes portent `property_list` typée depuis le lot 11. */
 
   /* ── INCANTATION ───────────────────────────────────────────────────
      `dc` = 8 + maîtrise + modificateur ; `attackBonus` = maîtrise +
@@ -1283,7 +1290,26 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   } else {
     const mod = abilities[castingKey].mod;
     const slots = {};
-    if (slotRow) {
+    /* 🗡️ LOT 383 — LA PACT MAGIC. La table de l'occultiste n'a pas de colonne `spell_slots` en
+       tableau : ses emplacements vivent en SCALAIRE (`resources.spell_slots`, `resources.slot_level`),
+       et le `$comment` de `slotsRecharge` le disait depuis le lot 6 — le moteur ne les lisait pas.
+       La progression DÉCLARE sa magie de pacte (`data.pact_magic`, srfh-mecaniques) : quelles
+       colonnes, et la recharge, extrait à l'appui (« You regain all expended Pact Magic spell slots
+       when you finish a Short or Long Rest »). ⛔ Jamais un test sur le nom de la classe. */
+    const pacte = !slotRow && progression && progression.record.data && progression.record.data.pact_magic;
+    let slotsRecharge = null;
+    if (pacte && levelRow && levelRow.resources) {
+      const compte = levelRow.resources[pacte.slots_column];
+      const niveauDEmplacement = levelRow.resources[pacte.level_column];
+      if (Number.isInteger(compte) && compte > 0 && Number.isInteger(niveauDEmplacement) && niveauDEmplacement > 0) {
+        const key = String(niveauDEmplacement);
+        const kept = beforeSlots[key];
+        slots[key] = { max: compte, current: (kept && Number.isInteger(kept.current)) ? kept.current : compte };
+        slotsRecharge = pacte.recharge;
+      } else {
+        underived.declare("spellcasting.slots", "underived.pact-magic-columns-missing", { classId: classView.id });
+      }
+    } else if (slotRow) {
       slotRow.forEach((count, index) => {
         if (!Number.isInteger(count) || count <= 0) return;
         const key = String(index + 1);
@@ -1319,6 +1345,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       slots,
       spells
     };
+    /* 🗡️ LOT 383 — posé SEULEMENT quand la pile le déclare : un lanceur plein garde le défaut du
+       schéma (`long`, « la règle générale du SRD »), octet pour octet. */
+    if (slotsRecharge) resolved.spellcasting.slotsRecharge = slotsRecharge;
     /* LES DÉGÂTS : le seul des trois qui soit RÉELLEMENT hors d'atteinte. Ils
        ne sont structurés nulle part dans la source — ni dé, ni type, ni
        échelle par niveau d'emplacement. Le contrat ne les nomme pas et le lot
@@ -1422,12 +1451,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
 
   /* ── RESSOURCES ────────────────────────────────────────────────────
-     Les dés de vie et les usages d'aptitude n'ont AUCUNE source mécanique.
-     `class-progression.levels[].resources` donne bien des nombres — mais des
-     clefs sans nom affichable (`sorts_mineurs: 3`), et `resolved.resources[]`
-     exige un `name`. */
-  resolved.resources = [];
-  underived.declare("resources", "underived.no-resources-field", {});
+     🗡️ LOT 383 — calculées plus bas, avec les actions. L'ancien motif
+     (`underived.no-resources-field` : « des clefs sans nom affichable ») était périmé — les
+     tables portent `resource_columns {key, label}`. */
 
   /* ── TRAITS ────────────────────────────────────────────────────────
      Le contrat §5 (GROUPE B, refusable) porte les traits d'espèce sous la
@@ -1559,8 +1585,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      · une option-RECORD (un don de style) : le don devient un trait, avec sa description,
        et son effet déclaré (`armor_class_bonus`).
      ⭐ ARCHI 35, Q3 → a) : un effet DE TABLE (Great Weapon Fighting, Two-Weapon Fighting) ou
-     sans chiffre sur la fiche (Archery : le moteur ne dérive aucune attaque) est LU en posant
-     le trait — nommé, avec son texte — jamais par un chiffre inventé.
+     sans chiffre sur la fiche est LU en posant le trait — nommé, avec son texte — jamais par un
+     chiffre inventé. 🗡️ LOT 383 — Archery disait ici « le moteur ne dérive aucune attaque » : il
+     les dérive désormais, mais le +2 d'Archery n'est DÉCLARÉ nulle part — il reste un trait, et
+     l'attaque à distance ne le porte pas (point ouvert du rapport 383).
      ⛔ Une réponse que la déclaration ne connaît pas reste `unconsumed` : le carnet la juge. */
   const capacites = [];
   for (const declaration of Array.isArray(classData.feature_choices) ? classData.feature_choices : []) {
@@ -1635,6 +1663,196 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   resolved.training = training;
 
   resolved.gear = gear;
+
+  /* ══ 🗡️ LOT 383 — LES ACTIONS ET LES RESSOURCES : CE QUI EST DÉJÀ EN DONNÉES ════════════════
+     Mandat d'ARCHI 35 (30/09), première marche tirée de l'étude 382. Chaque chiffre vient d'une
+     phrase du SRD 5.2.1, DÉCLARÉE dans `srfh-mecaniques-en` avec son extrait :
+     · l'attaque d'arme — le glossaire « Attack Roll » (`data.weapon_attack`) : « Strength — Melee
+       attack with a weapon », « Dexterity — Ranged attack with a weapon », « You add your
+       Proficiency Bonus to your attack roll when you attack using a weapon you have proficiency
+       with » (p.7), « you add your ability modifier—the same modifier used for the attack roll—to
+       the damage roll » (p.16) ;
+     · les propriétés — Finesse, Thrown, Range, Versatile, Light — sur cette même règle, par clef ;
+     · l'Unarmed Strike et l'Opportunity Attack — sur leur glossaire (`data.sheet_action`) ;
+     · les dés de vie — sur le glossaire « Hit Point Dice » (`data.sheet_resource`) ;
+     · les compteurs de table — sur la progression (`data.resource_uses`) : la COLONNE qui compte,
+       sa recharge (la partielle comprise, `short_regain`), et l'action qu'elle nourrit.
+     ⛔ Jamais un nom de classe, d'arme ou de propriété testé ici : une pile qui ne déclare pas une
+     règle ne la voit pas calculée, et le dit. ⭐ Fate's Hand ne change rien à tout cela (« Fate's
+     Hand changes nothing here », Equipment) : la pile FH le prouve par sa couche, pas par un nom.
+     ⏳ `current` vaut `max` à chaque dérivation : Eric n'a pas dit où vit l'état de jeu (question
+     2 de `FHPC fiche questions a Eric.md`). ⛔ Aucun écrivain de `current`. */
+  const actions = [];
+  const resources = [];
+  const glossaire = (slug) => reader.maybe("glossary", `srd:glossary:en:${slug}`);
+  const signeDes = (des, n) => (n === 0 ? des : `${des}${n > 0 ? "+" : ""}${n}`);
+  const regleDArme = (() => {
+    const v = glossaire("attack-roll");
+    const d = v && v.record.data && v.record.data.weapon_attack;
+    return d && ABILITY_KEYS.includes(d.melee) && ABILITY_KEYS.includes(d.ranged) ? d : null;
+  })();
+  /* les déclarations des propriétés, par leur clef (`property_list[].key`), portées par la RÈGLE
+     d'attaque et non par les records de propriété : ⭐ le domaine des armes reste verbatim SRD (Eric,
+     20/08 : « pour les armes, je n'ai rien fait de différent du SRD » — gardé par `fh-changes` et
+     `verbatim-srd`). Chaque déclaration cite l'extrait du record de propriété qu'elle lit. */
+  const proprietes = new Map(Object.entries(regleDArme && regleDArme.properties && typeof regleDArme.properties === "object"
+    ? regleDArme.properties : {}));
+  const porteLaPortee = new Set([...proprietes.values()].flatMap((d) => (d.attack_range && Array.isArray(d.attack_range.on)) ? d.attack_range.on : []));
+  /* les armes maîtrisées : la liste typée de la classe, et les catégories qu'un choix de capacité ajoute */
+  const armesMaitrisees = Array.isArray(classData.weapon_proficiency_ids) ? new Set(classData.weapon_proficiency_ids) : null;
+  const categoriesMaitrisees = new Set(capacites.flatMap(({ effets: e }) =>
+    Array.isArray(e && e.weapon_proficiency_categories) ? e.weapon_proficiency_categories : []));
+  /* les maîtrises d'arme CHOISIES (`class.weaponMastery[n]`), déjà lues plus haut en traits */
+  const armesDeMaitrise = new Set(masteryChoices.filter((entry) => entry.consumed).map((entry) => entry.choice.ref.id));
+
+  const attaques = [];
+  for (const arme of armesEquipees) {
+    const data = arme.view.record.data || {};
+    const params = { name: arme.name };
+    if (!regleDArme) { underived.declare(`actions[${arme.id}]`, "underived.weapon-attack-undeclared", params); continue; }
+    /* ⛔ un effet d'objet sur l'arme (+1, un plan, un pouvoir) change le jet et les dégâts, et le
+       moteur ne sait pas encore l'appliquer à une attaque : pas un chiffre faux, une déclaration */
+    if (arme.magique) { underived.declare(`actions[${arme.id}]`, "underived.magic-weapon-attack", params); continue; }
+    const liste = Array.isArray(data.property_list) ? data.property_list.filter((p) => p && typeof p.key === "string") : [];
+    if (typeof data.damage_dice !== "string" || !/^[0-9]{1,3}d[0-9]{1,3}$/.test(data.damage_dice) ||
+        typeof data.damage_type_key !== "string" || !["melee", "ranged"].includes(data.weapon_range)) {
+      underived.declare(`actions[${arme.id}]`, "underived.weapon-record-incomplete", params);
+      continue;
+    }
+    if (armesMaitrisees === null) { underived.declare(`actions[${arme.id}]`, "underived.class-missing-weapon-proficiency-ids", params); continue; }
+    const declDe = (champ) => liste.map((p) => proprietes.get(p.key)).find((d) => d && d[champ]);
+    /* la caractéristique : corps à corps ou distance, puis « your choice » de Finesse — ⚖️ la fiche
+       montre le choix qui donne le meilleur jet (le joueur garde le choix à la table) */
+    const choix = declDe("attack_ability_choice");
+    const candidates = choix && Array.isArray(choix.attack_ability_choice.abilities)
+      ? choix.attack_ability_choice.abilities.filter((k) => ABILITY_KEYS.includes(k))
+      : [data.weapon_range === "ranged" ? regleDArme.ranged : regleDArme.melee];
+    const ability = candidates.reduce((best, k) => (abilities[k].mod > abilities[best].mod ? k : best), candidates[0]);
+    const maitrisee = armesMaitrisees.has(arme.view.id) || categoriesMaitrisees.has(data.weapon_category);
+    if (maitrisee && proficiency === null) { underived.declare(`actions[${arme.id}]`, "underived.proficiency-not-derived-attack", params); continue; }
+    const mod = abilities[ability].mod;
+    const bonus = mod + (maitrisee ? proficiency : 0);
+    const type = data.damage_type_key;
+    const action = { id: arme.id, name: arme.name, economy: "action", category: "attack", ability, bonus,
+      damage: [{ dice: signeDes(data.damage_dice, mod), type }] };
+    /* Versatile : le dé à deux mains est le `detail` typé de la propriété (« 1d8 ») */
+    const versatile = liste.find((p) => { const d = proprietes.get(p.key); return d && d.two_handed_damage; });
+    if (versatile && typeof versatile.detail === "string" && /^[0-9]{1,3}d[0-9]{1,3}$/.test(versatile.detail)) {
+      action.twoHandedDamage = [{ dice: signeDes(versatile.detail, mod), type }];
+    }
+    /* la portée : le `detail` de la propriété qui la porte (Thrown, Ammunition), recopié */
+    const portee = liste.find((p) => porteLaPortee.has(p.key) && typeof p.detail === "string" && p.detail.trim());
+    if (portee) action.range = portee.detail.trim().slice(0, 60);
+    action.properties = liste.map((p) => (typeof p.detail === "string" && p.detail.trim() ? `${p.label} (${p.detail})` : p.label))
+      .filter((mot) => typeof mot === "string" && mot).map((mot) => mot.slice(0, 60));
+    if (armesDeMaitrise.has(arme.view.id) && typeof data.mastery === "string") {
+      const def = masteryDefs.find((v) => v.record.name === data.mastery);
+      action.mastery = def ? def.record.name : data.mastery;
+    }
+    action.gearId = arme.id;
+    actions.push(action);
+    attaques.push({ arme, action, liste, mod });
+  }
+  /* Light : « one extra attack as a Bonus Action […] with a different Light weapon », sans le
+     modificateur aux dégâts « unless that modifier is negative ». ⭐ Il faut DEUX armes Light
+     portées (deux lignes, ou une ligne de deux) : sinon il n'y a pas d'autre arme. */
+  const legeres = attaques.filter(({ liste }) => liste.some((p) => { const d = proprietes.get(p.key); return d && d.extra_attack; }));
+  const unitesLegeres = legeres.reduce((n, { arme }) => n + (Number.isInteger(arme.quantity) ? arme.quantity : 1), 0);
+  if (unitesLegeres >= 2) {
+    for (const { arme, action, liste, mod } of legeres) {
+      const decl = liste.map((p) => proprietes.get(p.key)).find((d) => d && d.extra_attack).extra_attack;
+      if (!["action", "bonus", "reaction"].includes(decl.economy)) continue;
+      const des = arme.view.record.data.damage_dice;
+      const extra = { ...action, id: `${arme.id}:light`, economy: decl.economy,
+        damage: [{ dice: signeDes(des, decl.damage_modifier === "only_if_negative" ? Math.min(mod, 0) : mod), type: action.damage[0].type }] };
+      delete extra.twoHandedDamage;                       // l'attaque en plus se fait d'une main
+      actions.push(extra);
+    }
+  }
+  /* l'Unarmed Strike et l'Opportunity Attack : leur glossaire DÉCLARE l'action */
+  for (const slug of ["unarmed-strike", "opportunity-attacks"]) {
+    const v = glossaire(slug);
+    if (!v) continue;                                   // la pile ne porte pas la règle : rien à dire
+    const decl = v.record.data && v.record.data.sheet_action;
+    const params = { record: v.id, name: v.record.name };
+    if (!decl || !["action", "bonus", "reaction"].includes(decl.economy)) {
+      underived.declare(`actions[${v.record.slug}]`, "underived.sheet-action-undeclared", params);
+      continue;
+    }
+    const action = { id: v.record.slug, name: v.record.name, economy: decl.economy, category: decl.category };
+    if (ABILITY_KEYS.includes(decl.ability)) {
+      if (decl.proficient && proficiency === null) { underived.declare(`actions[${v.record.slug}]`, "underived.proficiency-not-derived-attack", params); continue; }
+      const mod = abilities[decl.ability].mod;
+      action.ability = decl.ability;
+      action.bonus = mod + (decl.proficient ? proficiency : 0);
+      /* « Bludgeoning damage equal to 1 plus your Strength modifier » — « it’s possible to deal 0
+         damage but not negative damage » (p.16) */
+      if (decl.damage && Number.isInteger(decl.damage.fixed)) {
+        action.damage = [{ dice: String(Math.max(0, decl.damage.fixed + (decl.damage.adds === "ability" ? mod : 0))), type: decl.damage.type }];
+      }
+    }
+    if (typeof decl.extrait === "string") action.text = decl.extrait;
+    actions.push(action);
+  }
+
+  /* ── LES RESSOURCES ─────────────────────────────────────────────────────────────────────────
+     Q1 → a) (ARCHI 35) : les dés de vie sont une ressource comme les autres. Q2 → a) : les
+     emplacements restent dans `spellcasting.slots` — un seul endroit PAR GENRE. */
+  const des = glossaire("hit-point-dice");
+  if (des) {
+    const decl = des.record.data && des.record.data.sheet_resource;
+    const face = decl ? classData[decl.die] : undefined;
+    if (!decl || !Number.isInteger(decl.per_level)) {
+      underived.declare(`resources[${des.record.slug}]`, "underived.sheet-resource-undeclared", { record: des.id, name: des.record.name });
+    } else if (!Number.isInteger(face)) {
+      underived.declare(`resources[${des.record.slug}]`, "underived.class-missing-hit-die", { classId: classView.id, name: des.record.name });
+    } else {
+      const max = decl.per_level * level;
+      resources.push({ id: des.record.slug, name: des.record.name, max, current: max, recharge: decl.recharge, die: `d${face}` });
+    }
+  }
+  /* les compteurs des tables : la COLONNE déclarée (`resource_uses`), jamais une liste de noms */
+  const usages = progression && progression.record.data && Array.isArray(progression.record.data.resource_uses)
+    ? progression.record.data.resource_uses : [];
+  const colonnes = progression && Array.isArray(progression.record.data.resource_columns) ? progression.record.data.resource_columns : [];
+  const aptitudes = Array.isArray(classData.features) ? classData.features : [];
+  for (const u of usages) {
+    const colonne = colonnes.find((c) => c && c.key === u.column);
+    const max = levelRow && levelRow.resources ? levelRow.resources[u.column] : undefined;
+    const aptitude = aptitudes.find((f) => f && f.name === u.feature && Number.isInteger(f.level) && f.level <= level);
+    if (!aptitude) continue;                            // l'aptitude n'est pas encore acquise à ce niveau
+    if (!colonne || typeof colonne.label !== "string" || !Number.isInteger(max) || max < 0) {
+      underived.declare(`resources[${u.column}]`, "underived.resource-column-missing", { classId: classView.id, column: u.column });
+      continue;
+    }
+    const ressource = { id: u.column, name: colonne.label, max, current: max, recharge: u.recharge };
+    /* Q4 → a) : la recharge partielle, une donnée que le repos lira (« You regain one expended use
+       when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest ») */
+    if (Number.isInteger(u.short_regain) && u.short_regain > 0) ressource.shortRegain = u.short_regain;
+    resources.push(ressource);
+    const a = u.action;
+    if (!a || !["action", "bonus", "reaction"].includes(a.economy)) continue;
+    const sort = typeof a.spell === "string" ? reader.maybe("spell", a.spell) : null;
+    if (typeof a.spell === "string" && !sort) {
+      underived.declare(`actions[${u.column}]`, "underived.resource-action-spell-missing", { spell: a.spell });
+      continue;
+    }
+    const action = { id: sort ? sort.record.slug : u.column, name: sort ? sort.record.name : aptitude.name,
+      economy: a.economy, category: a.category, resourceId: u.column };
+    /* Q5 → a) : le soin — « regain Hit Points equal to 1d10 plus your Fighter level » */
+    if (a.category === "healing" && a.healing && typeof a.healing.dice === "string") {
+      action.healing = { dice: signeDes(a.healing.dice, a.healing.adds === "class_level" ? level : 0) };
+    }
+    if (typeof a.extrait === "string") action.text = a.extrait;
+    actions.push(action);
+  }
+  /* ⚠️ CE QUI RESTE EN PROSE se déclare avec sa vraie raison : les traits d'espèce, les dons, les
+     aptitudes sans colonne de table (Bardic Inspiration, Lay On Hands, Arcane Recovery…) et les
+     usages de l'équipement n'existent qu'en phrases — le moteur ne les lit pas. */
+  resolved.actions = actions;
+  underived.declare("actions (prose)", "underived.actions-in-prose", {});
+  resolved.resources = resources;
+  underived.declare("resources (prose)", "underived.resources-in-prose", {});
 
   /* ── ARTISANAT ─────────────────────────────────────────────────────
      Décision Q4 : les mécaniques nouvelles sont des MODULES MOTEUR activés par

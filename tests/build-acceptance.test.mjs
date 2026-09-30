@@ -431,7 +431,15 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
      L'assertion n'est pas relâchée — elle reste une LISTE EXACTE, et c'est elle
      qui a rougi la première quand le champ est apparu. */
   assert.deepEqual(champs, [
-    "actions",
+    /* 🗡️ LOT 383 — `actions` et `resources` ne sont plus des rubriques vides déclarées en bloc : la
+       pile française porte les glossaires (Attack Roll, Unarmed Strike, Opportunity Attacks, Hit Point
+       Dice) SANS leurs déclarations (`srfh-mecaniques` n'est pas montée ici), donc chaque attaque et
+       les dés de vie se NOMMENT un par un ; et ce qui n'existe qu'en prose se déclare à part. */
+    "actions (prose)",
+    "actions[dagger]",
+    "actions[opportunity-attacks]",
+    "actions[quarterstaff]",
+    "actions[unarmed-strike]",
     "craft",
     "gear[].weight",
     "identity.species (lignage)",
@@ -441,7 +449,8 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "initiative",
     "languages",
     "notes",
-    "resources",
+    "resources (prose)",
+    "resources[hit-point-dice]",
     "senses[perception-passive]",
     /* 🧬 LOT 373 — ni lignée qui fasse lancer (la couche FR n'a pas d'effets de lignée), ni don :
        la rubrique vide se NOMME. */

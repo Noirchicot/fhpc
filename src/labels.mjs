@@ -285,9 +285,33 @@ export const FR_UNDERIVED = {
     "le record d'outil acheté au pool ne porte pas `ability_key` — même trou que l'outil d'arrière-plan " +
     "(question 3 à l'architecte).",
   "underived.proficiency-not-derived-tools": () => "le bonus de maîtrise n'a pas été dérivé.",
-  "underived.no-action-genre": () =>
-    "aucun genre `action` parmi les 14 ; composer une attaque depuis une arme demande une règle (Finesse, " +
-    "Lancer) que le contrat ne porte pas, et `weapon.properties` est une phrase.",
+  /* 🗡️ LOT 383 — les actions et les ressources se calculent depuis ce que la pile DÉCLARE
+     (`srfh-mecaniques-en`) ; ce qui manque se nomme. Les deux anciens motifs
+     (`no-action-genre`, `no-resources-field`) étaient périmés. */
+  "underived.weapon-attack-undeclared": (d) =>
+    `l'attaque de ${d.name} ne se calcule pas : la pile ne déclare pas la règle d'attaque d'arme (le glossaire « Attack Roll », \`weapon_attack\`).`,
+  "underived.magic-weapon-attack": (d) =>
+    `${d.name} porte un effet d'objet (un +N, un plan, un pouvoir) que le moteur ne sait pas encore appliquer à une attaque : son jet et ses dégâts ne sont pas écrits.`,
+  "underived.weapon-record-incomplete": (d) =>
+    `le record de ${d.name} ne porte pas de quoi composer une attaque (dé de dégâts, type, corps à corps ou distance).`,
+  "underived.class-missing-weapon-proficiency-ids": (d) =>
+    `la classe ne dit pas en données quelles armes elle maîtrise (\`weapon_proficiency_ids\`) : l'attaque de ${d.name} n'est pas écrite.`,
+  "underived.proficiency-not-derived-attack": (d) =>
+    `l'attaque de ${d.name} ajoute le bonus de maîtrise, qui n'est pas encore dérivé.`,
+  "underived.sheet-action-undeclared": (d) =>
+    `le glossaire \`${d.record}\` est dans la pile, mais aucune couche n'y déclare l'action (\`sheet_action\`).`,
+  "underived.sheet-resource-undeclared": (d) =>
+    `le glossaire \`${d.record}\` est dans la pile, mais aucune couche n'y déclare la ressource (\`sheet_resource\`).`,
+  "underived.class-missing-hit-die": (d) =>
+    `la classe \`${d.classId}\` ne porte pas son dé de vie (\`hit_die\`).`,
+  "underived.resource-column-missing": (d) =>
+    `la table de \`${d.classId}\` ne porte pas la colonne \`${d.column}\` que sa déclaration nomme, ou pas à ce niveau.`,
+  "underived.resource-action-spell-missing": (d) =>
+    `le sort \`${d.spell}\` qu'un compteur fait lancer n'est pas dans la pile.`,
+  "underived.pact-magic-columns-missing": (d) =>
+    `la table de \`${d.classId}\` déclare sa magie de pacte, mais ses colonnes d'emplacements ne donnent pas de nombre à ce niveau.`,
+  "underived.actions-in-prose": () =>
+    "les actions qui n'existent qu'en prose — traits d'espèce, dons, aptitudes sans colonne de table, usages de l'équipement — ne sont pas encore lues.",
   "underived.class-missing-spellcasting-key": () =>
     "le record de classe ne porte pas `spellcasting_ability_key` — ⚠️ CE CHAMP N'EST PAS DANS LE CONTRAT " +
     "(question 3) ; `primary_ability` y est un mot affichable, et la caractéristique primaire d'une classe " +
@@ -315,10 +339,8 @@ export const FR_UNDERIVED = {
     "l'appui : cinq constructions ressemblent à une sauvegarde et une seule est le fait, et un sort peut être " +
     "génuinement attaque ET sauvegarde. Le sort est émis sans son mode plutôt que sauté : une fiche sans sorts " +
     "serait plus fausse qu'une fiche dont le mode est dit inconnu.",
-  "underived.no-resources-field": () =>
-    "les ressources du personnage (dés de vie, usages d'aptitude) n'ont pas de champ mécanique dans le contrat ; " +
-    "`class-progression.levels[].resources` porte des clefs sans nom affichable, et `resolved.resources[].name` " +
-    "est obligatoire.",
+  "underived.resources-in-prose": () =>
+    "les usages qui n'existent qu'en prose — traits d'espèce, dons, aptitudes sans colonne de table, charges d'objet — ne sont pas encore comptés.",
   "underived.trait-entry-invalid": () => "un trait d'espèce n'a ni `id` ni `name` exploitable (contrat §5).",
   /* 2026-08-20 — une arme choisie porte le NOM de sa maîtrise, et la pile ne
      porte pas le record qui la définit. La fiche garde le nom (« Topple ») ;
@@ -462,9 +484,30 @@ export const EN_UNDERIVED = {
     "the tool record bought from the pool carries no `ability_key` — same gap as the background's tool " +
     "(question 3 to the architect).",
   "underived.proficiency-not-derived-tools": () => "the proficiency bonus was not derived.",
-  "underived.no-action-genre": () =>
-    "no `action` genre among the 14; composing an attack from a weapon needs a rule (Finesse, Thrown) the " +
-    "contract does not carry, and `weapon.properties` is a phrase.",
+  "underived.weapon-attack-undeclared": (d) =>
+    `the attack with ${d.name} is not computed: the stack does not declare the weapon attack rule (the “Attack Roll” glossary, \`weapon_attack\`).`,
+  "underived.magic-weapon-attack": (d) =>
+    `${d.name} carries an item effect (a +N, a plan, a power) the engine cannot apply to an attack yet: its roll and damage are not written.`,
+  "underived.weapon-record-incomplete": (d) =>
+    `the record of ${d.name} does not carry what an attack is made of (damage die, type, melee or ranged).`,
+  "underived.class-missing-weapon-proficiency-ids": (d) =>
+    `the class does not state in data which weapons it is proficient with (\`weapon_proficiency_ids\`): the attack with ${d.name} is not written.`,
+  "underived.proficiency-not-derived-attack": (d) =>
+    `the attack with ${d.name} adds the Proficiency Bonus, which is not derived yet.`,
+  "underived.sheet-action-undeclared": (d) =>
+    `the glossary \`${d.record}\` is in the stack, but no layer declares its action (\`sheet_action\`).`,
+  "underived.sheet-resource-undeclared": (d) =>
+    `the glossary \`${d.record}\` is in the stack, but no layer declares its resource (\`sheet_resource\`).`,
+  "underived.class-missing-hit-die": (d) =>
+    `the class \`${d.classId}\` does not carry its hit die (\`hit_die\`).`,
+  "underived.resource-column-missing": (d) =>
+    `the table of \`${d.classId}\` does not carry the \`${d.column}\` column its declaration names, or not at this level.`,
+  "underived.resource-action-spell-missing": (d) =>
+    `the spell \`${d.spell}\` a counter casts is not in the stack.`,
+  "underived.pact-magic-columns-missing": (d) =>
+    `the table of \`${d.classId}\` declares its Pact Magic, but its slot columns give no number at this level.`,
+  "underived.actions-in-prose": () =>
+    "actions that exist only in prose — species traits, feats, features without a table column, equipment uses — are not read yet.",
   "underived.class-missing-spellcasting-key": () =>
     "the class record carries no `spellcasting_ability_key` — ⚠️ THIS FIELD IS NOT IN THE CONTRACT (question 3); " +
     "`primary_ability` there is a display word, and a class's primary ability is not always its spellcasting " +
@@ -492,10 +535,8 @@ export const EN_UNDERIVED = {
     "measurement to back it: five constructions look like a saving throw and only one is the fact, and a spell " +
     "can genuinely be both an attack AND a save. The spell is emitted without its mode rather than dropped: a " +
     "sheet with no spells would be more false than a sheet whose mode is said to be unknown.",
-  "underived.no-resources-field": () =>
-    "the character's resources (hit dice, feature uses) carry no mechanical field in the contract; " +
-    "`class-progression.levels[].resources` carries keys with no display name, and `resolved.resources[].name` " +
-    "is required.",
+  "underived.resources-in-prose": () =>
+    "uses that exist only in prose — species traits, feats, features without a table column, item charges — are not counted yet.",
   "underived.trait-entry-invalid": () => "a species trait has neither a usable `id` nor `name` (contract §5).",
   /* 2026-08-20 — voir la sœur française : l'arme choisie garde le NOM de sa
      maîtrise, la pile ne porte pas le record qui la définit. */

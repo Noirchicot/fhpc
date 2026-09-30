@@ -346,6 +346,12 @@ test("les familles de chemins INADRESSABLES sont nommées — c'est le livrable 
         .replace(/\.[a-zA-Z]+$/, ""))
   );
   assert.deepEqual([...familles].sort(), [
+    /* 🗡️ LOT 383 — LES ACTIONS SE RÉVEILLENT (elles étaient une « forme endormie », test plus bas) :
+       leurs dégâts, leur dé à deux mains et leurs propriétés sont des listes sans `id`. On surcharge
+       le chiffre d'une action (`resolved.actions[dagger].bonus`), jamais une ligne de ses dégâts. */
+    "resolved.actions[ID].damage[N]",
+    "resolved.actions[ID].properties[N]",
+    "resolved.actions[ID].twoHandedDamage[N]",
     "resolved.derivation.stack[ID]",
     "resolved.identity.classes[N]",
     /* 🧾 LOT 379 — le détail de l'Initiative (DEX, un don) : un breakdown, comme celui des stats. On
@@ -528,8 +534,9 @@ test("les quatre formes ENDORMIES se réveillent inadressables dès qu'un docume
     assert.equal(vu.adressable, false, `« ${chemin} » est affiché ET marqué inadressable`);
   }
 
-  /* L'attaque n'a touché qu'un clone. */
-  assert.deepEqual(exemple.document.resolved.actions, [], "l'original est intact");
+  /* L'attaque n'a touché qu'un clone. 🗡️ LOT 383 — l'original porte désormais ses propres actions
+     (la dague, le bâton…) : c'est l'action FABRIQUÉE ici qui ne doit pas y être. */
+  assert.equal(exemple.document.resolved.actions.some((a) => a.id === "dagger-strike"), false, "l'original est intact");
 });
 
 test("les choix NON CONSOMMÉS sont nommés — une décision perdue ne disparaît pas en silence", () => {

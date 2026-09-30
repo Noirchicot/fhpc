@@ -74,7 +74,10 @@ export const A_ETAT = [
 ];
 
 /** Les cibles qui ont une place dans `resolved`, et les modes que chacune sait recevoir.
- *  ⛔ `attack.weapon` / `damage.weapon` n'y sont pas : `resolved.actions` est vide. */
+ *  ⛔ `attack.weapon` / `damage.weapon` n'y sont pas. 🗡️ LOT 383 — `resolved.actions` porte
+ *  désormais les attaques d'armes, mais le moteur n'applique pas encore un effet d'objet à une
+ *  attaque : une arme qui en porte un est DÉCLARÉE (`underived.magic-weapon-attack`), jamais
+ *  chiffrée sans lui. */
 const CIBLES = [
   [/^ability\.(str|dex|con|int|wis|cha)$/, ["bonus", "fixe"]],
   [/^proficiency\.bonus$/, ["bonus"]],
