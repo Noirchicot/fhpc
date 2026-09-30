@@ -19,35 +19,35 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadDocSchema } from "./engine.mjs?v=919";
-import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=919";
+import { bootEngine, loadDocSchema } from "./engine.mjs?v=920";
+import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=920";
 /* 🪙 LOT 316 — la bourse rend la monnaie, et chaque transaction s'annonce une seconde */
-import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=919";
-import { mountPopup } from "./popup.mjs?v=919";
-import { renderLorePanel } from "./lore.mjs?v=919";
-import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=919";
+import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=920";
+import { mountPopup } from "./popup.mjs?v=920";
+import { renderLorePanel } from "./lore.mjs?v=920";
+import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=920";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT } from "./parcours.mjs?v=919";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=919";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT } from "./parcours.mjs?v=920";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=920";
 /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
    REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
    (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
    Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
    rendus. */
-import { nommerLeVide } from "./ecran-vide.mjs?v=919";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=919";
+import { nommerLeVide } from "./ecran-vide.mjs?v=920";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=920";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=919";
+} from "./tutoriel.mjs?v=920";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=919";
-import { lireLeFichier } from "./ouvrir.mjs?v=919";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=920";
+import { lireLeFichier } from "./ouvrir.mjs?v=920";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -61,14 +61,14 @@ import {
   /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — la sonde se pose ICI, une fois : la
      coquille est l'écrivain du DOM, `echelle.mjs` ne fait que la lire. */
   poserSondeTexte
-} from "./echelle.mjs?v=919";
+} from "./echelle.mjs?v=920";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=919";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=920";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -79,66 +79,66 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=919";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=919";
+} from "./fonds.mjs?v=920";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=919";
-import { renderChoixGlisses } from "./glisser.mjs?v=919";
-import { renderConceptStep } from "./concept-step.mjs?v=919";
+import { planAt, planSlots } from "./carnet.mjs?v=920";
+import { renderChoixGlisses } from "./glisser.mjs?v=920";
+import { renderConceptStep } from "./concept-step.mjs?v=920";
 /* ⚖️ LOT 350 — `creerUnPersonnage` et `popupDuJeu` sont partis avec le popup « SRD or
    Fate's Hand? » : la fenêtre `New character` et sa séquence les remplacent. */
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
   popupNouveauPersonnage, nouveauPersonnageSelonLaVoie, personnageEnCours, REGLAGES_DE_LA_PREMIERE_VISITE, NOM_DU_PERSONNAGE_NEUF,
   /* LOT 351 — la question du maître, peinte en FENÊTRE par `paintPopup` (voir là-bas). */
-  renderConfirmationPile } from "./universe-step.mjs?v=919";
+  renderConfirmationPile } from "./universe-step.mjs?v=920";
 /* LOT 188 — les gestes PURS de `Layers` : ranger la pile montée sur le document,
    écrire son manifeste ; la coquille ne fait que monter ce que les fonctions rendent.
    🔄 LOT 351 — `couchesApresLeGeste` (le geste d'un enfant) est parti avec les six
    interrupteurs ; entre la question qui précède l'effacement d'un livre. */
-import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=919";
+import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=920";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=919";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=920";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=919";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=919";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=920";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=920";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=919";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=919";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=919";
+} from "./catalogue.mjs?v=920";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=920";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=920";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=919";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=920";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=919";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=920";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
   featSousLabel, featInfo,
   /* 🧬 LOT 364 — le B emboîté du don vaut pour toute racine de don (Versatile) */
-  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=919";
+  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=920";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=919";
+} from "./abilities-step.mjs?v=920";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=919";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=920";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=919";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=919";
+} from "./destiny-step.mjs?v=920";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=920";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
@@ -146,29 +146,29 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
          pageActiveDeLEquipement, pageVoisineDeLEquipement, choisirLeSatellite,
          rangerParSend, placeLibreDans, materialiserLesDepots, disposerLeSac, MOT_SECTION_PLEINE,
-         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=919";
+         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=920";
 /* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
    pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
-import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=919";
+import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=920";
 /* 🗄️ LOT 356 — `CASES_DU_SAC` N'EST PLUS IMPORTÉ ICI : il bornait la place neuve d'un objet
    (`placeNeuveDans`), et c'est désormais le sac tel qu'on le voit qui la dit (`placeLibreDans`,
    `rangerParSend`, `equipment-step.mjs`). La taille de la grille vient toujours du plan. */
-import { poserLesDalles } from "./sac-ecran.mjs?v=919";
+import { poserLesDalles } from "./sac-ecran.mjs?v=920";
 /* ⭐ MÊME LOI POUR LES ROUES DE WARES : un ruban posé sur un nœud détaché ne bouge pas. */
-import { poserLesRoues } from "./wares-ecran.mjs?v=919";
+import { poserLesRoues } from "./wares-ecran.mjs?v=920";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
-import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=919";
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=920";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=919";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=919";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=920";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=920";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=919";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=920";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -187,11 +187,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=919";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=919";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=920";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=919";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=920";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -200,14 +200,14 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=919";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=919";
+import { platformNow } from "../../src/doc/clock.mjs?v=920";
 /* 🎲 LOT 367 — l'identifiant d'un personnage neuf, tiré de `getRandomValues` (voir `personnageNeuf`). */
-import { uuidDuNavigateur } from "./identifiant.mjs?v=919";
+import { uuidDuNavigateur } from "./identifiant.mjs?v=920";
 /* ⚖️ LOT 367 — le recalage : un perso sauvé avant une mise à jour des règles s'ouvre sur les
    couches d'aujourd'hui, sauvé aussitôt, et le Menu le dit (voir `recalerSurLaPileMontee`). */
-import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=919";
-import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=919";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=919";
+import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=920";
+import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=920";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=920";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
    sauvegardes dedans »* · *« une entrée datée à chaque Save »*.
@@ -216,21 +216,21 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=919";
    la version FH du 192, le fichier automatique de `Build a character` du 193)
    y entrent SANS second chemin. */
 import { ouvrirLeMagasin as monterLeMagasin, choisirUnDossier, garderDansLeTiroir,
-  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=919";
-import { popupDeLaDestination } from "./magasin-ecran.mjs?v=919";
+  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=920";
+import { popupDeLaDestination } from "./magasin-ecran.mjs?v=920";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=919";
+import { versionQuery } from "./version.mjs?v=920";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=919";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=920";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=919";
+import { armerEngrenage } from "./engrenage.mjs?v=920";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -417,7 +417,8 @@ const app = document.getElementById("app");
  *  LOT 40 — also keeps the WHOLE rebuild() output as `state.report`: the
  *  Review step passes it straight to `render()`, unread and unrecomputed. */
 /* ══ QUAND LA DÉRIVATION EST IMPOSSIBLE — 2026-08-20 ═══════════════════════
-   🔴 MESURÉ DANS LA PAGE, PAS DANS UN TEST : `I changed my mind` sur l'étape
+   🔴 MESURÉ DANS LA PAGE, PAS DANS UN TEST : `I changed my mind` (le `Cancel`
+   d'aujourd'hui, renommé le 05/09 — NORMES « DEUX MOTS, PAS TROIS ») sur l'étape
    Class ne faisait RIEN. La cause, à l'octet — `parcoursCancel` efface le
    choix `class`, appelle `rebuild()`, et `derive` JETTE (*« un personnage sans
    classe n'est pas une dérivation incomplète, c'est une dérivation
@@ -1807,7 +1808,11 @@ function appliquerLaDecision(action) {
     return;
   }
 
-  /* `I changed my mind` — DEUX ORGANES, ET C'EST VOULU. Les signatures
+  /* `Cancel` du parcours (il s'appelait `I changed my mind` jusqu'au 05/09 —
+     NORMES « DEUX MOTS, PAS TROIS » ; ✍️ recousu le 30/09, lot 369). Il VIDE
+     l'étape, choix de la racine compris : mesuré le 30/09 sur Species conclu,
+     on retombe au catalogue. Il ne rouvre donc pas une étape — il la défait.
+     — DEUX ORGANES, ET C'EST VOULU. Les signatures
      s'effacent par `revoke` (écrivain de document) ; les choix s'effacent par
      `clear` (verbe du bloc `build`, qui seul sait ce qu'un choix entraîne).
      Les fondre en un seul geste ferait écrire des règles à un écrivain qui
@@ -1833,7 +1838,7 @@ function appliquerLaDecision(action) {
       state.document = document;
       rebuild();
     }
-    /* 🚪 « I changed my mind » sur le B EMBOÎTÉ du don (lot 77) ne quitte
+    /* 🚪 `Cancel` (ex-« I changed my mind », 05/09) sur le B EMBOÎTÉ du don (lot 77) ne quitte
        pas l'item : le don efface, on retombe sur le choix du jeton — c'est
        le retour au catalogue du species complexe, en une dalle. */
     state.parcoursItem = racineEmboitee(action.racine)
@@ -1982,10 +1987,12 @@ function appliquerLaDecision(action) {
     });
     return;
   }
-  /* 🔴 `I changed my mind` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
+  /* 🔴 `Cancel` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
      tout »*) et rend au **R**, pas à l'étape d'avant : le joueur y retrouve
      ses deux portes.
-     📌 IL EFFACE SANS DEMANDER, comme les `I changed my mind` du parcours
+     ✍️ 2026-09-30, lot 369 : ce bloc nommait `I changed my mind` (deux fois),
+     retiré le 05/09 — NORMES « DEUX MOTS, PAS TROIS ». Le verbe est le même.
+     📌 IL EFFACE SANS DEMANDER, comme les `Cancel` du parcours
      (`parcoursCancel`) — le builder n'a aucun organe de confirmation, et en
      inventer un ici en ferait un geste à part. ⏳ La norme §6 veut « rouge ET
      confirmé » : la dette est la même sur les cinq écrans qui portent ce mot,
@@ -2007,7 +2014,8 @@ function appliquerLaDecision(action) {
        côte à côte divergent à la première correction — c'est la loi du dépôt
        (« un organe, un seul écrivain »), et c'est elle qui a coûté cette panne.
        ⚖️ CE QUI NE CHANGE PAS : la DESTINATION reste au rang. B2 rend au
-       catalogue (Eric, 03/09 : *« en SB2, I changed my mind revient à B2 »*), B1
+       catalogue (Eric, 03/09 : *« en SB2, I changed my mind revient à B2 »* —
+       le bouton cité est `Cancel` depuis le 05/09), B1
        rend à la porte. Le rang décide d'OÙ l'on repart, jamais de ce qu'on
        efface — sans quoi le même bouton rouge tiendrait deux promesses. */
     const effacerLaDestinee = () => {
@@ -3415,7 +3423,8 @@ function renderStepContent() {
         && donABranches(state.decisions, state.parcoursItem.path)) {
       /* 🚪 LE B DU DON (lot 77) — un don à branches posé remplace le glisser
          par son menu : le species complexe d'Eric, rendu par le MÊME moule
-         que le guide d'étape. « I changed my mind » y ramène au jeton. */
+         que le guide d'étape. `Cancel` (ex-« I changed my mind », 05/09) y
+         ramène au jeton. */
       section.append(renderParcoursGuide(parcoursDuDon(state.parcoursItem.path), ctx));
     } else if (state.parcoursItem) {
       section.append(renderParcoursItem(cfg, ctx));
@@ -4299,7 +4308,8 @@ function parcoursInheritance() { return inheritanceMontee(drapeauxMontes()); }
  *  qu'une étape n'a PAS de parcours, puisque la fonction rend alors `null`.
  *
  *  📏 CE QUE ÇA CASSAIT, MESURÉ À L'ÉCRAN (375 × 812, Identity) : `Done`
- *  marchait — la rangée passait bien à `I changed my mind` / `Next` — et
+ *  marchait — la rangée passait bien à `I changed my mind` / `Next` (le rouge
+ *  portait alors ce mot ; `Cancel` depuis le 05/09) — et
  *  **`Next` ne faisait rien, deux clics de suite**. La cause :
  *  `parcoursRacineCourante()` rend `null` sur `concept` *(aucun
  *  `CATALOGUES.concept`, et l'id n'est pas `background`)*, donc
@@ -4816,8 +4826,10 @@ function pressDone() {
       state.destinyFace = "up";
       state.destinyPhase = "final";
       state.destinyMode = "draw";  // referme le rail : on n'est plus au catalogue
-      /* 🔴 LE RANG, ET C'EST LUI QUI DIT OÙ REVIENT `I changed my mind` — Eric,
+      /* 🔴 LE RANG, ET C'EST LUI QUI DIT OÙ REVIENT `Cancel` — Eric,
          2026-09-03 : *« en SB2 : I changed my mind dans le FF revient à B2 »*.
+         ✍️ 30/09, lot 369 : citation gardée ; le titre nommait ce bouton par
+         son mot d'avant le 05/09 (NORMES « DEUX MOTS, PAS TROIS »).
          ⭐ CE N'EST PAS UN HISTORIQUE : on n'empile pas d'où on vient, on NOMME
          le rang où l'écran est rendu. `SB2` est le FF ouvert depuis le
          catalogue ; le tirage, lui, ne passe jamais par là et garde son
@@ -5041,7 +5053,9 @@ function pressBack() {
      rechoisir un feat »*. Repartir choisir un autre don rend caducs SES choix à
      lui : sa liste de sorts et les sorts pris dedans. Les garder ferait
      resurgir des sorts de Magicien sous un don qui n'en donne plus.
-     ⭐ MÊME PAIRE D'ORGANES QUE `I changed my mind` DU GUIDE (canon §5) : les
+     ✍️ 30/09, lot 369 : citation gardée ; « le mot qui efface » est `Cancel`
+     depuis le 05/09 (NORMES « DEUX MOTS, PAS TROIS »), et ce retour le porte.
+     ⭐ MÊME PAIRE D'ORGANES QUE LE `Cancel` DU GUIDE (canon §5) : les
      signatures par `revoke`, les choix par `verbs.clear`. Aucun des deux ne
      connaît les règles de l'autre.
      ⛔ ET LA RACINE ELLE-MÊME SURVIT : on efface ce qui vit SOUS le don, pas le
@@ -5487,7 +5501,8 @@ function renderSortieEtape(hote) {
      à l'appui : *« y'a un Done dans le vide après validation de Identity »*.
 
      📏 REPRODUIT ET MESURÉ (375 × 553) : la carte-bilan portait
-     `I changed my mind` · `Next` · `?`, et **88 px plus bas, sur le fond nu,
+     `I changed my mind` · `Next` · `?` (le rouge s'appelle `Cancel` depuis le
+     05/09 — NORMES « DEUX MOTS, PAS TROIS »), et **88 px plus bas, sur le fond nu,
      un `Done`** que plus rien ne reliait à l'écran.
 
      ⛔ ET CE N'ÉTAIT PAS QU'UN DÉFAUT DE PLACEMENT — c'est ce qui rend ce
@@ -5499,9 +5514,10 @@ function renderSortieEtape(hote) {
      la carte aurait donc rangé un bouton qui n'a plus d'office ; on le retire.
 
      ⚠️ ET LE BILAN N'EST PAS DÉMUNI POUR AUTANT : ses deux portes sont
-     produites par `parcours-ecrans.mjs`, dans sa propre rangée — `I changed my
-     mind` pour défaire, `Next` pour avancer. C'est exactement la ligne
-     « validée » de la table de la norme. */
+     produites par `parcours-ecrans.mjs`, dans sa propre rangée — `Cancel` pour
+     défaire, `Next` pour avancer. C'est exactement la ligne « validée » de la
+     table de la norme. ✍️ 30/09, lot 369 : le premier des deux était écrit
+     `I changed my mind`, mot retiré le 05/09. */
   /* 🏁 SAUF QUAND L'HÔTE DÉCLARE SA PAIRE « VALIDÉE » (06/09) : le bilan d'Abilities
      signe l'étape en s'ouvrant, et ses deux portes — `Cancel` pour défaire, `Next`
      pour avancer — sont exactement la ligne « validée » de la table de la norme.
@@ -5556,7 +5572,8 @@ function renderSortieEtape(hote) {
      (Appearance, palier 2) garde sa paire `Back · Done`. */
   if (STEPS[state.step].id === "universe" && state.palier < 2) return null;
   /* 🚪 DESTINY PORTE SON PROPRE PIED (lot 109) — le R a `Draw`/`Choose`,
-     l'écran final a `I changed my mind`/`Next`, et la cérémonie n'a aucun
+     l'écran final a `Cancel` · `Done`/`Next` (écrit `I changed my mind`/`Next`
+     avant le 05/09 et le retour du `Done` le 06/09), et la cérémonie n'a aucun
      bouton (trois taps la résolvent). La paire de la coquille en plus serait
      le doublon du 19/08 : deux commandes pour un geste.
      ⛔ SAUF AU CATALOGUE : la branche `Choose` est un écran à fiche, et son
@@ -5585,14 +5602,16 @@ function renderSortieEtape(hote) {
      borne qui rouille : elle est juste tant que personne n'ajoute un cran. */
   if (fiche && fiche.fiche && state.palier < 2 && !state.parcoursItem) return null;
   /* 🚪 LE B EMBOÎTÉ DU DON PORTE SON PROPRE PIED (lot 77) — il est rendu par
-     `renderGuideSpecifique`, qui pose « I changed my mind · Done/Next » comme
+     `renderGuideSpecifique`, qui pose « Cancel · Done/Next » (« I changed my
+     mind » jusqu'au 05/09) comme
      tout guide. La paire de la coquille en plus serait le doublon du 19/08,
      à dix pixels de la sienne. */
   if (state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
       && donABranches(state.decisions, state.parcoursItem.path) && !state.lore) return null;
   /* 🔴 UN GUIDE DE PARCOURS PORTE SON PROPRE PIED — et il a fallu qu'Eric
      demande le `Next` pour que le doublon se voie. Mesuré à l'écran : la dalle
-     de l'Inheritance affichait « I changed my mind · Next » DANS la dalle, et
+     de l'Inheritance affichait « I changed my mind · Next » (le `Cancel` · `Next`
+     d'aujourd'hui, renommé le 05/09) DANS la dalle, et
      un `Done` FLOTTAIT dessous, sur le fond de la scène. Deux validations pour
      un geste — exactement ce qu'Eric a fait sauter le 19/08.
      ⭐ ÉCRIT SUR LE FAIT, comme le reste : « l'écran courant est-il un guide de
@@ -5600,7 +5619,8 @@ function renderSortieEtape(hote) {
      intérieur, et c'est la paire de la coquille qui l'en sort. */
   /* 🔴 ET LE MÊME DOUBLON VIVAIT ENCORE CHEZ SPECIES ET CLASS — mesuré dans la
      page le 2026-08-20, Fighter, juste après `Choose` : la dalle portait
-     « I changed my mind · Next », et « Back · Done » FLOTTAIT dessous.
+     « I changed my mind · Next » (mot d'alors ; `Cancel` depuis le 05/09), et
+     « Back · Done » FLOTTAIT dessous.
      ⚠️ CE N'EST PAS COSMÉTIQUE, ET C'EST CE QU'ERIC A VU (*« il devrait y avoir
      une phase bilan dans les classes aussi, avec un next »*) : le `Done`
      flottant est celui du PALIER, il avance d'une étape SANS signer la racine.
@@ -5676,7 +5696,13 @@ function renderSortieEtape(hote) {
      n'y sera signé. Ailleurs, `BACK` reste `BACK` : il recule vraiment.
      ⛔ UN SEUL PRODUCTEUR malgré les deux mots : c'est toujours la coquille
      qui pose ce bouton, et `pressBack` qui l'exécute (garde 17). */
-  /* 🔴 LE MOT DIT LE GESTE, ET LES TROIS GESTES SONT DIFFÉRENTS — Eric,
+  /* 🗄️ ✍️ 2026-09-30, lot 369 — BLOC ARCHIVÉ, REMPLACÉ PAR « DEUX MOTS DEPUIS
+     LE 2026-09-05 » (trois commentaires plus bas ; NORMES « DEUX MOTS, PAS
+     TROIS »). Les trois mots sont devenus deux : `I changed my mind` est fondu
+     dans `Cancel`. Ce qui tient encore ici : un libellé nomme ce que son bouton
+     FAIT, et `Back` n'efface rien. Le reste est gardé comme trace de la loi
+     du lot 79.
+     🔴 LE MOT DIT LE GESTE, ET LES TROIS GESTES SONT DIFFÉRENTS — Eric,
      2026-08-20, en corrigeant ma fusion de la veille au soir :
      *« back n'efface pas ; pour effacer, c'est cancel ou i changed my mind »*.
 
@@ -5700,7 +5726,9 @@ function renderSortieEtape(hote) {
      ⛔ UN SEUL PRODUCTEUR, INCHANGÉ : la coquille pose ce bouton, `pressBack`
      l'exécute (garde 17). Ce sont les mots qui varient, jamais le propriétaire. */
   /* LE MOT SUIT LE GESTE (la règle d'Eric du jour) : `Cancel` abandonne un
-     item, `I changed my mind` efface une branche, `Back` ne fait que reculer. */
+     item, `I changed my mind` efface une branche, `Back` ne fait que reculer.
+     🗄️ Archivé (lot 369, 30/09) : depuis le 05/09, `Cancel` porte les deux
+     premiers gestes — voir « DEUX MOTS » ci-dessous. */
   const cfgRetour = catalogueCourant();
   const effaceAuRetour = Boolean(cfgRetour && cfgRetour.retourEfface && state.palier === 2);
   /* 🔴 LE MOT SUIT LE GESTE, ET UN ÉCRAN PEUT LE DÉCLARER — Eric, 2026-09-03 :
@@ -5711,7 +5739,9 @@ function renderSortieEtape(hote) {
      abandonne la lecture des vingt-deux, rien n'a été posé au document.
      ⛔ ET CE N'EST PAS UN QUATRIÈME MOT : les trois du lot 79 ne bougent pas, et
      leur loi non plus. C'est la TABLE des catalogues qui dit lequel des trois
-     s'applique chez elle — un fait déclaré, pas un id d'étape lu à la volée. */
+     s'applique chez elle — un fait déclaré, pas un id d'étape lu à la volée.
+     🗄️ Les « trois » sont deux depuis le 05/09 (bloc suivant) ; la citation
+     *« i changed my mind / next »* nomme le `Cancel` · `Next` d'aujourd'hui. */
   /* ⚠️ DEUX MOTS DEPUIS LE 2026-09-05, ET PAS TROIS. Eric : *« cancel est clair
      et court »*, puis *« remplace par cancel partout »*. `Cancel` et
      `I changed my mind` étaient DÉJÀ la même famille au corpus (DÉFAIRE, rouge)
@@ -5750,7 +5780,12 @@ function renderSortieEtape(hote) {
      (`--critical`), la même teinte qu'`I changed my mind`.
      ⛔ Ce n'est pas une exception de plus : c'est la règle appliquée à un mot
      qu'on n'avait encore jamais colorié. Les trois mots existaient, deux
-     seulement avaient leur teinte. */
+     seulement avaient leur teinte.
+     ✍️ 2026-09-30, lot 369 : écrit le 03/09, quand trois mots existaient.
+     `I changed my mind` a été fondu dans `Cancel` le 05/09 (NORMES « DEUX MOTS,
+     PAS TROIS ») — et c'est cette fusion qui l'a enfin peint en rouge : il
+     recevait `sortie-back`, le bleu du recul, tant qu'il ne s'appelait pas
+     `Cancel`. */
   const defait = motDuRetour === "Cancel" || motDuRetour === "Reset"; // lot 171 : `Reset` défait, donc rouge
   if (back) back.className = "sortie-bouton " + (defait ? "sortie-annule" : "sortie-back");
   /* 🔴 `Cancel` EST ROUGE QUAND IL A QUELQUE CHOSE À ABANDONNER — Eric, 06/09 :
@@ -6285,7 +6320,9 @@ function paintAside() {
   /* ⭐ ET LE PARCOURS FERME LE RAIL DÈS LE `Choose` (Eric, 2026-08-19) :
      *« quand on a choisi Choose pour une species ON PASSE EN MODE FF »*, et on
      y reste. Le rail ne revient qu'au catalogue — c'est-à-dire quand plus
-     aucune espèce n'est retenue, après un `I changed my mind`. */
+     aucune espèce n'est retenue, après un `Cancel` (écrit `I changed my mind`
+     jusqu'au 05/09). Mesuré le 30/09, lot 369 : Dwarf conclu, `Cancel`, le
+     rail des espèces revient. */
   const enParcours = cfg && cfg.parcours &&
     etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path }) !== ETAT.catalogue;
   /* ⚠️ `!== 2` EST DEVENU `< 2` LE 2026-08-20, et c'est le 3ᵉ palier qui l'a

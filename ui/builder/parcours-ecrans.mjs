@@ -61,7 +61,17 @@ function saignee() {
    phrase et le pied disent maintenant la MÊME chose avec les MÊMES mots —
    « move on » sous `Next`, « change your mind » sous `I changed my mind` —
    parce qu'une consigne qui rebaptise le bouton qu'elle désigne fait chercher
-   un troisième bouton. */
+   un troisième bouton.
+
+   ⛔ ✍️ 2026-09-30, lot 369 — CETTE ÉGALITÉ EST ROMPUE DEPUIS LE 05/09, ET
+   LE PARAGRAPHE CI-DESSUS EST GARDÉ COMME TRACE. Le bouton rouge s'appelle
+   `Cancel` depuis ce jour-là (NORMES « DEUX MOTS, PAS TROIS » : *« remplace
+   par cancel partout »*), mais la phrase ci-dessous dit encore « change your
+   mind ». Mesuré dans la page le 30/09 (375 × 812, Dwarf, pile SRD) :
+   *« This step is settled. Change your mind if you want to start it
+   over. »* au-dessus de `Cancel` · `Next`. ⏳ Le lot 369 ne touche que des
+   commentaires : réécrire la phrase appartient à un lot de texte, et le mot
+   à Eric. */
 function conclusion(peutAvancer) {
   const phrase = peutAvancer
     ? "This step is settled. Move on when you are ready — or change your mind and start it over."
@@ -261,9 +271,25 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
        sur une décision — elle ouvre sur un écran qui n'a plus rien à demander.
        Le nom suffit alors à porter le résumé, exactement comme pour un item
        `sansChoix`, qui n'a jamais eu de porte.
-       ⚠️ ET ELLES REVIENNENT SEULES : `I changed my mind` défait la validation,
-       donc `acheve` retombe et les portes se reconstruisent. Rien à câbler pour
-       le retour — c'est la même expression qui décide dans les deux sens. */
+       ⚠️ ET ELLES REVIENNENT SEULES : dès que `acheve` retombe, les portes se
+       reconstruisent. Rien à câbler pour le retour — c'est la même expression
+       qui décide dans les deux sens.
+       ✍️ 2026-09-30, lot 369 — RECOUSU, ET LE DÉCLENCHEUR A CHANGÉ DE NOM ET
+       DE NATURE. Ce paragraphe disait : *« `I changed my mind` défait la
+       validation, donc `acheve` retombe »*. Deux choses sont périmées :
+       ① le bouton s'appelle `Cancel` depuis le 05/09 (NORMES « DEUX MOTS, PAS
+       TROIS ») — Eric, citant son propre geste ci-dessus, parlait de lui ;
+       ② `Cancel` ne défait pas la validation, il VIDE l'étape : `parcoursCancel`
+       efface tout le préfixe, choix de la racine compris. Mesuré dans la page le
+       30/09 (Dwarf conclu, retour sur Species, `Cancel`) : on retombe sur le
+       catalogue et son rail — il n'y a plus de guide dont les portes
+       reviendraient ; celles de l'espèce suivante naissent neuves.
+       ⭐ Ce qui fait retomber `acheve` SANS vider l'étape, c'est le noyau : un
+       item neuf (une couche éteinte, un plan qui grandit — mesuré le 10/09, voir
+       `renderSortieEtape` dans `shell.mjs`), ou un choix que la pile ne résout
+       plus (lot 191). Un verrou, lui, ne rouvre QUE sa porte (la branche
+       `gendarme` juste en dessous). Aucun autre chemin ne rouvre une étape
+       achevée. */
     if (gendarme && gendarme.chemin && item.path === gendarme.chemin && !item.sansChoix) {
       /* 🚨 LA TÊTE ACCUSÉE REDEVIENT UNE PORTE — Eric, 27/08 : « sur Wood Elf
          j'ai pas le bouton pour revenir en arrière ». Même conclue, une étape
@@ -393,8 +419,11 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
      ⛔ LE `Done` RESTE DONC NON GRISÉ (*« done lance un message et ne valide
      pas si tout n'est pas coché »*) — un bouton mort ne dit pas ce qui manque.
 
-     ⚠️ ET `I changed my mind` NE DISPARAÎT JAMAIS : c'est la seule porte qui
-     reste ouverte dans les trois états, celle qui défait. */
+     ⚠️ ET `Cancel` NE DISPARAÎT JAMAIS : c'est la seule porte qui reste
+     ouverte dans les trois états, celle qui défait.
+     ✍️ 2026-09-30, lot 369 : cette phrase nommait `I changed my mind`, retiré
+     le 05/09 (NORMES « DEUX MOTS, PAS TROIS »). Le bouton et sa loi n'ont pas
+     bougé ; mesuré le 30/09 sur Species conclu : `Cancel` · `Next`. */
   /* La bande d'aiguilleur entre ICI — voir sa note en tête de fonction : après
      la liste, juste avant le pied. */
   for (const mot of bandeAiguilleur) page.append(mot);
@@ -439,9 +468,12 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
   /* ⛔ PLUS DE BLOC DE CONCLUSION SÉPARÉ — son texte est passé dans la bande
      d'aiguilleur (voir sa note plus haut). `conclusion()` reste écrite : elle
      sert encore au bilan d'Identity, qui n'a pas d'aiguilleur. */
-  /* 🔴 TOUJOURS UN SECOND BOUTON À CÔTÉ DE `I changed my mind` — Eric,
-     2026-08-26 : *« la bonne chose à faire, toujours un Next à côté de I
-     changed my mind »*, capture d'Identity à l'appui, où les deux se font face.
+  /* 🔴 TOUJOURS UN SECOND BOUTON À CÔTÉ DE `Cancel` — Eric, 2026-08-26 :
+     *« la bonne chose à faire, toujours un Next à côté de I changed my
+     mind »*, capture d'Identity à l'appui, où les deux se font face.
+     ✍️ 2026-09-30, lot 369 : la citation est gardée telle quelle ; le bouton
+     qu'elle nomme s'appelle `Cancel` depuis le 05/09 (NORMES « DEUX MOTS, PAS
+     TROIS »), et la loi l'a suivi (NORMES `bouton-i-changed-my-mind-jamais-seul`).
 
      ⛔ CE QUI MANQUAIT ÉTAIT UN QUATRIÈME ÉTAT, ET IL NE SE VOYAIT PAS. Le code
      traitait `acheve && !conclu` (→ Next) et `!acheve` (→ Done) ; le cas
@@ -454,7 +486,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
 
      ⭐ LA RÈGLE TIENT MAINTENANT EN UNE PHRASE, ET C'EST CE QUI LA REND SÛRE :
      réglée → on avance (`Next`) ; pas réglée → on règle (`Done`). Deux
-     branches, aucun trou possible, et jamais `I changed my mind` tout seul. */
+     branches, aucun trou possible, et jamais `Cancel` tout seul. */
   if (acheve) {
     const next = bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine }));
     if (gendarme) { next.disabled = true; next.dataset.verrou = "oui"; } /* on ne quitte pas une étape que le noyau refuse */
@@ -536,6 +568,8 @@ export function renderItem({ racine, item, titre, corps, livreDe, aiguilleur, on
    Eric : *« carte de bilan species FF2, plus de menu de species, liste de tout
    ce qui est validé, explique au joueur qu'il peut aller à la suite, bouton
    next. Explique qu'il peut tout remettre en question : I changed my mind. »*
+   ✍️ 2026-09-30, lot 369 : citation gardée ; le bouton qui remet tout en
+   question est `Cancel` depuis le 05/09 (NORMES « DEUX MOTS, PAS TROIS »).
 
    ⛔ PLUS AUCUN ACCÈS AU MENU DES ESPÈCES — c'est le format FF qui le dit, et
    c'est la seule chose que cet écran a besoin de savoir à ce sujet. */
