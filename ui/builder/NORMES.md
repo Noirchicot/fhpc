@@ -10322,6 +10322,14 @@ garde le nom de leur créateur, le SRD ne le garde pas). Le frère SRD d'un reno
 au livre entre avec ses listes de classes (lues au chapitre 3), sinon le générateur REFUSE — un sort qu'aucune porte n'offre
 n'est pas un sort du jeu. Ce qui le tient : `tests/livre-sorts-389.test.mjs` (le partagé n'est pas réémis, l'écart planté et le
 renommé ; la porte des classes listées et la fiche ; les formes écrites se relisent ; le refus ; le générateur sans le livre).
+🎖️ **LES DONS HORS ORIGINE (lot 392, ARCHI 35, 30/09)** — *« un don que le SRD a déjà n'est pas réémis, il est comparé »*. 📏
+Mesuré sur la liste du chapitre 5 (75 dons, dont 10 d'origine déjà au lot 387) : 52 propres au livre (41 généraux, 6 de style de
+combat, 5 épiques), 13 partagés — identiques au SRD, paragraphe par paragraphe. Un don propre entre dans SA catégorie, son
+prérequis dans la forme du SRD (`Prerequisite: …`) ; la tête du prérequis de chaque catégorie se LIT dans les dons SRD de cette
+catégorie (⛔ jamais écrite dans le générateur), et un prérequis qui ne la porte pas fait REFUSER le générateur. La porte qui offre
+un don est celle qui lit déjà sa catégorie : un style s'offre au Fighter (lot 360), un don général ou épique n'entre à aucune
+porte de création. Ce qui le tient : `tests/livre-dons-392.test.mjs` (le propre et ses formes, le partagé non réémis, l'écart
+planté, la bijection relue ; la porte du Fighter et la fiche ; le refus ; le générateur sans le livre).
 
 📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
 ⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**
