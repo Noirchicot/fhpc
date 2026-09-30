@@ -10942,18 +10942,18 @@ dalle ; la coquille le pose) — 4 mutations vues rouges ; `premier-pas` E1.
 > aller chercher une fiche »*.
 
 ⚖️ **LES DEUX DÉCISIONS D'ERIC TIENNENT ENSEMBLE** — Q1, tranchée par ARCHI 35 le 30/09 sur ses propres
-mots (⏳ signalée à Eric, qui peut objecter) : le **10/09**, *« une entrée datée à chaque Save — rien n'est
+mots — ✅ **RATIFIÉE par Eric le 30/09 à 12:50**, au bilan qui listait les trois décisions de la sauvegarde (*« dis-moi si l'une ne te va pas »*) → **« Ok go »** : le **10/09**, *« une entrée datée à chaque Save — rien n'est
 écrasé, la page montre les versions par personnage »* (`menu-magasin-de-sauvegardes`) ; le **29/09**,
 *« une ligne par perso »*, et *« l'app vérifie avant d'écrire »* (§ 10). ⇒ Une LIGNE par perso, qui montre sa
 version la plus récente ; ses VERSIONS DATÉES restent derrière elle (une à chaque Save, jamais écrasées ; la
 vue qui les montre viendra) ; la vérification de révision vaut pour l'écriture dans le stockage choisi.
 Cette règle BORNE celle du 10/09 — la page ne groupe plus les versions sous le nom —, elle ne la barre pas.
 ⚖️ **`SAVE LOCATION` RESTE ICI** (Eric, 10/09 : *« un bouton reste présent : save location »* ; Q2 → a,
-ARCHI 35, 30/09) : le dossier de Chrome et d'Edge (lots 195, 202) est un lieu de l'organe, choisi ici,
+ARCHI 35, 30/09 ; ✅ ratifiée par Eric le 30/09 à 12:50, « Ok go ») : le dossier de Chrome et d'Edge (lots 195, 202) est un lieu de l'organe, choisi ici,
 discrètement, jusqu'au lot Vault ; le mot du lieu se lit sous le bouton. Là où le navigateur ne sait pas
 choisir (Safari, l'iPad), le bouton est présent, éteint, et dit pourquoi. 🗄️ Le popup « la première fois »
 du 10/09 n'est pas reposé : le choix du lieu part dans Vault (29/09).
-⚖️ **QUI ENTRE DANS LA LISTE** (Q3 → a, ARCHI 35, 30/09) : les persos SAUVÉS au moins une fois (Save
+⚖️ **QUI ENTRE DANS LA LISTE** (Q3 → a, ARCHI 35, 30/09 ; ✅ ratifiée par Eric le 30/09 à 12:50, « Ok go ») : les persos SAUVÉS au moins une fois (Save
 character, le Save de New character, la version FH) ou OUVERTS (un fichier, la liste) — *« une sauvegarde à
 la fin du process de création »* (Eric, 28/09).
 📐 **LES CINQ LIGNES SE DÉDUISENT** de la scène de 500 blg : 8 d'air + 32 de titre + 52 de rangée des
