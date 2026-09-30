@@ -10330,6 +10330,25 @@ catégorie (⛔ jamais écrite dans le générateur), et un prérequis qui ne la
 un don est celle qui lit déjà sa catégorie : un style s'offre au Fighter (lot 360), un don général ou épique n'entre à aucune
 porte de création. Ce qui le tient : `tests/livre-dons-392.test.mjs` (le propre et ses formes, le partagé non réémis, l'écart
 planté, la bijection relue ; la porte du Fighter et la fiche ; le refus ; le générateur sans le livre).
+🔤 **`ability_increase` — UNE FORME SANS LECTEUR AUJOURD'HUI** (ARCHI 35, 30/09, sur le point 1 du rapport 392 : *« validé tel
+quel pour le Level up »*). `{from, amount, max}` sur un don du livre : les caractéristiques offertes, le +1, le plafond (20, ou 30
+pour un don épique). ⛔ Aucune porte ne la lit tant que le Level up n'existe pas : elle est posée pour lui, et ne change rien à la
+fiche d'aujourd'hui.
+💍 **LES OBJETS MAGIQUES DU DMG (lot 394, ARCHI 35, 30/09)** — *« un objet que le SRD porte déjà n'est pas réémis, il est
+comparé »*. 📏 Mesuré sur la liste du compendium (365 lignes) : 92 objets propres au livre ; les 258 objets du SRD tous retrouvés
+(245 sous leur nom, 9 renommés par le livre — `srd_name` —, et 14 lignes qui détachent en variantes ce que le SRD porte en un
+seul objet — `variant_of`) ; 1 écart. Trois lignes de la liste ne sont pas au livre (témoin : les 92 titres au chapitre « Magic
+Items A–Z ») et n'entrent pas. Un objet propre entre avec sa rareté ÉCRITE COMME AU SRD (l'harmonisation entre parenthèses,
+l'énumération des variantes) : c'est la forme que les organes de l'équipement lisent déjà (`variantesDe`, le craft). Il entre dans
+Wares par un rangement : ⭐ déduit de sa catégorie en RELISANT le rangement SRD de cette catégorie, ou — pour un merveilleux, dont la
+table est celle d'Eric (21/08) — PROPOSÉ par analogie, marqué `shelf_provisional`, et nommant son modèle (`like`) ; le générateur
+REFUSE un modèle rangé ailleurs (ARCHI 35, décision a : une proposition visible, pas une décision inventée). ⚙️ Un effet que le
+moteur sait appliquer (lot 289) se déclare sur le record (`data.effects`, la forme de l'inventaire, un pointeur au lieu d'une
+citation) et `effetsDeLaLigne` le lit — ⛔ jamais à la place de l'inventaire du SRD, qui gagne toujours. 🔗 Et un lien vers une
+section du livre porte l'ancre du titre (`ancreDuLivre` : ses lettres et ses chiffres seuls) — la correction du lot 387. Ce qui le
+tient : `tests/livre-objets-394.test.mjs` (le propre et son rangement, l'analogie vérifiée ; le partagé, le renommé, la variante,
+l'écart planté, la bijection ; les trésors du 09/09 intacts ; la forme des ancres ; l'effet déclaré sur la fiche, l'inventaire qui
+gagne ; le générateur sans le livre).
 
 📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
 ⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**

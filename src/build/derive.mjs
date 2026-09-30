@@ -526,17 +526,20 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     /* LOT 289 — les records qui DÉCRIVENT l'objet : lui-même s'il est un objet magique,
        son plan, ses pouvoirs. Ce sont eux qui portent des effets. */
     const objetsDeLaLigne = [];
-    if (ref.kind === "item") objetsDeLaLigne.push({ id: view.id, name: view.record.name, role: "ref" });
+    /* 💍 LOT 394 — chaque record porte aussi les effets qu'il DÉCLARE (`data.effects`, un livre du joueur) :
+       `effetsDeLaLigne` ne les lit que si l'inventaire du SRD ne connaît pas l'objet. */
+    const declares = (v) => (v && v.record.data && Array.isArray(v.record.data.effects) ? v.record.data.effects : undefined);
+    if (ref.kind === "item") objetsDeLaLigne.push({ id: view.id, name: view.record.name, role: "ref", effetsDeclares: declares(view) });
     for (let k = 0; ; k += 1) {
       const p = takeRef(`gear[${index}].powers[${k}]`);
       if (p === undefined) break;
       const pv = p ? reader.maybe(p.kind, p.id) : null;
       pouvoirs.push(pv ? pv.record.name : (p && p.id) || "");
-      if (pv) objetsDeLaLigne.push({ id: pv.id, name: pv.record.name, role: "power" });
+      if (pv) objetsDeLaLigne.push({ id: pv.id, name: pv.record.name, role: "power", effetsDeclares: declares(pv) });
     }
     const plan = takeRef(`gear[${index}].plan`);
     const vueDuPlan = plan ? reader.maybe(plan.kind, plan.id) : null;
-    if (vueDuPlan) objetsDeLaLigne.push({ id: vueDuPlan.id, name: vueDuPlan.record.name, role: "plan" });
+    if (vueDuPlan) objetsDeLaLigne.push({ id: vueDuPlan.id, name: vueDuPlan.record.name, role: "plan", effetsDeclares: declares(vueDuPlan) });
     /* ⭐ LOT 289 — L'HARMONISATION, ÉCRITE PAR LA FICHE X1 depuis le lot 213 (l'interrupteur
        « Attune »). ⚖️ Eric, 26/09 : *« le joueur le coche dans la fiche X1 »*. Le moteur la
        LIT enfin : absente, ou autre chose que `true`, veut dire NON harmonisé — ⛔ ce n'est

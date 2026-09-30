@@ -49,18 +49,18 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=941";
+import { lireLeFichier } from "./ouvrir.mjs?v=942";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=941";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=941";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=942";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=942";
 /* 📚 LOT 388 — le juge d'un livre est celui qui le MONTE (`readLayer`, le seul chemin d'entrée d'une couche),
    et la table des livres que l'app connaît (`LIVRES_DU_JOUEUR`). ⛔ Aucun second juge. */
-import { readLayer } from "../../src/layers/document.mjs?v=941";
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=941";
+import { readLayer } from "../../src/layers/document.mjs?v=942";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=942";
 /* 📚 LOT 390 — le juge d'un CATALOG DE CRÉATEUR (tout livre que l'app ne connaît pas d'avance) : le même à
    l'import, au montage et en ligne de commande. ⛔ Aucun second juge. */
-import { verifierUnCatalog, fauteEnLigne } from "../../src/catalog/juge.mjs?v=941";
+import { verifierUnCatalog, fauteEnLigne } from "../../src/catalog/juge.mjs?v=942";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
