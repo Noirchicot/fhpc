@@ -10315,6 +10315,13 @@ compteur de souffle et son Draconic Flight daté.
 📌 **CE QUI LA TIENT** : `tests/livre-origines-387.test.mjs` (le partagé n'est pas réémis et un écart planté se rapporte ; le
 propre entre, à sa place, dans les deux piles ; chaque déclaration cite ou pointe ; aucun texte sans la marque du résumé ; le
 générateur ne porte pas le livre) et `tests/gen-livre-layer.test.mjs` (aucun fichier de livre suivi par git).
+🪄 **LES SORTS (lot 389, ARCHI 35, 30/09)** — *« les 339 sorts du SRD ne sont pas réémis, ils sont comparés »*. 📏 Mesuré sur la
+liste du compendium (391 sorts du PHB) : 52 propres au livre, 339 partagés — dont **17 que le SRD nomme autrement** (le livre
+garde le nom de leur créateur, le SRD ne le garde pas). Le frère SRD d'un renommé est une DONNÉE de l'instantané (`srd_name`),
+⛔ jamais une table du générateur ; un instantané qui se dit complet fait nommer tout sort SRD resté sans frère. Un sort propre
+au livre entre avec ses listes de classes (lues au chapitre 3), sinon le générateur REFUSE — un sort qu'aucune porte n'offre
+n'est pas un sort du jeu. Ce qui le tient : `tests/livre-sorts-389.test.mjs` (le partagé n'est pas réémis, l'écart planté et le
+renommé ; la porte des classes listées et la fiche ; les formes écrites se relisent ; le refus ; le générateur sans le livre).
 
 📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
 ⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**
