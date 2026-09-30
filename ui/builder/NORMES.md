@@ -11603,10 +11603,26 @@ rayons qui manquent, n'en efface ni n'en vide aucun. Une base v2 remplie, ouvert
 mêmes octets. La copie de travail (`fhpc.base`) vit dans `localStorage`, hors de la base.
 📏 Au navigateur réel (30/09, v938) : un rayon recréé à la montée vide Ilyra et les réglages ; un onglet resté
 ouvert sur l'ancienne version fait ATTENDRE l'onglet neuf (aucune perte), jusqu'à sa fermeture.
+🔒 **LES DEUX ONGLETS : LA CAUSE ET LA SORTIE, JAMAIS UN « LOADING… » MUET** (ARCHI 35, 30/09, la réponse (b) :
+*« Aucun chemin ne mène plus à un écran mort sans cause ni sortie »*, `socle-perso-sauve-s-ouvre-toujours`). La
+base SIGNALE, la coquille le dit (`quandLaBaseSignale`) :
+· un onglet plus ancien tient la base (`blocked`) → fenêtre `My characters` : *« SOWLREACH is still open in another tab, on an older version. Close the other SOWLREACH tabs to open your characters: this page opens them by itself as soon as you do. »* ;
+  la page s'ouvre SEULE quand il lâche la base, et la fenêtre tombe si c'est encore la sienne ;
+· une version plus neuve demande la base (`versionchange`) → l'onglet la FERME (sinon c'est lui qui bloquerait
+  l'autre), et le dit : *« SOWLREACH was updated in another tab — reload this page to keep working. Nothing is lost: what you did here is kept in this browser, and reaches My characters when the page reopens. »* ;
+  My characters dit le premier mot, et chaque verbe de la base refuse avec lui. Rien n'est perdu : la copie de
+  travail vit dans `localStorage`, et ce qui n'est pas parti repart à la réouverture (lot 374).
+📏 Au banc (30/09, v938, deux onglets du même navigateur) : l'onglet d'hier (une base v2 tenue ouverte) → la
+fenêtre s'affiche sur « Loading the engine… » ; l'onglet d'hier fermé → la page s'ouvre seule, en v3, la fenêtre
+tombe. Puis une v4 demandée ailleurs → elle s'ouvre (la page ne la bloque pas), la fenêtre dit de recharger, et My
+characters : *« Your characters could not be listed: SOWLREACH was updated in another tab — reload this page to
+keep working »*. À 375 : la fenêtre tient, 16 px de chaque côté, sans débordement.
+⏳ Ces mots sont des brouillons : Eric arrête la lettre.
 ⏳ Hors du lot : le contenu du PHB (lot 387), la réponse à `A-TRANCHER` §C34, le téléchargement du livre à chaque
 ouverture depuis Dropbox (aucun cache).
 🛡️ `tests/livres-388.test.mjs` (J1, J2, R1, M1 à M3, P1, P2, C1, C2) — 16 mutations vues rouges ;
-`tests/base-v3-388.test.mjs` (B0 à B3, sur `tests/fausse-indexeddb.mjs`) — 6 mutations vues rouges ;
+`tests/base-v3-388.test.mjs` (B0 à B6, sur `tests/fausse-indexeddb.mjs`) — 6 mutations de la montée et les
+mutations des deux onglets vues rouges ;
 `tests/ecran-layers.test.mjs` D1, D4, F3.
 
 ### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement

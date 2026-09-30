@@ -15,13 +15,17 @@
          chaque valeur, relue, a les mêmes octets (`v8.serialize`, le clonage structuré de V8) ; puis les
          vrais lecteurs la relisent ; et le rayon `livres` est là, vide, et tient un livre.
      B2. LA RÉOUVERTURE — le démarrage suivant ne remonte pas : aucune montée, et tout est encore là.
+     B4–B6. LES DEUX ONGLETS (ARCHI 35, 30/09 : la réponse (b), dans ce lot) — un onglet ancien qui tient la
+         base fait DIRE la cause et la sortie à l'onglet neuf, qui s'ouvre seul ensuite ; une base que demande
+         une version plus neuve se FERME et le dit ; la coquille les câble.
    ⚠️ La COPIE DE TRAVAIL (`fhpc.base`) vit dans `localStorage` (memoire.mjs), hors de la base : la montée
    ne peut pas la toucher, et B3 le garde. La poignée de dossier (`destination`) n'est pas dans la
    fixture : elle ne se clone pas sous Node, et l'iPad n'en a pas (Safari n'a pas `showDirectoryPicker`).
    📏 AU NAVIGATEUR RÉEL (30/09, v938, base jetable effacée après) : la même montée, par le vrai
    `baseIndexedDb`, ne perd rien ; la mutation M1 (un rayon recréé) y vide Ilyra et les réglages (0 et 0) ;
    et ⚠️ un onglet resté OUVERT sur la v2 fait attendre l'onglet neuf — la base s'ouvre, Ilyra intacte, dès
-   qu'il se ferme. Une attente, pas une perte ; ce fichier ne la garde pas (question à ARCHI 35).
+   qu'il se ferme. Une attente, pas une perte — mais un écran MORT sans cause ni sortie : ARCHI 35 a tranché (b),
+   dans ce lot, et B4 à B6 la gardent.
    ⛔ Les jetons sont ceux du FAUX Dropbox, et aucun message d'échec ne montre une valeur : seulement
    `rayon/clef`. */
 
@@ -41,7 +45,8 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const {
   baseIndexedDb, BASE_NOM, BASE_VERSION, RAYONS, adaptateurAppareil, creerStockage, choisirUnLieu, lieuRetenu,
-  synchroniser, reprendreLesAnciennesSauvegardes, lireLesCommuns, creerLibrairie, librairieAppareil
+  synchroniser, reprendreLesAnciennesSauvegardes, lireLesCommuns, creerLibrairie, librairieAppareil,
+  MOT_BASE_TENUE_AILLEURS, MOT_BASE_CEDEE, MOT_RIEN_N_EST_PERDU
 } = await import("../ui/builder/magasin.mjs");
 const { preparerLaConnexion, retirerLeRetour, terminerLaConnexion, gardienDesJetons, adaptateurDropbox }
   = await import("../ui/builder/dropbox.mjs");
@@ -122,13 +127,14 @@ const fin = (r) => new Promise((resoudre, rejeter) => { r.onsuccess = () => reso
 async function uneBaseV2Remplie() {
   const { base, faux } = await ceQueLIpadTient();
   const idb = fausseIndexedDb();
-  await ouvrir(idb, 1, RAYONS_V1);
+  (await ouvrir(idb, 1, RAYONS_V1)).close();
   const db = await ouvrir(idb, 2, RAYONS_V2);
   for (const rayon of RAYONS_V2) {
     for (const [clef, valeur] of base.rayons.get(rayon) || []) {
       await fin(db.transaction(rayon, "readwrite").objectStore(rayon).put(valeur, clef));
     }
   }
+  db.close();                                  // la page v2 s'est fermée (un rechargement) : rien ne tient la base
   return { idb, avant: base.rayons, faux };
 }
 
@@ -148,6 +154,7 @@ test("B0 — 📏 LE TÉMOIN : la fausse IndexedDB refuse et annule comme la vra
   const idb = fausseIndexedDb();
   const db = await ouvrir(idb, 1, ["reglages"]);
   await fin(db.transaction("reglages", "readwrite").objectStore("reglages").put({ id: "dropbox" }, "lieu"));
+  db.close();
   /* une montée qui crée un rayon EXISTANT : `ConstraintError`, la montée est annulée, la base reste en v1 */
   const r = idb.open(BASE_NOM, 2);
   r.onupgradeneeded = () => { r.result.createObjectStore("reglages"); };
@@ -157,7 +164,7 @@ test("B0 — 📏 LE TÉMOIN : la fausse IndexedDB refuse et annule comme la vra
   assert.deepEqual(idb.bases.get(BASE_NOM).rayons.get("reglages").get("lieu"), { id: "dropbox" }, "et sa valeur");
   /* ouvrir plus bas : `VersionError` ; un rayon absent : `NotFoundError` */
   const trop = fausseIndexedDb();
-  await ouvrir(trop, 3, ["reglages"]);
+  (await ouvrir(trop, 3, ["reglages"])).close();
   await assert.rejects(ouvrir(trop, 2, []), (e) => e.name === "VersionError", "ouvrir plus bas que la version tenue");
   const ouverte = await ouvrir(trop, 3, []);
   assert.throws(() => ouverte.transaction("livres", "readonly"), (e) => e.name === "NotFoundError", "un rayon absent");
@@ -214,4 +221,68 @@ test("B3 — 🗂️ LA MONTÉE NE TOUCHE QUE LA BASE : la copie de travail (`lo
   assert.equal(/localStorage|sessionStorage/.test(corps), false, "⛔ la base n'écrit pas la copie de travail");
   /* ⭐ et la montée ne fait qu'AJOUTER : aucun effacement de rayon, aucun vidage */
   assert.equal(/deleteObjectStore|\.clear\(/.test(corps), false, "⛔ la montée n'efface ni ne vide aucun rayon");
+});
+
+/* ══ LES DEUX ONGLETS ═══════════════════════════════════════════════════════════════════════════════ */
+
+/** Une promesse encore en attente après `ms` ? (jamais une garde qui pend : elle dit « en attente »). */
+const enAttente = (p, ms = 30) => Promise.race([p.then(() => false, () => false), new Promise((ok) => setTimeout(() => ok(true), ms))]);
+
+test("B4 — 🔒 UN ONGLET ANCIEN TIENT LA BASE : l'onglet neuf DIT la cause et la sortie, puis s'ouvre SEUL, Ilyra intacte", async () => {
+  const { idb, avant } = await uneBaseV2Remplie();
+  /* l'onglet d'hier, en v2 : sa connexion reste ouverte, et il n'écoute pas `versionchange` (le code v937) */
+  const ancien = await ouvrir(idb, 2, []);
+  const signaux = [];
+  const v3 = baseIndexedDb(idb, { signaler: (e) => signaux.push(e) });
+  const lecture = v3.tout("personnages");
+  assert.equal(await enAttente(lecture), true, "la montée attend l'onglet ancien (le navigateur réel aussi)");
+  assert.deepEqual(signaux, ["bloquee"], "⛔ l'attente se DIT — jamais un « Loading… » muet");
+  assert.match(MOT_BASE_TENUE_AILLEURS, /another tab/, "la cause");
+  assert.match(MOT_BASE_TENUE_AILLEURS, /Close the other SOWLREACH tabs/, "la sortie");
+  assert.match(MOT_BASE_TENUE_AILLEURS, /by itself/, "et ce qui suit : la page s'ouvre seule");
+  ancien.close();                              // Eric ferme l'onglet d'hier
+  assert.deepEqual((await lecture).map((r) => r.clef), [ID], "⭐ la page s'ouvre seule, Ilyra là");
+  assert.deepEqual(signaux, ["bloquee", "ouverte"], "et le dit : le mot tombe");
+  await toutEstLa(v3, avant);
+});
+
+test("B5 — 🚪 UNE VERSION PLUS NEUVE DEMANDE LA BASE : l'onglet se FERME (il ne la bloque pas), le dit, et ses verbes refusent avec ce mot", async () => {
+  const { idb, avant } = await uneBaseV2Remplie();
+  const signaux = [];
+  const ici = baseIndexedDb(idb, { signaler: (e) => signaux.push(e) });
+  await toutEstLa(ici, avant);
+  /* un autre onglet, d'une version encore plus neuve, demande la base */
+  const r = idb.open(BASE_NOM, 4);
+  r.onupgradeneeded = () => {};
+  const neuve = fin(r);
+  assert.equal(await enAttente(neuve, 200), false, "⛔ l'onglet ne bloque pas la version plus neuve : il s'est fermé");
+  (await neuve).close();
+  assert.deepEqual(signaux, ["ouverte", "cedee"], "il le DIT");
+  await assert.rejects(ici.tout("personnages"), (e) => e.message === MOT_BASE_CEDEE, "⭐ chaque verbe refuse avec le mot — jamais un InvalidStateError");
+  assert.match(MOT_BASE_CEDEE, /another tab/, "la cause");
+  assert.match(MOT_BASE_CEDEE, /reload this page/, "la sortie");
+  assert.match(MOT_RIEN_N_EST_PERDU, /Nothing is lost/);
+  /* ⭐ et rien n'est perdu : la base, en v4, tient tout (relue à SA version : un code v3 y serait refusé) */
+  await toutEstLa(baseIndexedDb({ open: (nom) => idb.open(nom) }), avant);
+});
+
+test("B6 — 🧷 LA COQUILLE LES CÂBLE : la fenêtre du blocage, qui tombe seule ; la fenêtre de la base cédée, et My characters", () => {
+  const shell = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.mjs"), "utf8"));
+  assert.match(shell, /baseIndexedDb\(fenetre \? fenetre\.indexedDB : undefined, \{ signaler: quandLaBaseSignale \}\)/, "la base de la page signale à la coquille");
+  const i = shell.indexOf("function quandLaBaseSignale(etat) {");
+  assert.ok(i > 0);
+  const corps = shell.slice(i, shell.indexOf("\n}\n", i));
+  const branche = (etat) => { const j = corps.indexOf(`etat === "${etat}"`); assert.ok(j > 0, etat); const k = corps.indexOf("} else if", j + 1); return corps.slice(j, k > 0 ? k : undefined); };
+  const bloquee = branche("bloquee");
+  assert.match(bloquee, /fenetreDuBlocage = \{ titre: "My characters", role: "gendarme", texte: MOT_BASE_TENUE_AILLEURS \}/);
+  assert.match(bloquee, /state\.popup = fenetreDuBlocage;/);
+  assert.match(bloquee, /refresh\(\)/, "la fenêtre se montre tout de suite");
+  const ouverte = branche("ouverte");
+  assert.match(ouverte, /if \(state\.popup === fenetreDuBlocage\) state\.popup = null;/, "⛔ la fenêtre tombe seule — seulement si c'est encore LA SIENNE");
+  const cedee = branche("cedee");
+  assert.match(cedee, /state\.popup = \{ titre: "My characters", role: "gendarme", texte: `\$\{enPhrase\(MOT_BASE_CEDEE\)\}\\n\\n\$\{MOT_RIEN_N_EST_PERDU\}` \}/);
+  assert.match(cedee, /state\.personnagesListe = \{ etat: "refus", raison: MOT_BASE_CEDEE \}/, "My characters le dit aussi");
+  /* ⏳ les mots sont des brouillons, et NORMES les porte tels quels */
+  const normes = fs.readFileSync(path.join(ROOT, "ui", "builder", "NORMES.md"), "utf8");
+  for (const mot of [MOT_BASE_TENUE_AILLEURS, MOT_BASE_CEDEE, MOT_RIEN_N_EST_PERDU]) assert.ok(normes.includes(mot), `NORMES porte : ${mot.slice(0, 40)}…`);
 });

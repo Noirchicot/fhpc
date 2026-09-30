@@ -988,8 +988,23 @@ export const RAYONS = Object.freeze([RAYON_PERSONNAGES, RAYON_SAUVEGARDES, RAYON
 /** ⚖️ LOT 377 — les réglages de l'app : la connexion à Dropbox y vit (`dropbox.mjs`), sur l'appareil. */
 export { RAYON_REGLAGES };
 
-export function baseIndexedDb(indexedDB) {
+/* 🔄 LOT 388 — LES DEUX ONGLETS (ARCHI 35, 30/09, sur `socle-perso-sauve-s-ouvre-toujours` : *« Aucun chemin ne
+   mène plus à un écran mort sans cause ni sortie »*). 📏 Relevé au navigateur réel : un onglet resté ouvert sur
+   l'ancienne version tient la base, et la montée de l'onglet neuf ATTEND sans fin — le moteur attend le
+   stockage, la page reste sur « Loading… ». ⭐ La base le SIGNALE (elle ne décide rien) :
+     · `bloquee` — un autre onglet la tient : l'onglet neuf dit la cause et la sortie, et s'ouvre seul ensuite ;
+     · `ouverte` — elle est ouverte (après une attente, le mot tombe) ;
+     · `cedee`   — une version plus neuve la demande : elle se FERME (sinon c'est elle qui bloquerait l'autre),
+                   le dit, et chaque verbe refuse ensuite avec ce mot. Rien n'est perdu : la copie de travail
+                   est dans `localStorage`, et ce qui n'est pas parti repart à la réouverture (lot 374).
+   ⏳ Les mots sont des BROUILLONS : Eric arrête la lettre. */
+export const MOT_BASE_TENUE_AILLEURS = "SOWLREACH is still open in another tab, on an older version. Close the other SOWLREACH tabs to open your characters: this page opens them by itself as soon as you do.";
+export const MOT_BASE_CEDEE = "SOWLREACH was updated in another tab — reload this page to keep working";
+export const MOT_RIEN_N_EST_PERDU = "Nothing is lost: what you did here is kept in this browser, and reaches My characters when the page reopens.";
+
+export function baseIndexedDb(indexedDB, { signaler = () => {} } = {}) {
   let ouverture = null;
+  let cedee = false;
   const base = () => {
     if (ouverture === null) {
       ouverture = new Promise((resoudre, rejeter) => {
@@ -1003,7 +1018,13 @@ export function baseIndexedDb(indexedDB) {
             if (!requete.result.objectStoreNames.contains(rayon)) requete.result.createObjectStore(rayon);
           }
         };
-        requete.onsuccess = () => resoudre(requete.result);
+        requete.onblocked = () => signaler("bloquee");
+        requete.onsuccess = () => {
+          const db = requete.result;
+          db.onversionchange = () => { db.close(); cedee = true; signaler("cedee"); };
+          signaler("ouverte");
+          resoudre(db);
+        };
         requete.onerror = () => rejeter(requete.error || new Error("this browser refused its database"));
       });
     }
@@ -1013,7 +1034,11 @@ export function baseIndexedDb(indexedDB) {
     requete.onsuccess = () => resoudre(requete.result);
     requete.onerror = () => rejeter(requete.error || new Error("this browser refused to store it"));
   });
-  const store = async (rayon, mode) => (await base()).transaction(rayon, mode).objectStore(rayon);
+  const store = async (rayon, mode) => {
+    const db = await base();
+    if (cedee) throw new Error(MOT_BASE_CEDEE);
+    return db.transaction(rayon, mode).objectStore(rayon);
+  };
   return {
     lire: async (rayon, clef) => {
       const v = await requeteDe((await store(rayon, "readonly")).get(clef));

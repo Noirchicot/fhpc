@@ -224,7 +224,8 @@ import { creerStockage, adaptateurAppareil, adaptateurFichier, adaptateurDossier
   reprendreLesAnciennesSauvegardes, aLaReouverture, sauverDansLesDeux, effacerSelonLeStockage,
   dossierPossible, dossierRetenu, choisirUnDossier, rienNaChange, lieuRetenu, choisirUnLieu, LIEUX,
   repereDe, synchroniser, trancherLaSynchro, lireLesCommuns, poserUnCommun, creerCourrier,
-  creerLibrairie, librairieAppareil, livresDuLieu } from "./magasin.mjs?v=938";
+  creerLibrairie, librairieAppareil, livresDuLieu, MOT_BASE_TENUE_AILLEURS, MOT_BASE_CEDEE, MOT_RIEN_N_EST_PERDU
+} from "./magasin.mjs?v=938";
 /* ⚖️ LOT 377 — Dropbox : la connexion (PKCE), le gardien des jetons, l'adaptateur. */
 import { adaptateurDropbox, gardienDesJetons, preparerLaConnexion, retirerLeRetour, terminerLaConnexion, httpAvecRepli,
   librairieDropbox } from "./dropbox.mjs?v=938";
@@ -897,7 +898,32 @@ function porteEnPanne(quoi, cause) {
    fixtures (`tests/sauvegarde-374.test.mjs`). Ce qui reste ici est un câblage, pas une décision. */
 function baseDuStockage() {
   const fenetre = typeof window === "undefined" ? null : window;
-  return baseIndexedDb(fenetre ? fenetre.indexedDB : undefined);
+  return baseIndexedDb(fenetre ? fenetre.indexedDB : undefined, { signaler: quandLaBaseSignale });
+}
+
+/* ══ 🔄 LOT 388 — LES DEUX ONGLETS : la cause et la sortie, jamais un « Loading… » muet ═══════════════════
+   ⚖️ `socle-perso-sauve-s-ouvre-toujours` : *« Aucun chemin ne mène plus à un écran mort sans cause ni
+   sortie »* (ARCHI 35, 30/09). La base SIGNALE (`baseIndexedDb`, magasin.mjs) ; ici on le dit :
+     · `bloquee` — un onglet d'une version plus ancienne tient la base : la fenêtre dit la cause et la sortie ;
+       la page s'ouvre SEULE dès qu'il la lâche (`ouverte`), et la fenêtre tombe si c'est encore la sienne ;
+     · `cedee` — une version plus neuve l'a demandée ailleurs : la base s'est fermée ; la fenêtre dit de
+       recharger, et My characters le dit aussi (chaque verbe refuse désormais avec ce mot). */
+let fenetreDuBlocage = null;
+function quandLaBaseSignale(etat) {
+  if (etat === "bloquee") {
+    fenetreDuBlocage = { titre: "My characters", role: "gendarme", texte: MOT_BASE_TENUE_AILLEURS };
+    state.popup = fenetreDuBlocage;
+    refresh();
+  } else if (etat === "ouverte") {
+    if (fenetreDuBlocage === null) return;
+    if (state.popup === fenetreDuBlocage) state.popup = null;
+    fenetreDuBlocage = null;
+    refresh();
+  } else if (etat === "cedee") {
+    state.popup = { titre: "My characters", role: "gendarme", texte: `${enPhrase(MOT_BASE_CEDEE)}\n\n${MOT_RIEN_N_EST_PERDU}` };
+    state.personnagesListe = { etat: "refus", raison: MOT_BASE_CEDEE };
+    refresh();
+  }
 }
 
 /** LE LIEU CHOISI — ⚖️ la fenêtre New character (29/09) : *« Save écrit dans le stockage choisi, ou

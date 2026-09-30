@@ -14,7 +14,11 @@
    📏 Ces règles ont été relevées au NAVIGATEUR RÉEL le 30/09 (Chrome du panneau, v938, port 8979) :
    voir `tests/base-v3-388.test.mjs`, B0. Un faux plus indulgent que le vrai ferait passer au vert ce
    qui perdrait Ilyra chez Eric.
-   ⭐ Il note chaque montée (`montees`) : une réouverture sans montée se prouve. */
+   ⭐ Il note chaque montée (`montees`) : une réouverture sans montée se prouve.
+   🔄 LES AUTRES ONGLETS (la demande d'ARCHI 35, 30/09) : une montée demandée alors que des connexions sont
+   OUVERTES leur envoie `versionchange` ; si l'une ne se ferme pas, la demande reçoit `blocked` et ATTEND —
+   elle repart d'elle-même quand la dernière se ferme. 📏 Relevé au navigateur réel le 30/09 : l'onglet neuf
+   attendait encore après 3 s, et s'ouvrait, Ilyra intacte, à la fermeture de l'ancien. */
 
 const erreur = (nom, message) => { const e = new Error(message); e.name = nom; return e; };
 const plusTard = (f) => setTimeout(f, 0);
@@ -22,6 +26,8 @@ const plusTard = (f) => setTimeout(f, 0);
 export function fausseIndexedDb() {
   const bases = new Map();                    // nom → { version, rayons: Map<nom, Map<clef, valeur>> }
   const montees = [];
+  const ouvertes = new Map();                 // nom → Set des connexions ouvertes (les autres onglets)
+  const enAttente = new Map();                // nom → [relancer] : les demandes bloquées
 
   function magasin(valeurs, mode) {
     const requete = (faire) => {
@@ -44,8 +50,11 @@ export function fausseIndexedDb() {
     };
   }
 
-  function connexion(etat, { montee = false } = {}) {
-    return {
+  function connexion(etat, { montee = false, nom = null } = {}) {
+    let fermee = false;
+    const c = {
+      onversionchange: null,
+      get fermee() { return fermee; },
       get version() { return etat.version; },
       get objectStoreNames() {
         const noms = [...etat.rayons.keys()].sort();
@@ -63,6 +72,7 @@ export function fausseIndexedDb() {
         etat.rayons.delete(nom);
       },
       transaction(noms, mode = "readonly") {
+        if (fermee) throw erreur("InvalidStateError", "the database connection is closing");
         const liste = [].concat(noms);
         for (const n of liste) if (!etat.rayons.has(n)) throw erreur("NotFoundError", `no object store named "${n}"`);
         return {
@@ -72,15 +82,33 @@ export function fausseIndexedDb() {
           }
         };
       },
-      close() {}
+      close() {
+        if (fermee) return;
+        fermee = true;
+        if (nom === null) return;
+        const set = ouvertes.get(nom);
+        if (set) set.delete(c);
+        if (set && set.size === 0 && enAttente.has(nom)) {
+          const suivantes = enAttente.get(nom); enAttente.delete(nom);
+          for (const relancer of suivantes) plusTard(relancer);
+        }
+      }
     };
+    return c;
   }
+  const ouvrir = (nom, etat) => {
+    const c = connexion(etat, { nom });
+    if (!ouvertes.has(nom)) ouvertes.set(nom, new Set());
+    ouvertes.get(nom).add(c);
+    return c;
+  };
 
   return {
-    bases, montees,
+    bases, montees, ouvertes,
     open(nom, version) {
       const r = { result: undefined, error: null, transaction: null, onsuccess: null, onerror: null, onupgradeneeded: null, onblocked: null };
-      plusTard(() => {
+      let prevenues = false;
+      const tenter = () => {
         const tenue = bases.get(nom) || { version: 0, rayons: new Map() };
         const voulue = version === undefined ? Math.max(1, tenue.version) : version;
         if (voulue < tenue.version) {
@@ -89,6 +117,20 @@ export function fausseIndexedDb() {
           return;
         }
         if (voulue > tenue.version) {
+          /* 🔄 les autres connexions d'abord : `versionchange`, puis `blocked` si l'une reste ouverte */
+          const autres = [...(ouvertes.get(nom) || [])];
+          if (autres.length > 0) {
+            if (!prevenues) {
+              prevenues = true;
+              for (const c of autres) if (!c.fermee && c.onversionchange) c.onversionchange({ target: c, oldVersion: tenue.version, newVersion: voulue });
+            }
+            if ([...(ouvertes.get(nom) || [])].length > 0) {
+              if (!enAttente.has(nom)) enAttente.set(nom, []);
+              enAttente.get(nom).push(tenter);
+              if (r.onblocked && prevenues !== "bloquee") { prevenues = "bloquee"; r.onblocked({ target: r, oldVersion: tenue.version, newVersion: voulue }); }
+              return;
+            }
+          }
           /* la transaction `versionchange` travaille sur une COPIE : si elle échoue, la base tenue ne bouge pas */
           const copie = { version: voulue, rayons: new Map([...tenue.rayons].map(([n, m]) => [n, new Map(m)])) };
           r.result = connexion(copie, { montee: true });
@@ -107,15 +149,16 @@ export function fausseIndexedDb() {
           /* les écritures faites pendant la montée sont des requêtes : on les laisse finir avant de valider */
           plusTard(() => {
             bases.set(nom, copie);
-            r.result = connexion(copie);
+            r.result = ouvrir(nom, copie);
             r.transaction = null;
             if (r.onsuccess) r.onsuccess({ target: r });
           });
           return;
         }
-        r.result = connexion(tenue);
+        r.result = ouvrir(nom, tenue);
         if (r.onsuccess) r.onsuccess({ target: r });
-      });
+      };
+      plusTard(tenter);
       return r;
     }
   };
