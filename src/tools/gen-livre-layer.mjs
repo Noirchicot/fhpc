@@ -40,7 +40,28 @@
    un échec, pas un silence ». Une couche FH ne peut donc pas PATCHER une gemme
    du livre : le jour où le joueur éteint le DMG, le patch tomberait dans le
    vide et la pile entière échouerait. ⇒ LA SUPERPOSITION SE FAIT PAR `add` SUR
-   UN ID PARTAGÉ, jamais par patch. C'est ce que fait ce générateur.            */
+   UN ID PARTAGÉ, jamais par patch. C'est ce que fait ce générateur.
+
+   🧬 LOT 387 (ARCHI 35, 30/09) — POUR LES ORIGINES DU PHB, UN RECORD IDENTIQUE AU
+   SRD N'EST PAS RÉÉMIS. Le paragraphe du dessus vaut pour les gemmes du DMG ;
+   il ne vaut pas pour les arrière-plans, les espèces et les dons. Les livres se
+   montent AU-DESSUS de `srfh-mecaniques-en` (engine.mjs), et un `add` remplace
+   le record ENTIER (stack.mjs) : réémettre `srd:species:en:dragonborn` effacerait
+   ce que `srfh-mecaniques-en` y déclare — la porte d'ascendance, le compteur du
+   souffle, le Draconic Flight daté — et la pile FH, qui patche ces records par
+   chemin, jetterait. Le SRD 5.2.1 est tiré du PHB 2024 : les 17 records
+   partagés disent la même chose. ⇒ La couche n'AJOUTE que ce que le SRD n'a pas
+   (ids `xphb:…`) ; les partagés sont COMPARÉS, fait par fait, et chaque écart
+   réel est rapporté pour Eric — jamais tranché ici.
+   ⛔ ET AUCUNE PROSE DU LIVRE, NULLE PART. L'instantané (`sources-livres/phb-
+   2024-origins.json`) porte des FAITS DE JEU (caractéristiques, compétences,
+   outils, dons, nombres), et le texte montré au joueur sur un record propre au
+   PHB est un RÉSUMÉ, écrit par le lot et marqué comme tel (`data.summary_of`).
+   Une déclaration cite un extrait quand la phrase est celle du SRD 5.2.1 (le
+   générateur la CHERCHE dans la couche SRD, il ne la décide pas) ; sinon elle
+   porte un POINTEUR vers la page du livre chez D&D Beyond (`source`). Le texte
+   entier reste dans le livre d'Eric, à l'adresse que porte le record
+   (`data.book_link`, la loi des liens).                                        */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -257,8 +278,237 @@ export function construireCouche(source, cle = "dmg-2024") {
   };
 }
 
+/* ══ 🧬 LOT 387 — LES ORIGINES DU PHB : arrière-plans, espèces, dons d'origine ══════════════════ */
+
+const NOMS_DE_CARAC = Object.freeze({ str: "Strength", dex: "Dexterity", con: "Constitution",
+  int: "Intelligence", wis: "Wisdom", cha: "Charisma" });
+/** La famille d'outils que la pile SRD sait nommer par une RACINE (`data.inherits`, lot 247) : l'id de
+ *  la racine, et le mot que le livre emploie pour elle. ⛔ Ce ne sont pas des phrases du livre : ce
+ *  sont les noms de règle des familles, écrits au SRD (Monk) et dans `srfh-mecaniques-en`. */
+const RACINE_ARTISAN = "srfh:tool:en:artisan-s-tools";
+
+/** Toutes les chaînes de texte des records d'origine de la couche SRD — là où le générateur CHERCHE
+ *  si une phrase est celle du SRD 5.2.1. */
+function textesDuSrd(srd) {
+  const textes = [];
+  const walk = (o) => {
+    if (typeof o === "string") textes.push(o);
+    else if (Array.isArray(o)) o.forEach(walk);
+    else if (o && typeof o === "object") Object.values(o).forEach(walk);
+  };
+  for (const genre of ["background", "species", "feat"]) walk(srd.records[genre] || {});
+  return textes;
+}
+
+/**
+ * Construit la couche des ORIGINES du PHB. PURE : ni disque ni horloge.
+ * @param {object} source l'instantané des faits (`sources-livres/phb-2024-origins.json`)
+ * @param {{srd: object, meca: object}} base les couches SRD et `srfh-mecaniques-en`, lues telles quelles
+ * @returns {{layer:object, comptes:object, ecarts:string[], restes:string[]}}
+ */
+export function construireOrigines(source, { srd, meca }) {
+  const livre = LIVRES["phb-2024"];
+  if (!source || typeof source !== "object") fail("source des origines absente ou illisible.");
+  if (!srd || !srd.records) fail("la couche SRD est requise : c'est elle qu'on compare et qu'on cite.");
+  const R = srd.records;
+  const sigle = livre.sigle.toLowerCase();
+  const sections = source.sections || {};
+  const textes = textesDuSrd(srd);
+  const phraseDuSrd = (p) => textes.some((t) => t.includes(p));
+  const ecarts = [];
+  const restes = [];
+
+  const pointeur = (section, url) => ({ livre: "phb-2024", section, url });
+  /* une déclaration porte un EXTRAIT quand la phrase est celle du SRD, sinon un POINTEUR */
+  const citer = (phrase, section, url) => (phraseDuSrd(phrase) ? { extrait: phrase } : { source: pointeur(section, url) });
+  const nomDe = (genre, id) => {
+    const r = R[genre] && R[genre][id];
+    if (!r) fail(`« ${id} » n'est pas dans la couche SRD — le livre le nomme, la pile ne le connaît pas.`);
+    return r.name;
+  };
+  const idDeDon = (nom) => {
+    const srdId = `srd:feat:en:${slugDuNom(nom)}`;
+    if (R.feat && R.feat[srdId]) return srdId;
+    const propre = (source.feats || []).find((f) => f.name === nom && !f.shared);
+    if (!propre) fail(`le don « ${nom} » n'est ni au SRD ni dans l'instantané.`);
+    return `${sigle}:feat:en:${slugDuNom(nom)}`;
+  };
+  /* la famille d'artisanat : les outils que `srfh-mecaniques-en` rattache à la racine (`data.inherits`) */
+  const artisans = Object.entries((meca && meca.records && meca.records.tool) || {})
+    .filter(([, e]) => e && e.changes && e.changes["data.inherits"] === RACINE_ARTISAN).map(([id]) => id).sort();
+
+  /* ── LES ARRIÈRE-PLANS ── */
+  const background = {};
+  for (const b of source.backgrounds || []) {
+    const slug = slugDuNom(b.name);
+    const url = `${sections.background || ""}${b.name}`;
+    const data = {
+      ability_keys: b.abilities.slice(),
+      ability_scores: b.abilities.map((k) => NOMS_DE_CARAC[k] || fail(`caractéristique inconnue « ${k} » (${b.name}).`)),
+      book_link: url,
+      equipment: `Choose A or B: (A) ${[...b.kit, `${b.kit_gp} GP`].join(", ")}; or (B) 50 GP`,
+      feat: `${b.feat.name}${b.feat.class ? ` (${nomDe("class", `srd:class:en:${b.feat.class}`)})` : ""} (see “Feats”)`,
+      feat_id: idDeDon(b.feat.name),
+      name: b.name,
+      skill_ids: b.skills.map((s) => `srd:skill:en:${s}`),
+      skill_proficiencies: b.skills.map((s) => nomDe("skill", `srd:skill:en:${s}`))
+    };
+    if (b.feat.class) data.feat_option = { id: `srd:class:en:${b.feat.class}`, kind: "class" };
+    const choix = { equipement: { ...citer("Choose A or B:", b.name, url), nature: "creation", etape: "equipment", chemin: "depart.background" } };
+    if (b.tool.id) {
+      data.tool_id = `srd:tool:en:${b.tool.id}`;
+      data.tool_proficiency = nomDe("tool", data.tool_id);
+    } else {
+      const racine = b.tool.family === "artisan" ? null : `srd:tool:en:${b.tool.family}`;
+      const nomFamille = racine ? nomDe("tool", racine) : "Artisan’s Tools";
+      data.tool_choice = { from: racine ? [racine] : artisans.slice() };
+      if (data.tool_choice.from.length === 0) fail(`« ${b.name} » : la famille d'outils « ${b.tool.family} » n'a aucun membre dans la pile.`);
+      const phrase = `Choose one kind of ${nomFamille}`;
+      data.tool_proficiency = `${phrase} (see “Equipment”)`;
+      choix.outil = { ...citer(phrase, b.name, url), nature: "creation", etape: "background", chemin: "background.tool" };
+    }
+    data[`choix_du_texte:${livre.id}`] = choix;
+
+    const srdId = `srd:background:en:${slug}`;
+    const frere = R.background && R.background[srdId];
+    if (frere) {
+      /* ⭐ PARTAGÉ : pas réémis — comparé, fait par fait */
+      const d = frere.data || {};
+      const comparer = (champ, a, b2) => {
+        if (JSON.stringify(a) !== JSON.stringify(b2)) ecarts.push(`${b.name} · ${champ} : PHB ${JSON.stringify(a)} ≠ SRD ${JSON.stringify(b2)}`);
+      };
+      comparer("ability_keys", data.ability_keys, d.ability_keys);
+      comparer("skill_ids", [...data.skill_ids].sort(), [...(d.skill_ids || [])].sort());
+      comparer("feat_id", data.feat_id, d.feat_id);
+      comparer("feat_option", data.feat_option || null, d.feat_option || null);
+      comparer("outil", data.tool_id || data.tool_choice, d.tool_id || d.tool_choice);
+      comparer("equipment", data.equipment, d.equipment);
+      continue;
+    }
+    background[`${sigle}:background:en:${slug}`] = { name: b.name, slug, data };
+  }
+
+  /* ── LES ESPÈCES PARTAGÉES : comparées par les noms de leurs traits ── */
+  for (const s of source.species_shared || []) {
+    const frere = R.species && R.species[`srd:species:en:${slugDuNom(s.name)}`];
+    if (!frere) { ecarts.push(`${s.name} : le SRD ne porte pas cette espèce`); continue; }
+    const srdTraits = (frere.data.traits || []).map((t) => t.name).sort();
+    const phb = [...s.traits].sort();
+    if (JSON.stringify(srdTraits) !== JSON.stringify(phb)) {
+      ecarts.push(`${s.name} · traits : PHB ${JSON.stringify(phb)} ≠ SRD ${JSON.stringify(srdTraits)} (lu sur : ${s.lu_sur})`);
+    }
+  }
+
+  /* ── LES ESPÈCES PROPRES AU PHB ── */
+  const species = {};
+  for (const s of source.species_new || []) {
+    const slug = slugDuNom(s.name);
+    const ptr = (section) => pointeur(`${s.name} · ${section}`, s.url);
+    const traits = s.traits.map((t) => ({ id: slugDuNom(t.name), name: t.name, slug: slugDuNom(t.name), text: t.resume }));
+    const data = {
+      book_link: s.url,
+      creature_type: s.creature_type,
+      description: s.resume,
+      name: s.name,
+      senses: s.darkvision_ft ? [{ id: "darkvision", name: "Darkvision", range_ft: s.darkvision_ft }] : [],
+      size: s.size_text,
+      speed: `${s.speed_ft} feet`,
+      speed_ft: s.speed_ft,
+      summary_of: "phb-2024",
+      traits
+    };
+    const choix = {};
+    /* la taille à choisir : la forme de la phrase SRD (« Medium (…) or Small (…), chosen when you
+       select this species »), trouvée par sa FORME, jamais recopiée ici */
+    const taille = typeof s.size_text === "string" && s.size_text.match(/^(Medium \([^)]*\)) or (Small \([^)]*\)), (chosen when you select this species)$/);
+    if (taille) {
+      data.size_choice = { ...citer(taille[3], s.name, s.url), options: [
+        { id: "medium", name: "Medium", ...citer(taille[1], s.name, s.url) },
+        { id: "small", name: "Small", ...citer(taille[2], s.name, s.url) }] };
+      choix.taille = { ...citer(taille[3], s.name, s.url), nature: "creation", etape: "species", chemin: "species.size" };
+    }
+    const usages = [];
+    const niveaux = [];
+    for (const t of s.traits) {
+      const id = slugDuNom(t.name);
+      if (Number.isInteger(t.level) && t.level > 1) niveaux.push({ trait: id, level: t.level, source: ptr(t.name) });
+      if (t.uses && Number.isInteger(t.uses.max)) {
+        const u = { trait: id, max: { fixed: t.uses.max }, recharge: t.uses.recharge, source: ptr(t.name) };
+        if (t.economy) u.action = { economy: t.economy, category: t.heal ? "healing" : "utility", source: ptr(t.name) };
+        usages.push(u);
+      }
+      if (t.heal) restes.push(`${s.name} · ${t.name} : les dés de soin (un d4 par point du bonus de maîtrise) — la forme n'existe pas au moteur`);
+      if (t.resistances) restes.push(`${s.name} · ${t.name} : les résistances — le moteur ne lit pas de résistance d'espèce (celles du SRD sont dans le texte aussi)`);
+      if (t.cantrip) restes.push(`${s.name} · ${t.name} : le sort de trait à caractéristique FIXE — le moteur ne rattache un sort d'espèce qu'à une lignée choisie`);
+      if (t.options) restes.push(`${s.name} · ${t.name} : les formes au choix et leurs effets — hors des trois cases, et au niveau ${t.level}`);
+    }
+    if (usages.length) data.trait_uses = usages;
+    if (niveaux.length) data.trait_levels = niveaux;
+    if (Object.keys(choix).length) data[`choix_du_texte:${livre.id}`] = choix;
+    species[`${sigle}:species:en:${slug}`] = { name: s.name, slug, data };
+  }
+
+  /* ── LES DONS D'ORIGINE ── */
+  const feat = {};
+  for (const f of source.feats || []) {
+    const slug = slugDuNom(f.name);
+    if (f.shared) {
+      const frere = R.feat && R.feat[`srd:feat:en:${slug}`];
+      if (!frere) ecarts.push(`${f.name} : le SRD ne porte pas ce don`);
+      else if (frere.data.category !== "origin") ecarts.push(`${f.name} · catégorie : SRD « ${frere.data.category} »`);
+      continue;
+    }
+    const url = `${sections.feat || ""}${f.name}`;
+    const data = { book_link: url, category: "origin", description: f.resume, name: f.name, prerequisite: null, summary_of: "phb-2024" };
+    if (f.luck_points && f.luck_points.max === "proficiency") {
+      data.sheet_uses = [{ id: slugDuNom(`${f.name} points`), max: { proficiency: 1 }, recharge: f.luck_points.recharge, source: pointeur(f.name, url) }];
+    }
+    for (const [cle2, raison] of [["tools", "trois outils d'une FAMILLE au choix — le moteur ne sait pas borner un choix d'outils à une famille"],
+      ["discount_pct", "une remise d'achat — l'Équipement ne porte aucune règle de jeu"],
+      ["unarmed_damage", "les dégâts de l'Unarmed Strike — le moteur lit ceux du glossaire, pas ceux d'un don"],
+      ["hp_per_level", "les points de vie par niveau — la fiche ne dérive pas encore les PV d'un don"]]) {
+      if (f[cle2] !== undefined) restes.push(`${f.name} : ${raison}`);
+    }
+    feat[`${sigle}:feat:en:${slug}`] = { name: f.name, slug, data };
+  }
+
+  const records = {};
+  if (Object.keys(background).length) records.background = background;
+  if (Object.keys(species).length) records.species = species;
+  if (Object.keys(feat).length) records.feat = feat;
+  const layer = {
+    schema: "fh-layer/1",
+    id: livre.id,
+    version: "1.0.0",
+    name: livre.nom,
+    lang: "en",
+    flags: [],
+    attribution: {
+      license: "all-rights-reserved",
+      text:
+        `${livre.nom} — faits de jeu du livre que le joueur POSSÈDE, relevés dans sa propre ` +
+        "bibliothèque D&D Beyond ; les textes sont des RÉSUMÉS, le texte entier reste chez D&D Beyond. " +
+        "⛔ Cette couche ne fait partie d'aucune version publiée : elle est produite sur le disque du " +
+        "joueur et n'entre dans aucun commit (Eric, 2026-09-09 : « la version officielle ne contiendra " +
+        "pas DMG et player »)."
+    },
+    description:
+      `Chapitres 4 et 5 « Character Origins » et « Feats » (origines) : ${Object.keys(background).length} arrière-plans, ` +
+      `${Object.keys(species).length} espèce(s), ${Object.keys(feat).length} dons d'origine PROPRES au livre. ` +
+      "⚖️ Les records que le SRD 5.2.1 porte aussi ne sont PAS réémis : ils sont comparés (lot 387).",
+    records
+  };
+  return {
+    layer,
+    comptes: { background: Object.keys(background).length, species: Object.keys(species).length, feat: Object.keys(feat).length },
+    ecarts,
+    restes
+  };
+}
+
 export function generate({ cle = "dmg-2024", dirSources = DIR_SOURCES, dirCouches = DIR_COUCHES } = {}) {
   const livre = LIVRES[cle];
+  if (cle === "phb-2024") return genererOrigines({ dirSources, dirCouches });
   const chemin = join(dirSources, `${cle}-treasure.json`);
   if (!existsSync(chemin)) {
     fail(`la source « ${chemin} » est absente. ⭐ C'EST NORMAL SUR UN CLONE FRAIS : ` +
@@ -275,6 +525,32 @@ export function generate({ cle = "dmg-2024", dirSources = DIR_SOURCES, dirCouche
     message:
       `${livre.id} : ${comptes.gem} gemmes + ${comptes.gear} objets, ` +
       `${comptes.shelving} rangements — ⚖️ ${partages.length} ids PARTAGÉS avec Fate's Hand.`
+  };
+}
+
+/** Les origines du PHB, du disque au disque : l'instantané des faits, les deux couches de base
+ *  lues dans le dépôt, la couche du livre écrite hors du dépôt. */
+function genererOrigines({ dirSources, dirCouches }) {
+  const livre = LIVRES["phb-2024"];
+  const chemin = join(dirSources, "phb-2024-origins.json");
+  if (!existsSync(chemin)) {
+    fail(`la source « ${chemin} » est absente. ⭐ C'EST NORMAL SUR UN CLONE FRAIS : ` +
+      "elle vient de la bibliothèque du JOUEUR et n'est pas versionnée.");
+  }
+  const lire = (p) => JSON.parse(readFileSync(p, "utf8"));
+  const { layer, comptes, ecarts, restes } = construireOrigines(lire(chemin), {
+    srd: lire(join(REPO_ROOT, "layers", "srd-5.2.1-en.layer.json")),
+    meca: lire(join(REPO_ROOT, "layers", "srfh-mecaniques-en.layer.json"))
+  });
+  mkdirSync(dirCouches, { recursive: true });
+  const sortie = join(dirCouches, `${livre.id}.layer.json`);
+  writeFileSync(sortie, `${JSON.stringify(layer, null, 2)}\n`, "utf8");
+  return {
+    sortie, comptes, ecarts, restes,
+    message:
+      `${livre.id} : ${comptes.background} arrière-plans + ${comptes.species} espèce(s) + ${comptes.feat} dons, propres au livre. ` +
+      `Partagés comparés : ${ecarts.length} écart(s)${ecarts.length ? ` — ${ecarts.join(" ; ")}` : ""}. ` +
+      `Resté en texte : ${restes.length}.`
   };
 }
 

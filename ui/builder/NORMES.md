@@ -6502,8 +6502,11 @@ ici. ➡️ **Côté livre, elle se lisait dans la Web Bible** — ⚠️ **reti
 ⚖️ **L'ancre se fabrique AVANT le lien : une famille sans ancre est une famille qu'on ne peut pas lier.**
 📍 `ecriture-lien-en-phrase-se-note` · vivante · 29/08
 ⚖️ **Un lien à l'intérieur d'une phrase se NOTE, il ne se devine pas.**
-📍 `ecriture-loi-des-liens` · vivante · 30/08
-⚖️ **Dès qu'un skill, feat, trait, feature, spell, invocation ou training apparaît, il y a un lien vers le site FH Web — ou vers le SRD en mode SRD.**
+📍 `ecriture-loi-des-liens` · vivante · 30/08 · **amendée 30/09 (lot 387) — un record d'un livre du joueur mène à sa page chez D&D Beyond**
+⚖️ **Dès qu'un skill, feat, trait, feature, spell, invocation ou training apparaît, il y a un lien vers le site FH Web — ou vers le SRD en mode SRD ; un record d'un livre du joueur (PHB, DMG) mène à SA page chez D&D Beyond (`data.book_link`, `lienDuLivreDuJoueur`).**
+> 🔄 ARCHI 35, 30/09 (lot 387) : *« pour un record du PHB, le lien est l'adresse de sa page chez D&D Beyond. C'est son livre acheté,
+> et le texte entier y reste. »* La couche du livre ne porte que des faits et des résumés ; le livre du pied (espèce, fiche du
+> catalogue, parcours) ouvre cette page. ⛔ Une adresse hors de D&D Beyond n'ouvre rien.
 📍 `ecriture-pas-de-faux-lien` · vivante · 30/08
 ⚖️ **Un sort introuvable au query s'écrit en texte simple, jamais en faux lien.**
 📍 `geste-tap-info-clic-droit-info` · vivante · ?
@@ -10041,7 +10044,7 @@ l'espèce, pas la fiche du personnage — non tranché, porté au rapport du lot
 📌 **CE QUI LA TIENT** : `tests/actions-385.test.mjs` (4 : absent aux niveaux 1 et 4, présent au 5, dans les deux piles ; 6 :
 une couche de scénario qui date le trait au niveau 1, ou ne le date pas, le rend au niveau 1).
 
-📍 `species-une-lignee-a-ses-effets` · vivante · 30/09
+📍 `species-une-lignee-a-ses-effets` · vivante · 30/09 · **amendée 30/09 (lot 387) — un livre du joueur porte un pointeur là où sa phrase n'est pas celle du SRD**
 ⚖️ **Une lignée applique ses effets par la DONNÉE de sa déclaration, jamais par un nom : `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin de patch par le mot), ce que son texte de niveau 1 donne — `cantrips`, `spells`, `darkvision`, `speed`, `granted_skill_budget`, chacun avec son extrait exact —, `lineage_trait` nomme le trait que la lignée réalise, `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme, `species_cantrips` le sort qu'un trait de l'espèce lance avec la même caractéristique ; `derive` les applique. Le trait de lignée devient SPÉCIFIQUE (« Elven Lineage: Drow », le bénéfice de niveau 1 pour texte) ; un effet sans chiffre — une résistance, un souffle, le don d'un Goliath — se lit dans ce trait.**
 
 > ARCHI 35, 30/09 (mandat du lot 373) : *« L'extraction typée des lignées, dans les déclarations […] Chaque champ est un extrait exact de son texte. Les effets appliqués dans `derive`, par la donnée, jamais par une liste de noms. Un effet sans chiffre de fiche devient un trait nommé avec son texte. »* Puis, sur les deux décisions posées : *« Tes cinq décisions sont approuvées, sans veto »* (porte ouverte par la donnée, résistances et souffle en traits nommés).
@@ -10051,6 +10054,15 @@ une couche de scénario qui date le trait au niveau 1, ou ne le date pas, le ren
 ⭐ **CE QUI EST LU** : la vitesse de BASE que pose la lignée (avant les objets), la portée de la vision (en place, avec sa provenance), les sorts (`socle-une-source-d-incantation-a-sa-caracteristique`), la bourse d'un OUTIL (le palier posé, la moitié de la maîtrise pour Novice), et les traits « Breath Weapon (Acid) », « Damage Resistance (Acid) ».
 ⛔ **UNE PILE QUI NE DÉCLARE RIEN NE CONSOMME RIEN** : la couche FR n'a pas d'effets de lignée — sa réponse reste `unconsumed`, et `validate` dit qu'elle ne change rien à la fiche. Jamais un effet tu.
 🛡️ `tests/lignees-373.test.mjs` (L1, L3, L6, L8), qui bouclent sur les espèces montées des deux piles.
+
+🔄 **AMENDÉE AU LOT 387 (ARCHI 35, 30/09) — POUR LES LIVRES DU JOUEUR.** *« Chaque champ est un extrait exact de son texte »*
+vaut pour le SRD et pour Fate's Hand, dont les textes sont dans la pile. Un livre du joueur (le PHB) est sous droits : on n'en
+recopie pas la prose, ni sur le disque, ni dans une couche, ni dans un extrait. Un champ d'un record du livre cite donc un
+extrait QUAND la phrase est celle du SRD 5.2.1 (le générateur la cherche dans la couche SRD) ; sinon il porte un POINTEUR vers
+la page du livre chez D&D Beyond (`source` : le livre, la section, l'adresse). ARCHI 35 : *« un fait de jeu du PHB (les usages
+de Healing Hands, une résistance, un sort de trait, les paramètres d'un don) se déclare en DONNÉE, sans extrait. Il porte un
+pointeur de source à la place de la citation […] Un chiffre n'est pas une expression. »* Voir
+`NORMES.md:socle-un-livre-n-ajoute-que-ce-que-le-srd-n-a-pas`.
 
 📍 `socle-une-valeur-parmi-n-a-sa-porte` · vivante · 30/09
 ⚖️ **Un choix « une valeur parmi N » que le texte fait faire en passant — la caractéristique d'incantation (« choose the ability when you select the lineage », « choose when you select this feat »), la taille (« chosen when you select this species ») — a sa porte : la couche le DÉCLARE (`spellcasting_ability_choice`, `size_choice`, ses options et leurs noms extraits du texte), le carnet publie le plan LÀ OÙ VIT ce qu'il règle — sous la réponse de lignée (`species.lineage[0].ability`), en branche du B emboîté du don (`<racine>.originFeat[0].ability`), ou item de l'étape (`species.size`) —, et elle retient le `Done` de ce qui la porte. ⛔ Une question qui ne porte sur rien ne se pose pas : la porte de la caractéristique ne s'ouvre que sous une lignée qui fait lancer un sort.**
@@ -10262,7 +10274,7 @@ par la couche ; une couche de scénario qui retire ou change une déclaration ; 
 dix-huit mutations vues rouges. Et `tests/actions-385.test.mjs` (les réserves de Q3, chiffrées dans les deux piles ; une
 réserve de géant ; un compteur d'Heroic Inspiration ; Martial Arts sur le bâton ; la pile FH qui compte par SA formule).
 
-📍 `socle-un-extrait-se-cite-dans-sa-pile` · vivante · 30/09
+📍 `socle-un-extrait-se-cite-dans-sa-pile` · vivante · 30/09 · **amendée 30/09 (lot 387) — un livre du joueur : un extrait de sa pile, ou un pointeur**
 ⚖️ **Une déclaration cite un extrait du texte de SON record, dans CHAQUE pile où elle est lue : une couche qui réécrit ce texte déclare aussi ce qu'il compte, avec SA phrase, dans la source de son générateur — par-dessus la déclaration du dessous. Une garde relit chaque extrait dans le pli de chaque pile ; une déclaration dont le trait est retiré dort, et se nomme.**
 
 > ARCHI 35, 30/09 (lot 385, question fermée, réponse b) : *« FH déclare son propre compte, avec sa phrase pour extrait […]
@@ -10279,6 +10291,30 @@ Et la même relecture a trouvé un TROU : la table `lineage_effects` du Hoddon R
 n'avait aucun compteur de Speak with Animals.
 ⭐ **DEUX LECTEURS** : le générateur relit chaque extrait dans le texte FH qu'il produit, et JETTE sinon (discipline n°3) ;
 `tests/extraits-par-pile-385.test.mjs` relit toutes les déclarations d'usage, pile par pile, sur le pli.
+
+🔄 **AMENDÉE AU LOT 387 (ARCHI 35, 30/09) — LA SECONDE FORME, POUR LES LIVRES.** *« La garde du 385 apprend cette seconde forme
+pour les couches de livre : chaque déclaration porte soit un extrait de sa pile, soit un pointeur. Jamais ni l'un ni l'autre. »*
+`tests/extraits-par-pile-385.test.mjs` lit désormais une troisième pile (le SRD et un livre de FIXTURE, à la place
+qu'`engine.mjs` donne aux livres) ; un POINTEUR (`source.url`, une page de D&D Beyond) y remplace la citation, et un compte qui
+ne cite rien et ne pointe nulle part accuse. ⛔ Aucun pointeur dans le SRD ni dans FH : leurs phrases sont citables.
+
+📍 `socle-un-livre-n-ajoute-que-ce-que-le-srd-n-a-pas` · vivante · 30/09
+⚖️ **Un livre du joueur ne réémet pas un record que le SRD porte aussi : il AJOUTE ce que le SRD n'a pas (ids `xphb:…`, `xdmg:…`), et le générateur COMPARE les partagés, fait par fait, en rapportant chaque écart à Eric sans le trancher. Sa couche porte des FAITS DE JEU, jamais la prose du livre : le texte d'un record propre au livre est un RÉSUMÉ marqué (`summary_of`), et une déclaration cite le SRD ou pointe vers la page du livre.**
+
+> ARCHI 35, 30/09 (lot 387, réponse a) : *« on ne veut pas de doublons inutiles » (Eric, 09/09) · Le SRD 5.2.1 est tiré du PHB
+> 2024 : réémettre les 17 records partagés n'ajouterait rien. Les réémettre casserait tout ce que srfh-mecaniques-en porte (les
+> portes de lignée, les compteurs, les niveaux) et la pile FH au-dessus. »* · *« Une différence réelle sera une question pour
+> Eric : ne la tranche pas. »* · Et sur la prose : *« On ne recopie pas la prose du PHB, ni sur le disque, ni dans une couche, ni
+> dans un extrait. »*
+
+📏 **MESURÉ AVANT DE LIRE LE LIVRE** : les livres se montent AU-DESSUS de `srfh-mecaniques-en` (`engine.mjs`, `SOUS_LES_LIVRES`),
+et un `add` remplace le record ENTIER (`stack.mjs`) ; les 17 records d'origine partagés (4 arrière-plans, 9 espèces, 4 dons)
+portent TOUS des déclarations de `srfh-mecaniques-en`. Un Dragonborn du PHB allumé aurait perdu sa porte d'ascendance, son
+compteur de souffle et son Draconic Flight daté.
+⭐ **LA SUPERPOSITION PAR ID PARTAGÉ RESTE LA LOI DES GEMMES DU DMG** (`srfh:gem:…`, lot 188) : elle ne vaut pas pour les origines.
+📌 **CE QUI LA TIENT** : `tests/livre-origines-387.test.mjs` (le partagé n'est pas réémis et un écart planté se rapporte ; le
+propre entre, à sa place, dans les deux piles ; chaque déclaration cite ou pointe ; aucun texte sans la marque du résumé ; le
+générateur ne porte pas le livre) et `tests/gen-livre-layer.test.mjs` (aucun fichier de livre suivi par git).
 
 📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
 ⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**

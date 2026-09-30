@@ -25,11 +25,12 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=937";
-import { versionQuery } from "./version.mjs?v=937";
+import { planAt } from "./carnet.mjs?v=938";
+import { versionQuery } from "./version.mjs?v=938";
 /* LOT 191 — le mot d'un choix, un seul organe : le nom du record, sinon le
    slug humanisé et le refus nommé. `recordName` vivait ici et rendait l'id nu. */
-import { motDuChoix } from "./mot-du-choix.mjs?v=937";
+import { motDuChoix } from "./mot-du-choix.mjs?v=938";
+import { lienDuLivreDuJoueur } from "./liens-fh.mjs?v=938";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -340,7 +341,14 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        faire du cran d'aimantation. `choose`, lui, garde son index parce qu'il
        agit sur le curseur — deux boutons voisins, deux natures. */
     const lire = card.querySelector('[data-action="lore"]');
-    if (lire && typeof onAction === "function") {
+    /* 📚 LOT 387 — un record du LIVRE DU JOUEUR ouvre sa page chez D&D Beyond (la loi des liens) :
+       le texte entier y reste, la couche ne porte qu'un résumé. ⛔ `noopener`, comme Destiny. */
+    const vue = typeof ctx.query === "function" ? ctx.query({ kind: ctx.kind, id }) : null;
+    const lienDuLivre = lienDuLivreDuJoueur(vue && vue.record);
+    if (lire && lienDuLivre) {
+      lire.disabled = false;
+      lire.addEventListener("click", () => { window.open(lienDuLivre, "_blank", "noopener"); });
+    } else if (lire && typeof onAction === "function") {
       lire.disabled = false;
       lire.addEventListener("click", () => onAction({ kind: "lore", ref: { kind: ctx.kind, id } }));
     }
