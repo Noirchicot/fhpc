@@ -10985,8 +10985,18 @@ seule différence admise est nommée : l'heure du calcul (`resolved.derivation.a
 🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, E1, E2, A1, C1).
 
 ### 🔁 LA SAUVEGARDE AUTOMATIQUE ET LA RÉOUVERTURE (lot 374)
-📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09
-⚖️ **La copie de travail s'écrit à chaque geste ; la copie de l'app d'un personnage de My characters suit chaque modification et part au passage en arrière-plan. Un envoi raté repart à la réouverture, et le Menu le dit ; une copie changée ailleurs entre-temps n'est jamais écrasée : la question « quelle version garder ? » se pose à la réouverture.**
+📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09 · **amendée 30/09 (lot 375) — rien ne part quand seule une estampille change**
+⚖️ **La copie de travail s'écrit à chaque geste ; la copie de l'app d'un personnage de My characters suit chaque modification et part au passage en arrière-plan — mais seulement si ce qui fait le personnage a changé (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`) : une estampille seule ne fait ni écriture, ni révision, ni envoi. Un envoi raté repart à la réouverture, et le Menu le dit ; une copie changée ailleurs entre-temps n'est jamais écrasée : la question « quelle version garder ? » se pose à la réouverture.**
+
+> ARCHI 35, 30/09 (lot 375) : *« un perso ne se réécrit plus quand seule une estampille a changé »* — la
+> dérivation réestampille `resolved.derivation.at` à chaque ouverture ; *« entre deux onglets, c'est un
+> faux conflit en germe ; pour Dropbox, ce serait un envoi à chaque ouverture »*.
+
+⭐ **DEUX ÉTAGES, UNE RÈGLE** : l'appareil ne fait naître aucune révision d'une estampille (lot 374,
+`socle-le-stockage-un-organe-des-lieux`) ; la coquille, elle, n'APPELLE plus le lieu — elle retient le
+repère que la copie de l'app tient (`{id, repere}`) et n'envoie rien quand il n'a pas bougé
+(`rienNaChange`, magasin.mjs). 📏 Mesuré au banc (lot 374, v925) : Ilyra reste à r4 d'un rechargement à
+l'autre. ⭐ Un `Save` explicite, lui, écrit toujours : il garde sa version datée (10/09).
 
 > La carte produit, § 10 (29/09) : *« Quand part la sauvegarde ? »* → **« Automatiquement »** — le dernier
 > moment fiable est le passage en arrière-plan ; *« un envoi raté repart à la réouverture, et le dit »* ; et
@@ -11005,7 +11015,7 @@ perso en cours sera effacé »*) ; il entre au premier Save, ou quand on l'ouvre
 will be sent again when the app reopens. »* · *« Your last changes reached My characters when the app
 reopened. »* · *« Which version do you keep? »* (`This one` · `The other one` — ⚠️ aucune en rouge :
 `A-TRANCHER §C40`).
-🛡️ `tests/sauvegarde-374.test.mjs` (R1 à R4, P6, P7, C2, C5).
+🛡️ `tests/sauvegarde-374.test.mjs` (R1 à R4, P6, P7, C2, C5, E1, E2), `tests/estampille-375.test.mjs`.
 
 ### 💾 `SAVE CHARACTER` RANGE, PUIS VIDE LE CACHE (lot 374)
 📍 `menu-r-save-character-vide-le-cache` · vivante · 30/09

@@ -36,25 +36,25 @@
      · la corbeille détruit la ligne : ⏳ Eric n'a pas tranché entre détruire et
        poser au sol (les deux emplacements GROUND de l'écran R). Le popup de
        confirmation est là parce que le geste est irréversible. */
-import * as D from "./x1-disposition.mjs?v=925";
+import * as D from "./x1-disposition.mjs?v=926";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE : le
    dropdown de X1 envoie là où le dropdown de R envoie, et le jour où une
    destination s'ouvre (Tally, Craft) les deux écrans l'apprennent ensemble.
    ⛔ `x1-disposition.mjs` porte SA propre liste, du croquis : elle documente le
    plan, elle ne pilote pas l'écran — un besoin satisfait deux fois est une
    occasion de diverger (NORMES §5). */
-import { DESTINATIONS } from "./gear-ecran.mjs?v=925";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=926";
 /* ⭐ L'INTERRUPTEUR DU MENU, PRIS TEL QUEL — il est descendu dans une feuille sans
    import (lot 213) pour que la fiche le prenne sans traîner `Layers` derrière elle. */
-import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=925";
+import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=926";
 /* ⭐ ET LA JAUGE DE DÉFILEMENT, du même tiroir : l'organe des fenêtres de prose de
    Destiny (03/09), descendu dans une feuille sans import. Eric a demandé ici la même
    chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
    informer le lecteur »* — donc c'est le même organe, pas un second. */
-import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=925";
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=926";
 /* ⭐ LOT 308 — LA MOLETTE DE QUANTITÉ, l'organe de X1 et X2 (Eric, 27/09 : « La molette tambour ! »).
    Le champ « 1/5 » de cette fiche est mort avec elle. */
-import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=925";
+import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=926";
 /* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
    sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
    second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
@@ -115,7 +115,7 @@ export const CLEF_DE = Object.freeze({
  *  ⭐ LOT 289 — LE NOMBRE VIT DANS LE MOTEUR, et l'écran le RELIT : le moteur refuse
  *  lui aussi la quatrième harmonisation (un document écrit à la main peut la porter),
  *  et deux « 3 » écrits à deux endroits auraient divergé au premier réglage. */
-import { PLAFOND_HARMONISATION } from "../../src/build/effets-objets.mjs?v=925";
+import { PLAFOND_HARMONISATION } from "../../src/build/effets-objets.mjs?v=926";
 export { PLAFOND_HARMONISATION };
 
 /* La clef de document que chaque interrupteur écrit. ⭐ Elle voyage avec
@@ -166,7 +166,7 @@ export const ORGANES_DE_TETE = Object.freeze(
 );
 /* ⛔ L'APPARTENANCE SE DIT PAR NOM, JAMAIS PAR IDENTITÉ D'OBJET — 📏 mesuré au lot
    242, et c'est un piège du dépôt, pas une précaution : `x1-disposition.mjs` et
-   `x1-disposition.mjs?v=925` sont DEUX instances de module. Les mêmes organes y
+   `x1-disposition.mjs?v=926` sont DEUX instances de module. Les mêmes organes y
    portent des références DIFFÉRENTES, donc un `includes(o)` rend `false` dès que
    l'appelant a importé la table sans la version — ce qu'un garde fait naturellement.
    ⭐ Le nom, lui, traverse les deux instances. */

@@ -49,11 +49,11 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=925";
+import { lireLeFichier } from "./ouvrir.mjs?v=926";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=925";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=925";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=926";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=926";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
@@ -304,6 +304,16 @@ function memePersonnage(texteTenu, document) {
   let tenu;
   try { tenu = JSON.parse(texteTenu); } catch (_) { return false; }
   try { return canonicalText(ceQuiFaitLePersonnage(tenu)) === canonicalText(ceQuiFaitLePersonnage(document)); } catch (_) { return false; }
+}
+
+/** ⚖️ LOT 375 — Y A-T-IL QUELQUE CHOSE À ENVOYER ? Non si le lieu tient DÉJÀ ce repère (ce qui fait ce
+ *  personnage, `ceQuiFaitLePersonnage` aux octets du moteur) pour ce même `id`. ⛔ Un repère inconnu
+ *  (`tenu` absent) n'est pas « rien n'a changé » : on envoie, et le lieu tranche (voir l'appareil).
+ *  PURE : c'est la coquille qui retient ce que le lieu tient, et qui l'appelle avant tout envoi.
+ *  @param {{id:string, repere:string}|null} tenu  ce que le lieu tient
+ *  @param {{id:string, repere:string}} voulu      ce qu'on s'apprête à envoyer */
+export function rienNaChange(tenu, voulu) {
+  return Boolean(tenu && voulu && typeof tenu.repere === "string" && tenu.id === voulu.id && tenu.repere === voulu.repere);
 }
 
 /** `null` → `r1`, `r7` → `r8`. ⛔ Une révision illisible ne se « répare » pas en `r1` : elle

@@ -143,9 +143,9 @@ async function monterApp() {
   vider(localStorage);
   vider(sessionStorage);
   /* ⚖️ Lot 366 — l'exemple, posé par le banc : le démarrage ouvre une fiche vierge. */
-  localStorage.setItem(CLE, await (await fetch("../../examples/personnage-fh-en-niveau1.fh-char.json?v=925")).text());
+  localStorage.setItem(CLE, await (await fetch("../../examples/personnage-fh-en-niveau1.fh-char.json?v=926")).text());
   const f = document.createElement("iframe");
-  f.src = "./index.html?v=925";
+  f.src = "./index.html?v=926";
   document.body.prepend(f);
   const d = await attendre(() => {
     const doc = f.contentDocument;
