@@ -28,14 +28,14 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=916";
-import { peutPayer } from "./monnaie.mjs?v=916";
-import { pageDeListe } from "./normes.mjs?v=916";
-import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=916";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=929";
+import { peutPayer } from "./monnaie.mjs?v=929";
+import { pageDeListe } from "./normes.mjs?v=929";
+import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=929";
 /* ⚖️ LOT 288 — « poids par lot » : combien de lots fait une ligne, UN seul écrivain (`craft.mjs`). */
-import { paiementsDe } from "./craft.mjs?v=916";
+import { paiementsDe } from "./craft.mjs?v=929";
 /* ⭐ LOT 333 — le lecteur des variantes, pour dire qu'un objet à variante est un plan */
-import { variantesDe } from "../../src/build/objet-crafte.mjs?v=916";
+import { variantesDe } from "../../src/build/objet-crafte.mjs?v=929";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie

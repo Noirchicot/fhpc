@@ -15,6 +15,7 @@
 
 import { buildViolation } from "./validate.mjs";
 import { ABILITY_KEYS, allowedSlugs, indexSkills } from "./skills.mjs";
+import { REPONSE_DE_LIGNEE, optionDeLignee, ligneeLanceDesSorts, caracteristiquesOffertes, bourseDeLEspece } from "./lignee.mjs";
 
 const STATUS = Object.freeze({ pending: "pending", answered: "answered", locked: "locked" });
 
@@ -491,6 +492,27 @@ function repriseDuDon(query, featId) {
    ⛔ Q4 d'ARCHI 35 : le choix s'écrit et se montre ; l'EFFET (les maîtrises) attend
    le lot sur `derive`, avec les capacités du lot 360. Fate's Hand pose le compte à
    0 : ses +6 points se dépensent à Skills. */
+/* ══ 🧬 LOT 373 — LA CARACTÉRISTIQUE D'INCANTATION D'UN DON : `<racine>.originFeat[0].ability` ══
+   Magic Initiate : « Intelligence, Wisdom, or Charisma is your spellcasting ability for this
+   feat’s spells (choose when you select this feat) ». Le don le DÉCLARE
+   (`data.spellcasting_ability_choice`), ce plan le lit — sans un nom de don ici. Une branche du
+   B emboîté, comme la liste et les sorts (lot 77), pour ses deux détenteurs (lot 364).
+   ⛔ Une réponse qui traîne (le don changé) publie son plan sans options, et le verrou le dit. */
+function featAbilityPlan(query, choices, featId, racine) {
+  const basePath = `${racine}.originFeat[0].ability`;
+  const view = featId ? query({ kind: "feat", id: featId }) : null;
+  const declaration = view && view.record && view.record.data ? view.record.data.spellcasting_ability_choice : null;
+  const candidats = choices.filter((c) => c && typeof c.path === "string" &&
+    (c.path === basePath || c.path.startsWith(`${basePath}[`)));
+  if (!declaration && candidats.length === 0) return [];
+  return multiPlan({
+    choices: candidats, root: racine, basePath, expected: 1,
+    options: declaration ? caracteristiquesOffertes(declaration) : [],
+    provenance: view ? recordProvenance("offered", "feat", view, "spellcasting_ability_choice")
+      : { mode: "offered", kind: "feat", id: featId, field: "spellcasting_ability_choice" }
+  });
+}
+
 function featProficiencyPlans(query, choices, featId, racine) {
   const featView = featId ? query({ kind: "feat", id: featId }) : null;
   const declaration = featView && featView.record.data && featView.record.data.proficiency_choice;
@@ -589,21 +611,36 @@ const BUDGET_TIER_COST = { novice: 1, adept: 2, expert: 4 };
    📌 `listeParDefaut` sert la classe : un budget de classe est captif de la
    liste de SA classe (`skill_choice.from`), et la couche n'a donc pas à la
    recopier. L'espèce, elle, nomme toujours sa liste. */
-function budgetCaptifPlan({ choices, view, racine, kind, skills, listeParDefaut }) {
-  const declaration = view.record.data && view.record.data.granted_skill_budget;
+/* 🧬 LOT 373 — LA DÉCLARATION PEUT VENIR D'AILLEURS QUE DU RECORD (`declaration`, `champ`) :
+   la lignée choisie porte la sienne (The Mole People, ARCHI 35 Q2 → a). Et sa liste peut
+   nommer un OUTIL (`query` tendu : « 1 skill point (Novice) in tinker's tools ») — le slug de
+   l'outil rejoint alors les options, lu dans le catalogue `tool`, jamais deviné sur l'id. */
+function optionsDeLaBourse(budget, skills, query) {
+  const deCompetences = allowedSlugs(budget, skills);
+  const outils = typeof query === "function" && Array.isArray(budget.from)
+    ? budget.from.map((id) => query({ kind: "tool", id })).filter((v) => v && v.record)
+      .map((v) => v.record.slug || v.id)
+    : [];
+  if (deCompetences === null && outils.length === 0) return null;
+  return sorted([...(deCompetences || []), ...outils]);
+}
+
+function budgetCaptifPlan({ choices, view, racine, kind, skills, listeParDefaut, query,
+  declaration: donnee, champ = "granted_skill_budget" }) {
+  const declaration = donnee !== undefined ? donnee : view.record.data && view.record.data.granted_skill_budget;
   if (!declaration || typeof declaration !== "object" || Array.isArray(declaration) ||
     !Number.isInteger(declaration.points) || declaration.points <= 0) {
     return [];
   }
   const budget = declaration.from !== undefined ? declaration : { ...declaration, from: listeParDefaut };
-  const options = skillOptions(budget, skills); // ne lit que `.from` — la même fonction que le choix compté
+  const options = optionsDeLaBourse(budget, skills, query); // ne lit que `.from` — la même lecture que le choix compté
   if (options === null) return [];
 
   const chemin = `${racine}.skillBudget`;
   const prefix = `${chemin}.`;
   const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
     choice.path.startsWith(prefix) && typeof choice.value === "string");
-  const from = recordProvenance("offered", kind, view, "granted_skill_budget");
+  const from = recordProvenance("offered", kind, view, champ);
 
   let spent = 0;
   const selected = [];
@@ -963,7 +1000,43 @@ function classFeatureChoicePlans(query, choices, classView) {
         choices: candidates, root: "class", basePath, options, expected: compte, provenance: from,
         countKey: "feature-choice.count-mismatch"
       }));
+      /* LOT 372 — le cantrip en plus, sous la réponse qui le déclare (voir `cantripsDeLOption`). */
+      entries.push(...cantripsDeLOption(query, choices, classView, declaration, candidates));
     }
+  }
+  return entries;
+}
+
+/* ══ LOT 372 — LE CANTRIP EN PLUS D'UNE OPTION : `class.<id>[n].cantrips[m]` ═════════════
+   Thaumaturge et Magician : « You know one extra cantrip from the Cleric spell list » — un
+   effet qui est lui-même un CHOIX. L'option le DÉCLARE (`extra_cantrips : {list, count,
+   extrait}`, srfh-mecaniques-en) ; ce plan le lit, sans un nom d'option ici.
+   ⭐ IL VIT SOUS LA RÉPONSE, ET C'EST CE QUI EN FAIT LE CONTENU DE LA PORTE : l'étape Class
+   l'ouvre DANS la porte de la capacité (`socle-un-requis-qui-porte-une-decision-est-une-porte`),
+   jamais comme un item à part. Sa provenance (`feature_choices.<id>.extra_cantrips`) le range
+   avec les choix de capacité : la porte n'est pas prête tant qu'il n'est pas répondu.
+   ⭐ LES OPTIONS SONT CELLES DES CANTRIPS DE CLASSE — le croisement `spell.classes × level 0`,
+   le patron de Magic Initiate (`featSpellPlans`), sur la liste que l'option nomme.
+   ⛔ UNE RÉPONSE QUI TRAÎNE (l'option changée pour Protector) publie quand même le plan qui la
+   juge, sans options : `decision.option-unavailable`, et la porte le dit. */
+function cantripsDeLOption(query, choices, classView, declaration, reponses) {
+  const entries = [];
+  for (const reponse of reponses) {
+    const option = (declaration.options || []).find((o) => o && o.id === reponse.value);
+    const grant = option && option.extra_cantrips && typeof option.extra_cantrips === "object" ? option.extra_cantrips : null;
+    const basePath = `${reponse.path}.cantrips`;
+    const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+      choice.path.startsWith(`${basePath}[`));
+    if (!grant && candidates.length === 0) continue;
+    const listView = grant && typeof grant.list === "string" ? query({ kind: "class", id: grant.list }) : null;
+    const nomDeListe = listView ? listView.record.name : null;
+    const options = nomDeListe ? sorted(viewsOf(query, "spell").filter((view) => {
+      const data = view.record.data || {};
+      return Array.isArray(data.classes) && data.classes.includes(nomDeListe) && data.level === 0;
+    }).map((view) => view.id)) : [];
+    const expected = grant && Number.isInteger(grant.count) && grant.count > 0 ? grant.count : null;
+    const from = recordProvenance("offered", "class", classView, `feature_choices.${declaration.id}.extra_cantrips`);
+    entries.push(...refSlotPlans({ basePath, options, expected, candidates, from }));
   }
   return entries;
 }
@@ -1177,20 +1250,66 @@ export function projectDecisions({ query, choices }) {
        ⛔ SANS COÛT. Le lignage est DONNÉ avec l'espèce, il ne s'achète pas —
        `explicitCost` n'est donc pas appelé, et l'absence de `cost` ici est
        une affirmation, pas un oubli. */
-    const lineages = speciesView.record.data && speciesView.record.data.lineages;
+    const speciesData = speciesView.record.data || {};
+    const lineages = speciesData.lineages;
     if (Array.isArray(lineages) && lineages.length > 0) {
       entries.push(...multiPlan({
-        choices: list, root: "species", basePath: "species.lineage",
+        /* 🧬 LOT 373 — ses RÉPONSES seules : ce qu'une réponse fait encore choisir
+           (`species.lineage[0].ability[0]`) vit SOUS elle et n'est pas une lignée. */
+        choices: list.filter((c) => !(c && typeof c.path === "string" && c.path.startsWith("species.lineage[") &&
+          !REPONSE_DE_LIGNEE.test(c.path))),
+        root: "species", basePath: "species.lineage",
         options: lineages.map((option) => option && option.id).filter((id) => typeof id === "string"),
         expected: 1,
         provenance: recordProvenance("offered", "species", speciesView, "lineages")
       }));
     }
+    /* ══ 🧬 LOT 373 — CE QUE LA LIGNÉE CHOISIE FAIT ENCORE CHOISIR ═══════════════════
+       « Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you
+       cast with this trait (choose the ability when you select the lineage) » : UNE VALEUR
+       PARMI N, publiée SOUS la réponse (`species.lineage[0].ability`), comme le cantrip en
+       plus du Thaumaturge (lot 372) — la porte de la lignée ne signe pas tant qu'elle n'est
+       pas répondue (`sousPlansRepondus`). ⭐ ELLE NE S'OUVRE QUE SI LA LIGNÉE FAIT LANCER UN
+       SORT (ARCHI 35, 30/09) : sans sort, la question ne porte sur rien — The Mole People.
+       ⛔ Une réponse qui traîne (la lignée changée) publie quand même son plan, sans
+       options : `decision.option-unavailable`, et la porte le dit. */
+    const reponsesDeLignee = list.filter((c) => c && typeof c.path === "string" && REPONSE_DE_LIGNEE.test(c.path));
+    for (const reponse of reponsesDeLignee) {
+      const option = optionDeLignee(speciesData, reponse.value);
+      const basePath = `${reponse.path}.ability`;
+      const candidats = list.filter((c) => c && typeof c.path === "string" &&
+        (c.path === basePath || c.path.startsWith(`${basePath}[`)));
+      const donne = Boolean(speciesData.spellcasting_ability_choice) && ligneeLanceDesSorts(speciesData, option);
+      if (!donne && candidats.length === 0) continue;
+      entries.push(...multiPlan({
+        choices: candidats, root: "species", basePath, expected: 1,
+        options: donne ? caracteristiquesOffertes(speciesData.spellcasting_ability_choice) : [],
+        provenance: recordProvenance("offered", "species", speciesView, "spellcasting_ability_choice")
+      }));
+    }
+    /* 🧬 LOT 373 — LA TAILLE, « chosen when you select this species » (Human, Tiefling) :
+       une valeur parmi celles que la déclaration EXTRAIT du texte (`size_choice.options`). */
+    const taille = speciesData.size_choice;
+    if (taille && Array.isArray(taille.options)) {
+      entries.push(...multiPlan({
+        choices: list.filter((c) => c && typeof c.path === "string" &&
+          (c.path === "species.size" || c.path.startsWith("species.size["))),
+        root: "species", basePath: "species.size", expected: 1,
+        options: taille.options.map((o) => o && o.id).filter((id) => typeof id === "string"),
+        provenance: recordProvenance("offered", "species", speciesView, "size_choice")
+      }));
+    }
 
     // LOT 34 — le budget captif (Keen Senses), un groupe DISTINCT (contrat §4e).
-    entries.push(...budgetCaptifPlan({
-      choices: list, view: speciesView, racine: "species", kind: "species", skills
-    }));
+    /* 🧬 LOT 373 — …ou celui de la lignée choisie (The Mole People) : `bourseDeLEspece`. */
+    const reponseValide = reponsesDeLignee.map((r) => optionDeLignee(speciesData, r.value)).find(Boolean) || null;
+    const bourse = bourseDeLEspece(speciesData, reponseValide);
+    if (bourse) {
+      entries.push(...budgetCaptifPlan({
+        choices: list, view: speciesView, racine: "species", kind: "species", skills, query,
+        declaration: bourse.declaration, champ: bourse.champ
+      }));
+    }
   }
 
   /* ⭐ LOT 71 — LE MÊME ÉCRIVAIN QUE `refPlan` : `resolvedRef`. Ces deux
@@ -1318,6 +1437,7 @@ export function projectDecisions({ query, choices }) {
     const listeId = planDeLaListe && Array.isArray(planDeLaListe.selected) ? planDeLaListe.selected[0] || null : null;
     entries.push(...featSpellPlans(query, list, featId, listeId, detenteur.racine));
     entries.push(...featProficiencyPlans(query, list, featId, detenteur.racine));
+    entries.push(...featAbilityPlan(query, list, featId, detenteur.racine));
   }
 
   const unique = new Map();

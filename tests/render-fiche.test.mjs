@@ -117,8 +117,10 @@ test("le nom du personnage s'affiche en titre — et son absence se dit", () => 
 
 /* ⭐ LOT 289 — 21 → 22 : `effects`, la provenance des chiffres que les objets magiques
    changent (Eric, 26/09). C'est ICI que le nombre devait bouger, et il a bougé ici. */
-test("les 22 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
-  assert.equal(RUBRIQUES.length, 22, "le contrat en déclare 22 (21 jusqu'au lot 289, + `effects`) — si ce nombre bouge, c'est ici qu'on l'apprend");
+/* 🎯 LOT 372 — 22 → 23 : `training`, les maîtrises d'armes et d'armures (ARCHI 35, Q1 → a). */
+/* 🧬 LOT 373 — 23 → 24 : `spellSources`, les sources d'incantation hors classe (ARCHI 35, Q1 → a). */
+test("les 24 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
+  assert.equal(RUBRIQUES.length, 24, "le contrat en déclare 24 (21 jusqu'au lot 289, + `effects`, + `training` au lot 372, + `spellSources` au lot 373) — si ce nombre bouge, c'est ici qu'on l'apprend");
   const html = render(exemple.document, exemple.report);
   for (const cle of RUBRIQUES) {
     assert.ok(section(html, cle) !== null, `la rubrique « ${cle} » a sa place à l'écran`);
@@ -462,7 +464,8 @@ test("le CONTRAT porte huit formes qu'aucun chemin d'override ne peut viser", ()
     ["resolved.identity.classes[]", R.identity.properties.classes],
     ["resolved.actions[].damage[]", R.actions.items.properties.damage],
     ["resolved.spellcasting.spells[].damage[]",
-      schema.$defs.resolved.properties.spellcasting.oneOf[1].properties.spells.items.properties.damage],
+      schema.$defs.spell.properties.damage],   // 🧬 LOT 373 — le sort vit dans `$defs.spell`
+    ["resolved.spellSources[].spells[].damage[]", schema.$defs.spell.properties.damage],
     ["resolved.stats[].breakdown[]", R.stats.items.properties.breakdown]
   ];
   for (const [nom, forme] of sansId) {
@@ -536,10 +539,17 @@ test("les choix NON CONSOMMÉS sont nommés — une décision perdue ne dispara�
      remplacé par deux vraies langues consommées. Ce garde ne comptait pas ce
      qu'il prouve — il prouve que TOUT chemin non consommé est NOMMÉ à l'écran,
      et cette phrase-là n'a pas bougé. Le compte devient un simple témoin. */
-  assert.ok(exemple.report.unconsumed.length >= 1, "l'exemple en porte, sinon ce test ne mesure rien");
-  const html = render(exemple.document, exemple.report);
+  /* 🧬 LOT 373 — ET L'EXEMPLE N'EN PORTE PLUS AUCUN : sa lignée (`species.lineage[0]`, le dernier
+     orphelin) prend maintenant ses effets. Le témoin passe au personnage d'ACCEPTATION, qui en porte
+     deux vrais (sa lignée, en FR, sans effet déclaré ; son don homebrew) — ce qui se prouve ici
+     (tout chemin non consommé est NOMMÉ à l'écran) n'a pas bougé. */
+  assert.deepEqual(exemple.report.unconsumed, [], "l'exemple FH n'a plus d'orphelin");
+  const h = makeHarness();
+  const temoin = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  assert.ok(temoin.unconsumed.length >= 1, "le témoin en porte, sinon ce test ne mesure rien");
+  const html = render(temoin.document, temoin);
   assert.ok(html.includes(echappe(MOTS.nonConsommes)));
-  for (const chemin of exemple.report.unconsumed) {
+  for (const chemin of temoin.unconsumed) {
     assert.ok(html.includes(`<code>${echappe(chemin)}</code>`), `« ${chemin} » est nommé à l'écran`);
   }
   /* 🔴 CES DEUX LIGNES DISAIENT L'INVERSE DE CE QU'ELLES DISENT AUJOURD'HUI, et

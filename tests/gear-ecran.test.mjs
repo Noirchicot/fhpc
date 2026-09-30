@@ -106,7 +106,9 @@ test("2 bis — ⚖️ LOT 318 : six rangées séparées de 4 ou 8, la CÉSURE d
   /* ⚖️ et le pied porte les organes de Pack, aux mêmes écarts à son haut */
   const O = Object.fromEntries(ORGANES.map((o) => [o.nom, o]));
   assert.equal(O["SEND COLLECTOR"].y - pied.y, 12);
-  assert.equal(O.PURSE.y - pied.y, 9);
+  /* 🔄 LOT 371 — 8, plus 9 : la bourse remonte d'un blg sur les trois écrans, pour que la colonne bourse · Done ·
+     Companions tienne ses deux écarts à 8 (sacré n° 3 ; NORMES `equipement-colonne-du-pied`). */
+  assert.equal(O.PURSE.y - pied.y, 8);
   assert.equal(O.TALLY.y - pied.y, 68);
   assert.equal(O["SEND TO"].y - pied.y, 68);
   assert.equal(O.LUNE.y - pied.y, 19);

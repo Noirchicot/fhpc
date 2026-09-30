@@ -46,10 +46,11 @@ export const ORGANES = [
   { nom: "GROUND 1",         sorte: "jeton",  x:     99, y:    336, l:    87, h:   48 },
   { nom: "GROUND 2",         sorte: "jeton",  x:    190, y:    336, l:    87, h:   48 },
   { nom: "EXTRA STORAGE 4",  sorte: "jeton",  x:    284, y:    336, l:    87, h:   48 },
-  { nom: "PURSE",            sorte: "bouton", x:    276, y:    405, l:    50, h:   50, mot: "Purse", cran: "T1/600" },
+  { nom: "PURSE",            sorte: "bouton", x:  260.5, y:    404, l:    50, h:   50, mot: "Purse", cran: "T1/600" },
   { nom: "SEND COLLECTOR",   sorte: "jeton",  x:    144, y:    408, l:    87, h:   48 },
-  { nom: "MONTANT",          sorte: "voyant", x:    281, y:    410, l:    40, h:   40, mot: "999 gp", cran: "T1/400", dans: "PURSE", lignes: 2 },
+  { nom: "MONTANT",          sorte: "voyant", x:  265.5, y:    409, l:    40, h:   40, mot: "999 gp", cran: "T1/400", dans: "PURSE", lignes: 2 },
   { nom: "LUNE",             sorte: "lune",   x:      4, y:    415, l:    30, h:   30, cible: { x: 0, y: 408, l: 44, h: 44 }, grandEcran: true },
+  { nom: "DONE",             sorte: "bouton", x:    247, y:    462, l:    77, h:   40, cible: { x: 247, y: 460, l: 77, h: 44 }, mot: "Done", cran: "16/600" },
   { nom: "PARTY TALLY",      sorte: "bouton", x:     32, y:    464, l:    40, h:   40, cible: { x: 30, y: 462, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600", creation: false, lignes: 2 },
   { nom: "TALLY",            sorte: "bouton", x:     80, y:    464, l:    40, h:   40, cible: { x: 78, y: 462, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "SEND TO",          sorte: "bouton", x:  139.5, y:    464, l:    96, h:   40, cible: { x: 139.5, y: 462, l: 96, h: 44 }, mot: "Send to", cran: "T1/600" },
@@ -57,8 +58,8 @@ export const ORGANES = [
   { nom: "GEAR",             sorte: "porte-carree", x:  10.25, y:    510, l:    40, h:   40, cible: { x: 8.25, y: 508, l: 44, h: 44 }, mot: "Gear", cran: "T0/600" },
   { nom: "BACKPACK",         sorte: "porte-carree", x:   56.5, y:    510, l:    40, h:   40, cible: { x: 54.5, y: 508, l: 44, h: 44 }, mot: "Pack", cran: "T0/600" },
   { nom: "WARES",            sorte: "porte-carree", x: 102.75, y:    510, l:    40, h:   40, cible: { x: 100.75, y: 508, l: 44, h: 44 }, mot: "Wares", cran: "T0/600" },
-  { nom: "COMPANIONS",       sorte: "bouton", x:  243.5, y:    510, l:    77, h:   40, cible: { x: 243.5, y: 508, l: 77, h: 44 }, mot: "Companions", cran: "T1/600" },
-  { nom: "?",                sorte: "rond",   x:    338, y:    519, l:    22, h:   22, cible: { x: 327, y: 508, l: 44, h: 44 } },
+  { nom: "COMPANIONS",       sorte: "bouton", x:    247, y:    510, l:    77, h:   40, cible: { x: 247, y: 508, l: 77, h: 44 }, mot: "Companions", cran: "T1/600" },
+  { nom: "?",                sorte: "rond",   x:    345, y:    519, l:    22, h:   22, cible: { x: 331, y: 508, l: 44, h: 44 } },
 ];
 
 /* ═══ LES CRANS DE TEXTE — mesurés sur le site, police Inter ═══

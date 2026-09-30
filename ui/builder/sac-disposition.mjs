@@ -67,7 +67,10 @@ export const ORGANES = [
   { nom: "CASE 4.3",    sorte: "jeton",    x:    239, y:    274, l:     87, h:    48, dans: "DALLES" },
   { nom: "NOTICE",      sorte: "bande",    x:      0, y:     44, l:    375, h:   451, mot: "le panneau du mode edit" },
   { nom: "COLLECTEUR",  sorte: "collecteur", x:    144, y:    348, l:     87, h:    48, cible: { x: 144, y: 348, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
-  { nom: "PURSE",       sorte: "bouton",   x:    276, y:    345, l:     50, h:    50, cible: { x: 276, y: 345, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
+  /* ⚖️ LOT 363 — la bourse dans l'axe de la colonne du pied, centrée entre Send et le `?` (Eric, 30/09 :
+     « bourse done et Companions alignés verticalement » → « Centrée Send ↔ ? ») — cote commune aux trois écrans ;
+     ⚖️ LOT 371 : à 8 du haut de la dalle du pied (344, plus 345), pour les deux écarts à 8 de la colonne de Gear */
+  { nom: "PURSE",       sorte: "bouton",   x:  260.5, y:    344, l:     50, h:    50, cible: { x: 260.5, y: 344, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
   { nom: "PARTY TALLY", sorte: "bouton",   x:     32, y:    404, l:     40, h:    40, cible: { x: 30, y: 402, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
   { nom: "TALLY",       sorte: "bouton",   x:     80, y:    404, l:     40, h:    40, cible: { x: 78, y: 402, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "LUNE",        sorte: "lune",     x:      4, y:    355, l:     30, h:    30, cible: { x: 0, y: 348, l: 44, h: 44 }, mot: "Screens", grandEcran: true },
@@ -77,7 +80,8 @@ export const ORGANES = [
   { nom: "BACKPACK",    sorte: "porte-carree", x:   56.5, y:    450, l:     40, h:    40, cible: { x: 54.5, y: 448, l: 44, h: 44 }, mot: "Pack", cran: "T0/600" },
   { nom: "WARES",       sorte: "porte-carree", x: 102.75, y:    450, l:     40, h:    40, cible: { x: 100.75, y: 448, l: 44, h: 44 }, mot: "Wares", cran: "T0/600" },
   { nom: "SEND",        sorte: "porte",    x:    149, y:    448, l:     77, h:    44, cible: { x: 149, y: 448, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
-  { nom: "?",           sorte: "rond",     x:    338, y:    459, l:     22, h:    22, cible: { x: 327, y: 448, l: 44, h: 44 }, mot: "?" },
+  /* ⚖️ LOT 363 — « ? à 8 blg du bord droit » (Eric, 30/09) : le dessin à 8 du bord, la cible collée au bord */
+  { nom: "?",           sorte: "rond",     x:    345, y:    459, l:     22, h:    22, cible: { x: 331, y: 448, l: 44, h: 44 }, mot: "?" },
 ];
 
 /* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en fond

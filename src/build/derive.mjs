@@ -52,6 +52,7 @@ import { lireLeBonus, nomCrafte, nomDUneVariante, nomDUnParchemin } from "./obje
 import { ancresDesLignes, lignesDuCarnet } from "./ancre-de-ligne.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
+import { REPONSE_DE_LIGNEE, optionDeLignee, effetsDeLaLignee, sortsDeLaLignee, caracteristiquesOffertes, bourseDeLEspece } from "./lignee.mjs";
 /* LOT 289 — les effets des objets magiques : le plan, le registre, et le plafond SRD. */
 import { planDesEffets, creerRegistre, PLAFOND_HARMONISATION } from "./effets-objets.mjs";
 import { buildViolation } from "./validate.mjs";
@@ -381,6 +382,32 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const speciesView = speciesRef ? reader.maybe(speciesRef.kind, speciesRef.id) : null;
   const speciesData = speciesView ? (speciesView.record.data || {}) : {};
 
+  /* ══ 🧬 LOT 373 — LA LIGNÉE CHOISIE, ET CE QU'ELLE DONNE ═════════════════════════════
+     ARCHI 35, 30/09 : « les lignées prennent leurs effets ». L'option se lit UNE fois
+     (`lignee.mjs`, le lecteur que le carnet partage) ; ses effets DÉCLARÉS s'appliquent plus
+     bas, chacun à sa rubrique : la vitesse (`speed`), la vision (`darkvision`), les sorts
+     (`resolved.spellSources`), la bourse captive (`granted_skill_budget`), et le TRAIT que la
+     lignée réalise (`data.lineage_trait`) prend son nom et son texte de niveau 1.
+     ⛔ Aucun nom d'espèce ni de lignée ici : la donnée seule. */
+  const reponseDeLignee = picked.order.find((entry) => typeof entry.choice.path === "string" &&
+    REPONSE_DE_LIGNEE.test(entry.choice.path)) || null;
+  const optionLignee = speciesView && reponseDeLignee ? optionDeLignee(speciesData, reponseDeLignee.choice.value) : null;
+  const traitDeLignee = optionLignee && typeof speciesData.lineage_trait === "string" && Array.isArray(speciesData.traits)
+    ? speciesData.traits.find((trait) => trait && trait.id === speciesData.lineage_trait) || null : null;
+  /* Le nom, sur le patron des choix de capacité du lot 372 (« Primal Order: Warden ») :
+     « Elven Lineage: Drow » — les deux mots recopiés de la pile. */
+  const effetsLignee = effetsDeLaLignee(speciesData, optionLignee);
+  const nomDeLignee = optionLignee
+    ? (traitDeLignee ? `${traitDeLignee.name}: ${optionLignee.name}` : optionLignee.name) : null;
+  /* ⛔ LA RÉPONSE N'EST CONSOMMÉE QUE SI ELLE PRODUIT QUELQUE CHOSE (un trait, un effet, un type de
+     dégâts nommé) : une pile qui ne déclare rien pour cette lignée (la couche FR) la laisse
+     `unconsumed`, et `validate` dit qu'elle ne change rien à la fiche — jamais un effet tu. */
+  if (optionLignee && (traitDeLignee || Object.keys(effetsLignee).length > 0 ||
+    (typeof optionLignee.damage === "string" && speciesData.lineage_damage) ||
+    (Array.isArray(speciesData.species_cantrips) && speciesData.species_cantrips.length > 0))) {
+    reponseDeLignee.consumed = true;
+  }
+
   const backgroundRef = takeRef("background");
   const backgroundView = backgroundRef ? reader.maybe(backgroundRef.kind, backgroundRef.id) : null;
   const backgroundData = backgroundView ? (backgroundView.record.data || {}) : {};
@@ -415,9 +442,24 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       chemin === "species.lineage" || chemin.startsWith("species.lineage["))) {
       underived.declare("identity.species (lignage)", "underived.lineage-not-composed", {});
     }
-    const sizeKey = speciesData.size_key;
-    if (typeof sizeKey === "string") identity.size = sizeKey;
-    else underived.declare("identity.size", "underived.species-missing-size-key", {});
+    /* 🧬 LOT 373 — « chosen when you select this species » (Human, Tiefling) : la taille est une
+       RÉPONSE (`species.size[0]`), parmi les options que la déclaration extrait du texte. */
+    const choixDeTaille = speciesData.size_choice;
+    if (choixDeTaille && Array.isArray(choixDeTaille.options)) {
+      const reponse = picked.order.find((entry) => typeof entry.choice.path === "string" &&
+        /^species\.size\[[0-9]+\]$/.test(entry.choice.path));
+      const legale = reponse && choixDeTaille.options.some((o) => o && o.id === reponse.choice.value);
+      if (legale) {
+        reponse.consumed = true;
+        identity.size = reponse.choice.value;
+      } else {
+        underived.declare("identity.size", "underived.size-not-chosen", {});
+      }
+    } else {
+      const sizeKey = speciesData.size_key;
+      if (typeof sizeKey === "string") identity.size = sizeKey;
+      else underived.declare("identity.size", "underived.species-missing-size-key", {});
+    }
   } else {
     underived.declare("identity.species", "underived.no-choice", { root: "species" });
     underived.declare("identity.size", "underived.no-choice", { root: "species" });
@@ -661,6 +703,19 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     underived.declare("speeds", "underived.species-missing-speed-field", { speedField });
   } else {
     resolved.speeds = { walk: speciesData[speedField] };
+    /* 🧬 LOT 373 — « Your Speed increases to 35 feet » (Wood Elf) : la vitesse de BASE que la
+       lignée pose, AVANT les objets (un +10 de bottes s'ajoute à 35). Écrite en pieds, comme
+       elle est extraite ; dans un document en mètres, elle se déclare au lieu de se deviner. */
+    const vitesse = effetsLignee.speed;
+    if (vitesse && Number.isInteger(vitesse.walk_ft)) {
+      if (distanceUnit === "ft") {
+        effets.noter({ valeur: vitesse.walk_ft, public: { object: nomDeLignee, item: nomDeLignee,
+          target: "speed.walk", mode: "set", condition: "always" } }, "resolved.speeds.walk", resolved.speeds.walk, vitesse.walk_ft);
+        resolved.speeds.walk = vitesse.walk_ft;
+      } else {
+        underived.declare("speeds.walk (lignée)", "underived.lineage-unit-mismatch", { distanceUnit: JSON.stringify(distanceUnit) });
+      }
+    }
     /* ⭐ LOT 289 — les effets de vitesse sont écrits EN PIEDS (la source est le SRD
        anglais). ⛔ Dans un document en mètres, on ne convertit pas en devinant : à part. */
     if (distanceUnit === "ft") {
@@ -697,6 +752,22 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     }
   } else if (speciesView && speciesData.senses !== undefined && !rangeField) {
     underived.declare("senses", "underived.no-distance-unit-short", { distanceUnit: JSON.stringify(distanceUnit) });
+  }
+  /* 🧬 LOT 373 — « The range of your Darkvision increases to 120 feet » (Drow, The Mole
+     People) : la portée du sens que la lignée NOMME, en place. ⛔ Un sens absent de l'espèce ne
+     se fabrique pas (son nom viendrait d'ici) : il se déclare. */
+  const vision = effetsLignee.darkvision;
+  if (vision && Number.isInteger(vision.range_ft)) {
+    const i = senses.findIndex((sense) => sense.id === "darkvision");
+    if (distanceUnit !== "ft") {
+      underived.declare("senses[darkvision] (lignée)", "underived.lineage-unit-mismatch", { distanceUnit: JSON.stringify(distanceUnit) });
+    } else if (i < 0) {
+      underived.declare("senses[darkvision] (lignée)", "underived.lineage-sense-missing", {});
+    } else {
+      effets.noter({ valeur: vision.range_ft, public: { object: nomDeLignee, item: nomDeLignee,
+        target: "sense.darkvision", mode: "set", condition: "always" } }, "resolved.senses[darkvision].value", senses[i].value, vision.range_ft);
+      senses[i] = { ...senses[i], value: vision.range_ft };
+    }
   }
   resolved.senses = senses;
   if (senses.length === 0 && !underived.has("senses")) {
@@ -862,6 +933,42 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     chosenBy[root] = answers;
   }
 
+  /* ══ LOT 372 — LES DONS D'ORIGINE, ET LES MAÎTRISES QU'UN DON FAIT CHOISIR ═══════════
+     Un don d'origine a deux détenteurs, `background.originFeat[0]` et `species.originFeat[0]`
+     (lot 364). Le don lui-même devient un TRAIT (plus bas) ; les maîtrises qu'il fait choisir
+     (`data.proficiency_choice` — Skilled : « You gain proficiency in any combination of three
+     skills or tools of your choice ») arrivent sous `<racine>.originFeat[0].proficiencies[n]`,
+     un ref de compétence ou d'outil. ⭐ La compétence est MAÎTRISÉE comme toute compétence
+     accordée ; l'outil entre avec les outils possédés.
+     ⛔ Un ref qui n'est pas du genre que le don déclare, ou introuvable, reste `unconsumed`. */
+  const donsDOrigine = [];
+  const outilsDesDons = [];
+  for (const racine of ["background", "species"]) {
+    const reponse = picked.order.find((entry) => entry.choice.path === `${racine}.originFeat[0]` &&
+      entry.choice.ref && entry.choice.ref.kind === "feat");
+    const view = reponse ? reader.maybe("feat", reponse.choice.ref.id) : null;
+    if (!view) continue;
+    donsDOrigine.push({ racine, entry: reponse, view });
+    const declaration = view.record.data && view.record.data.proficiency_choice;
+    const genres = declaration && Array.isArray(declaration.from) ? declaration.from : [];
+    const prefixe = `${racine}.originFeat[0].proficiencies[`;
+    for (const entry of picked.order.filter((e) => typeof e.choice.path === "string" && e.choice.path.startsWith(prefixe))) {
+      const ref = entry.choice.ref;
+      if (!ref || !genres.includes(ref.kind)) continue;
+      if (ref.kind === "skill") {
+        const skill = skills.byId.get(ref.id);
+        if (!skill) continue;
+        entry.consumed = true;
+        proficientSkills.set(skill.id, racine);
+      } else if (ref.kind === "tool") {
+        const outil = reader.maybe("tool", ref.id);
+        if (!outil) continue;
+        entry.consumed = true;
+        outilsDesDons.push(outil);
+      }
+    }
+  }
+
   /* Les imposés, GÉNÉRIQUEMENT (aucun mot de FH) : la liste plate des slugs
      que ce bloc vient de placer, tous root confondus. C'est l'unique donnée
      qu'un module a besoin de recevoir pour savoir OÙ poser un plancher — la
@@ -960,7 +1067,12 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     }
   }
 
-  const budget = speciesData.granted_skill_budget;
+  /* 🧬 LOT 373 — …ou celui de la lignée choisie (The Mole People : « 1 skill point (Novice) in
+     tinker's tools »), lu par le MÊME lecteur que le carnet (`bourseDeLEspece`). Sa liste peut
+     nommer un OUTIL : son palier va aux outils (`budgetOutils`, plus bas). */
+  const bourse = speciesView ? bourseDeLEspece(speciesData, optionLignee) : null;
+  const budget = bourse ? bourse.declaration : undefined;
+  const budgetOutils = new Map(); // slug d'outil → { view, tier }
   if (budget !== undefined) {
     if (budget === null || typeof budget !== "object" || Array.isArray(budget) ||
       !Number.isInteger(budget.points) || budget.points <= 0) {
@@ -969,7 +1081,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         "points — a captive budget the engine cannot count would place a floor it cannot justify.");
     }
     const allowedBudget = allowedSlugs(budget, skills);
-    if (allowedBudget === null) {
+    const outilsDeLaBourse = new Map((Array.isArray(budget.from) ? budget.from : [])
+      .map((id) => reader.maybe("tool", id)).filter(Boolean)
+      .map((view) => [view.record.slug || view.id, view]));
+    if (allowedBudget === null && outilsDeLaBourse.size === 0) {
       fail(`the species record "${speciesView.id}" carries \`data.granted_skill_budget.from\` = ` +
         `${JSON.stringify(budget.from)}, which is not a list of skill ids (or "any") — a captive budget with no ` +
         "legal list would let the player spend its points anywhere, erasing the restriction the grant exists to carry.");
@@ -980,7 +1095,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       if (typeof path !== "string" || !path.startsWith(budgetPrefix)) continue;
       const slug = path.slice(budgetPrefix.length);
       const value = entry.choice.value;
-      if (!allowedBudget.has(slug) || !Object.hasOwn(TIER_COST, value)) continue; // decisions.mjs le NOMME
+      if (!Object.hasOwn(TIER_COST, value)) continue; // decisions.mjs le NOMME
+      if (outilsDeLaBourse.has(slug)) {
+        entry.consumed = true;
+        budgetOutils.set(slug, { view: outilsDeLaBourse.get(slug), tier: value });
+        continue;
+      }
+      if (!allowedBudget || !allowedBudget.has(slug)) continue; // decisions.mjs le NOMME
       entry.consumed = true;
       budgetTier.set(slug, value);
     }
@@ -1041,6 +1162,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       underived.declare("tools", "underived.background-missing-tool-field", {});
     }
   }
+  /* LOT 372 — les outils qu'un don d'origine a fait choisir (Skilled), un par un. */
+  for (const outil of outilsDesDons) {
+    if (!toolViews.some((v) => v.id === outil.id)) toolViews.push(outil);
+  }
   for (const view of toolViews) {
     const abilityKey = view.record.data && view.record.data.ability_key;
     if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
@@ -1066,6 +1191,24 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      dirait « aucune maîtrise » sur une collection pas encore finale — même
      tableau, RÉFÉRENCE PARTAGÉE avec `resolved.tools`, pour que l'ajout d'un
      outil acheté plus tard s'y voie sans réassignation. */
+  /* 🧬 LOT 373 — L'OUTIL D'UNE BOURSE CAPTIVE (The Mole People) : au palier placé, pas en
+     maîtrise pleine. Même barème que les compétences de la bourse (novice ½ · adept · expert ×2). */
+  for (const [slug, { view, tier }] of budgetOutils) {
+    const abilityKey = view.record.data && view.record.data.ability_key;
+    if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
+      underived.declare(`tools[${slug}]`, "underived.tool-missing-ability-key", {});
+      continue;
+    }
+    if (proficiency === null) {
+      underived.declare(`tools[${slug}]`, "underived.proficiency-not-derived-tools", {});
+      continue;
+    }
+    const terme = tier === "novice" ? Math.floor(proficiency / 2) : tier === "expert" ? proficiency * 2 : proficiency;
+    const deja = tools.findIndex((tool) => tool.id === slug);
+    const ligne = { id: slug, name: view.record.name, ability: abilityKey, bonus: abilities[abilityKey].mod + terme, proficiency: tier };
+    if (deja < 0) tools.push(ligne);
+    else if (TIER_COST[tier] > (TIER_COST[tools[deja].proficiency] || 0)) tools[deja] = ligne;
+  }
   resolved.tools = tools;
 
   /* ── ACTIONS ───────────────────────────────────────────────────────
@@ -1088,8 +1231,44 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      portaient alors). Le parchemin en pose un sous `gear[N].spell` : mesuré, un Wizard y
      gagnait Fireball dans ses sorts préparés, et un Barbarian une fiche d'incantation « non
      dérivée ». ⭐ Ce qui vit sous `gear` appartient à l'objet — la ligne l'a déjà lu. */
+  /* 🧬 LOT 373 — ET LE SORT D'UN DON N'EST PAS UN SORT DE LA CLASSE. Magic Initiate « fixe sa
+     propre caractéristique » (ARCHI 35, Q1) : ses sorts (`<genre>.originFeat[0].…`) vont à
+     `resolved.spellSources`, plus bas. Mesuré avant : un Fighter Magic Initiate n'avait AUCUN
+     bloc (sa classe n'a pas de caractéristique), et un Cleric les lançait en Sagesse d'office. */
+  const SORT_DE_DON = /^[a-z]+\.originFeat\[0\]\./;
   const spellRefs = picked.order.filter((entry) => entry.choice.ref && entry.choice.ref.kind === "spell"
-    && entry.parsed.root !== "gear");
+    && entry.parsed.root !== "gear" && !SORT_DE_DON.test(entry.choice.path));
+  /* LE SORT SUR LA FICHE — une seule fabrique, pour le bloc de classe et pour chaque source
+     (`spellSources`) : mêmes champs, mêmes manques déclarés. */
+  const manquesDesSorts = { concentration: [], castType: [] };
+  const composerLeSort = (view) => {
+    const data = view.record.data || {};
+    const slug = view.record.slug;
+    if (typeof slug !== "string" || !Number.isInteger(data.level)) {
+      underived.declare(`spellcasting.spells[${view.id}]`, "underived.spell-record-invalid", {});
+      return null;
+    }
+    const spell = { id: slug, name: view.record.name, level: data.level, prepared: true };
+    if (typeof data.cast_type === "string") spell.castType = data.cast_type;
+    else manquesDesSorts.castType.push(slug);
+    if (typeof data.range === "string") spell.range = data.range;
+    if (typeof data.casting_time === "string") spell.castingTime = data.casting_time;
+    if (typeof data.duration === "string") spell.duration = data.duration;
+    if (typeof data.ritual === "boolean") spell.ritual = data.ritual;
+    if (typeof data.description === "string") {
+      if (data.description.length > SPELL_TEXT_MAX) {
+        underived.declare(`spellcasting.spells[${slug}].text`, "underived.spell-text-too-long",
+          { length: data.description.length, max: SPELL_TEXT_MAX });
+      } else {
+        spell.text = data.description;
+      }
+    } else {
+      underived.declare(`spellcasting.spells[${slug}].text`, "underived.spell-missing-description", {});
+    }
+    if (typeof data.concentration === "boolean") spell.concentration = data.concentration;
+    else manquesDesSorts.concentration.push(slug);
+    return spell;
+  };
   const castingKey = classData.spellcasting_ability_key;
   const slotRow = levelRow && Array.isArray(levelRow.spell_slots) ? levelRow.spell_slots : null;
   const beforeSlots = (before.spellcasting && before.spellcasting.slots) || {};
@@ -1116,56 +1295,15 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       underived.declare("spellcasting.slots", "underived.progression-missing-spell-slots", { classId: classView.id });
     }
     const spells = [];
-    const spellsSansConcentration = [];
-    const spellsSansCastType = [];
     for (const entry of spellRefs) {
       entry.consumed = true;
       const view = reader.must("spell", entry.choice.ref.id, `le choix « ${entry.choice.path} »`);
-      const data = view.record.data || {};
-      const slug = view.record.slug;
-      if (typeof slug !== "string" || !Number.isInteger(data.level)) {
-        underived.declare(`spellcasting.spells[${view.id}]`, "underived.spell-record-invalid", {});
-        continue;
-      }
-      const spell = { id: slug, name: view.record.name, level: data.level, prepared: true };
-      /* REWRITTEN 2026-08-08 (fusion du lot 8) — `castType` ne fait PLUS sauter
-         l'entrée. Le lot 8 a refusé le champ avec sa mesure, et l'architecte
-         lui a donné raison contre son propre schéma : cinq constructions
-         ressemblent à une sauvegarde et une seule est le fait, *Couteau de
-         glace* est génuinement attaque ET sauvegarde, et l'énumération ne sait
-         pas le dire. `castType` est donc devenu FACULTATIF — le mode de
-         résolution se DÉCLARE inconnu. Une fiche de magicien sans aucun sort
-         serait plus fausse qu'une fiche dont on dit ne pas connaître le mode. */
-      if (typeof data.cast_type === "string") spell.castType = data.cast_type;
-      else spellsSansCastType.push(slug);
-      if (typeof data.range === "string") spell.range = data.range;
-      if (typeof data.casting_time === "string") spell.castingTime = data.casting_time;
-      if (typeof data.duration === "string") spell.duration = data.duration;
-      if (typeof data.ritual === "boolean") spell.ritual = data.ritual;
-      /* LE TEXTE DU SORT vient de `description`, tel quel. Il était laissé
-         tomber par la première passe de ce lot SANS AUCUNE RAISON DE DONNÉES —
-         défaut trouvé par l'architecte au comparateur intégral, là où mes
-         assertions ne regardaient que cinq champs sur douze. Mesuré avant de
-         le porter : les 339 sorts de la pile en ont une, la plus longue fait
-         3 967 caractères, et `resolved.spellcasting.spells[].text` en accepte
-         4 000. Un texte plus long ne serait pas TRONQUÉ — tronquer un texte de
-         règle est un mensonge silencieux : il est sauté et déclaré. */
-      if (typeof data.description === "string") {
-        if (data.description.length > SPELL_TEXT_MAX) {
-          underived.declare(`spellcasting.spells[${slug}].text`, "underived.spell-text-too-long",
-            { length: data.description.length, max: SPELL_TEXT_MAX });
-        } else {
-          spell.text = data.description;
-        }
-      } else {
-        underived.declare(`spellcasting.spells[${slug}].text`, "underived.spell-missing-description", {});
-      }
-      /* `concentration` est un BOOLÉEN de la couche, commandé au lot 8. La
-         dérivation ne le déduit PAS de `duration` : « Concentration, jusqu'à
-         10 minutes » est une phrase, et la lire serait un parseur de prose. */
-      if (typeof data.concentration === "boolean") spell.concentration = data.concentration;
-      else spellsSansConcentration.push(slug);
-      spells.push(spell);
+      /* REWRITTEN 2026-08-08 (fusion du lot 8) — `castType` ne fait plus sauter l'entrée ; le
+         TEXTE vient de `description`, tel quel, et un texte trop long est sauté et déclaré ;
+         `concentration` est un booléen de la couche, jamais déduit de `duration`. ⭐ LOT 373 —
+         ces trois lois vivent désormais dans `composerLeSort`, qui sert aussi `spellSources`. */
+      const spell = composerLeSort(view);
+      if (spell) spells.push(spell);
     }
     /* Tri STABLE par niveau : les sorts mineurs d'abord, puis les sorts de
        niveau 1, chacun dans l'ordre où le joueur les a choisis. */
@@ -1187,6 +1325,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        échelle par niveau d'emplacement. Le contrat ne les nomme pas et le lot
        8 ne peut pas les émettre : ils se déclarent, à chaque pli. */
     underived.declare("spellcasting.spells[].damage", "underived.spell-damage-unstructured", {});
+    const spellsSansConcentration = manquesDesSorts.concentration.splice(0);
     if (spellsSansConcentration.length > 0) {
       underived.declare("spellcasting.spells[].concentration", "underived.spells-missing-concentration",
         { count: spellsSansConcentration.length, ids: spellsSansConcentration.join(", ") });
@@ -1195,9 +1334,91 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        l'architecte lui a donné raison : le champ est facultatif au schéma
        depuis le 2026-08-08. Un sort sans `cast_type` est émis quand même, et
        c'est le mode qui se déclare inconnu. */
+    const spellsSansCastType = manquesDesSorts.castType.splice(0);
     if (spellsSansCastType.length > 0) {
       underived.declare("spellcasting.spells[].castType", "underived.spells-missing-cast-type",
         { count: spellsSansCastType.length, ids: spellsSansCastType.join(", ") });
+    }
+  }
+
+  /* ══ 🧬 LOT 373 — LES AUTRES SOURCES D'INCANTATION : `resolved.spellSources` ══════════════
+     ARCHI 35, Q1 → a) : une entrée par source HORS CLASSE — la lignée, chaque don —, chacune
+     avec SA caractéristique (la réponse à « une valeur parmi N »), son DD et son attaque. Ce
+     sont les deux règles SRD que le bloc de classe applique déjà (DD = 8 + maîtrise + mod ;
+     attaque = maîtrise + mod), et elles ne nomment aucune source. Pas d'emplacements : ces
+     sorts se lancent par leur trait (une fois par Repos long, ou avec les emplacements qu'on a).
+     ⛔ SANS RÉPONSE, PAS DE CHIFFRE : la source est déclarée, jamais un DD inventé. */
+  const spellSources = [];
+  const sourceDIncantation = ({ id, name, source, cheminDeLaCarac, declaration, vues }) => {
+    if (vues.length === 0) return;
+    const reponse = picked.order.find((entry) => typeof entry.choice.path === "string" &&
+      entry.choice.path.startsWith(`${cheminDeLaCarac}[`));
+    const cle = reponse && caracteristiquesOffertes(declaration).includes(reponse.choice.value) ? reponse.choice.value : null;
+    if (!cle) {
+      underived.declare(`spellSources[${id}]`, "underived.spell-source-ability-unchosen", { source: name });
+      return;
+    }
+    reponse.consumed = true;
+    if (proficiency === null) {
+      underived.declare(`spellSources[${id}]`, "underived.proficiency-not-derived-spellcasting", {});
+      return;
+    }
+    const mod = abilities[cle].mod;
+    const spells = vues.map(composerLeSort).filter(Boolean).sort((a, b) => a.level - b.level);
+    spellSources.push({ id, name, ...(typeof source === "string" ? { source } : {}),
+      ability: cle, dc: 8 + proficiency + mod, attackBonus: proficiency + mod, spells });
+  };
+  /* La lignée : les sorts que son option DONNE, et ceux d'un trait de l'espèce qui lance avec
+     la même caractéristique (« the spell uses the same spellcasting ability you use for your
+     Fiendish Legacy trait »). */
+  if (optionLignee) {
+    const { cantrips, spells: sortsDeNiveau } = sortsDeLaLignee(speciesData, optionLignee);
+    const vues = [...cantrips, ...sortsDeNiveau].map((id) => reader.maybe("spell", id));
+    if (vues.some((v) => !v)) underived.declare("spellSources (lignée)", "underived.lineage-spell-missing", {});
+    sourceDIncantation({
+      id: `species:${speciesData.lineage_trait || optionLignee.id}`, name: nomDeLignee, source: speciesView.record.name,
+      cheminDeLaCarac: `${reponseDeLignee.choice.path}.ability`, declaration: speciesData.spellcasting_ability_choice,
+      vues: vues.filter(Boolean)
+    });
+  }
+  /* Les dons : chaque détenteur (l'arrière-plan, l'espèce par Versatile), le don posé ou
+     IMPOSÉ par l'arrière-plan (`feat_id` — l'Acolyte). */
+  for (const racine of ["background", "species"]) {
+    const racineDuDon = `${racine}.originFeat[0]`;
+    const pose = picked.order.find((entry) => entry.choice.path === racineDuDon && entry.choice.ref && entry.choice.ref.kind === "feat");
+    const impose = racine === "background" && typeof backgroundData.feat_id === "string" ? backgroundData.feat_id : null;
+    const featId = impose || (pose ? pose.choice.ref.id : null);
+    const view = featId ? reader.maybe("feat", featId) : null;
+    const sorts = picked.order.filter((entry) => entry.choice.ref && entry.choice.ref.kind === "spell" &&
+      typeof entry.choice.path === "string" && entry.choice.path.startsWith(`${racineDuDon}.`));
+    if (!view || sorts.length === 0) continue;
+    const declaration = view.record.data && view.record.data.spellcasting_ability_choice;
+    if (!declaration) continue;   // un don sans caractéristique déclarée : ses sorts restent `unconsumed`
+    for (const entry of sorts) entry.consumed = true;
+    const detenteur = racine === "species" ? speciesView : backgroundView;
+    sourceDIncantation({
+      id: `${racine}:${view.id}`, name: view.record.name, source: detenteur ? detenteur.record.name : undefined,
+      cheminDeLaCarac: `${racineDuDon}.ability`, declaration,
+      vues: sorts.map((entry) => reader.must("spell", entry.choice.ref.id, `le choix « ${entry.choice.path} »`))
+    });
+  }
+  resolved.spellSources = spellSources;
+  /* Une collection vide se NOMME (loi 2 de ce fichier) : ni lignée ni don n'a fait lancer de sort —
+     ou la caractéristique manque, et `spellSources[<id>]` l'a déjà dit. */
+  if (spellSources.length === 0 && !underived.list().some((entry) => entry.field.startsWith("spellSources"))) {
+    underived.declare("spellSources", "underived.no-spell-source", {});
+  }
+  if (spellSources.length > 0) {
+    underived.declare("spellSources[].spells[].damage", "underived.spell-damage-unstructured", {});
+    const sansConcentration = manquesDesSorts.concentration.splice(0);
+    if (sansConcentration.length > 0) {
+      underived.declare("spellSources[].spells[].concentration", "underived.spells-missing-concentration",
+        { count: sansConcentration.length, ids: sansConcentration.join(", ") });
+    }
+    const sansCastType = manquesDesSorts.castType.splice(0);
+    if (sansCastType.length > 0) {
+      underived.declare("spellSources[].spells[].castType", "underived.spells-missing-cast-type",
+        { count: sansCastType.length, ids: sansCastType.join(", ") });
     }
   }
 
@@ -1223,6 +1444,22 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       }
       const entry = { id: trait.id, name: trait.name, source: speciesView.record.name };
       if (typeof trait.text === "string") entry.text = trait.text;
+      /* 🧬 LOT 373 — LE TRAIT QUE LA LIGNÉE RÉALISE devient SPÉCIFIQUE (`socle-trait-qui-depend-
+         choix-appartient-a-lignee`) : son nom dit la lignée, son texte est le bénéfice de niveau 1
+         de l'option — la résistance du Tiefling, le don du Goliath s'y lisent, sans chiffre inventé.
+         Une option sans texte (l'ascendance du Dragonborn) garde celui du trait. */
+      if (traitDeLignee && trait.id === traitDeLignee.id) {
+        entry.name = nomDeLignee;
+        const niveau1 = optionLignee.levels && optionLignee.levels["1"];
+        if (typeof niveau1 === "string") entry.text = niveau1;
+      }
+      /* « Your choice affects your Breath Weapon and Damage Resistance traits » : les traits que
+         la déclaration NOMME portent le type de dégâts de l'ascendance (`damage`, extrait de la table). */
+      const degats = speciesData.lineage_damage;
+      if (optionLignee && typeof optionLignee.damage === "string" && degats && Array.isArray(degats.traits) &&
+        degats.traits.includes(trait.id)) {
+        entry.name = `${trait.name} (${optionLignee.damage})`;
+      }
       traits.push(entry);
     }
   } else if (speciesView) {
@@ -1314,8 +1551,89 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     traits.push(trait);
   }
 
+  /* ══ LOT 372 — LES CHOIX DE CAPACITÉ DÉCLARÉS, LUS : `class.<id>[n]` ══════════════════
+     Divine Order, Primal Order, Fighting Style : la classe DÉCLARE le choix
+     (`data.feature_choices`, lot 360) ; ce bloc le LIT, sans un nom de capacité ici.
+     · une option-VALEUR (Protector) : un trait « Divine Order: Protector », avec son texte,
+       et ses effets DÉCLARÉS sur l'option (`armor_training`, `weapon_proficiencies`,
+       `check_bonus`) ;
+     · une option-RECORD (un don de style) : le don devient un trait, avec sa description,
+       et son effet déclaré (`armor_class_bonus`).
+     ⭐ ARCHI 35, Q3 → a) : un effet DE TABLE (Great Weapon Fighting, Two-Weapon Fighting) ou
+     sans chiffre sur la fiche (Archery : le moteur ne dérive aucune attaque) est LU en posant
+     le trait — nommé, avec son texte — jamais par un chiffre inventé.
+     ⛔ Une réponse que la déclaration ne connaît pas reste `unconsumed` : le carnet la juge. */
+  const capacites = [];
+  for (const declaration of Array.isArray(classData.feature_choices) ? classData.feature_choices : []) {
+    if (!declaration || typeof declaration.id !== "string" || !/^[a-z][a-z0-9-]*$/.test(declaration.id)) continue;
+    const exact = new RegExp(`^class\\.${declaration.id}(\\[[0-9]+\\])?$`);
+    const source = declaration.options_from && typeof declaration.options_from.kind === "string" ? declaration.options_from : null;
+    for (const entry of picked.order.filter((e) => typeof e.choice.path === "string" && exact.test(e.choice.path))) {
+      if (source) {
+        const ref = entry.choice.ref;
+        const view = ref && ref.kind === source.kind ? reader.maybe(source.kind, ref.id) : null;
+        const data = view ? (view.record.data || {}) : null;
+        if (!view || (source.category && data.category !== source.category)) continue;
+        entry.consumed = true;
+        const trait = { id: view.id, name: view.record.name, category: "feat", source: `${classView.record.name} — ${declaration.name}` };
+        if (typeof data.description === "string") trait.text = data.description;
+        traits.push(trait);
+        capacites.push({ id: view.id, nom: view.record.name, effets: data });
+      } else if (typeof entry.choice.value === "string") {
+        const option = (Array.isArray(declaration.options) ? declaration.options : []).find((o) => o && o.id === entry.choice.value);
+        if (!option) continue;
+        entry.consumed = true;
+        const nom = `${declaration.name}: ${option.name}`;
+        const trait = { id: `${declaration.id}:${option.id}`, name: nom, category: "class-feature", source: classView.record.name };
+        if (typeof option.text === "string") trait.text = option.text;
+        traits.push(trait);
+        capacites.push({ id: `${declaration.id}:${option.id}`, nom, effets: option });
+      }
+    }
+  }
+  /* LE DON D'ORIGINE, EN TRAIT — le don lui-même (Skilled, Alert, Magic Initiate…) : ce qu'il
+     fait choisir est lu ailleurs (maîtrises plus haut, sorts à l'incantation). */
+  /* ⚠️ L'`id` DIT AUSSI QUI LE DÉTIENT (`<racine>:<id du don>`) : un Humain Acolyte prend DEUX
+     Magic Initiate (l'arrière-plan et Versatile), deux traits — un id nu en aurait fondu deux en un. */
+  for (const { racine, entry, view } of donsDOrigine) {
+    entry.consumed = true;
+    /* La source est le NOM DU RECORD détenteur (l'Inheritance en Fate's Hand, Acolyte en SRD), comme
+       pour les traits d'espèce — jamais un mot écrit ici. */
+    const detenteur = racine === "species" ? speciesView : backgroundView;
+    const trait = { id: `${racine}:${view.id}`, name: view.record.name, category: "feat" };
+    if (detenteur) trait.source = detenteur.record.name;
+    if (typeof view.record.data.description === "string") trait.text = view.record.data.description;
+    traits.push(trait);
+  }
+
   resolved.traits = traits;
   underived.declare("traits (classe, don, arrière-plan)", "underived.no-trait-field-for-class-feat-background", {});
+
+  /* ══ LOT 372 — LES MAÎTRISES D'ARMES ET D'ARMURES (`resolved.training`) ═══════════════
+     ARCHI 35, Q1 → a) : elles n'avaient AUCUNE rubrique — même le training de base de la
+     classe (`armor_training`, `weapon_proficiencies`) n'était dérivé nulle part. D'abord la
+     classe, puis ce que les choix de capacité y ajoutent (Protector : « training with Heavy
+     armor », « proficiency with Martial weapons »).
+     ⛔ LE TEXTE TEL QUE LA SOURCE L'ÉCRIT, JAMAIS DÉCOMPOSÉ : « Light and Medium armor and
+     Shields » reste une ligne. Découper la prose en catégories serait une règle de lecture
+     inventée ici. Fate's Hand est muet sur ces maîtrises (Equipment, Trainings) : le SRD
+     s'applique. Un record de classe qui ne porte aucun des deux champs le DÉCLARE. */
+  const training = { armor: [], weapons: [] };
+  /* ⭐ CHAQUE ENTRÉE A SON `id` (un slug) : la parole du MJ bat le JSON, et un override vise une
+     entrée par son identité (`resolved.training.armor[class].text`), jamais par son rang. */
+  const ajouterTraining = (liste, id, texte, source) => {
+    if (typeof texte === "string" && texte.trim() !== "") liste.push({ id, text: texte, source });
+  };
+  if (typeof classData.armor_training !== "string" && typeof classData.weapon_proficiencies !== "string") {
+    underived.declare("training", "underived.class-missing-training-fields", { recordId: classView.id });
+  }
+  ajouterTraining(training.armor, "class", classData.armor_training, classView.record.name);
+  ajouterTraining(training.weapons, "class", classData.weapon_proficiencies, classView.record.name);
+  for (const { id, nom, effets: e } of capacites) {
+    ajouterTraining(training.armor, id, e.armor_training, nom);
+    ajouterTraining(training.weapons, id, e.weapon_proficiencies, nom);
+  }
+  resolved.training = training;
 
   resolved.gear = gear;
 
@@ -1589,6 +1907,28 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       return bonus === skill.bonus ? skill : { ...skill, bonus };
     });
   }
+  /* ══ LOT 372 — LE BONUS D'UNE OPTION AUX JETS D'UNE COMPÉTENCE ══════════════════════
+     Thaumaturge : « a bonus to your Intelligence (Arcana or Religion) checks. The bonus
+     equals your Wisdom modifier (minimum of +1) » — l'option le DÉCLARE (`check_bonus` :
+     les compétences, la caractéristique, le plancher). ⭐ APRÈS les paliers, comme les
+     effets d'objets juste au-dessus (un bonus posé avant serait effacé en silence), et
+     NOTÉ dans la provenance : la fiche écrit « +N Divine Order: Thaumaturge » sous le chiffre. */
+  if (Array.isArray(resolved.skills)) {
+    for (const { nom, effets: e } of capacites) {
+      const cb = e && e.check_bonus;
+      if (!cb || !Array.isArray(cb.skills) || !abilities[cb.ability]) continue;
+      const valeur = Math.max(Number.isInteger(cb.minimum) ? cb.minimum : abilities[cb.ability].mod, abilities[cb.ability].mod);
+      for (const recordId of cb.skills) {
+        const skill = skills.byId.get(recordId);
+        const i = skill ? resolved.skills.findIndex((s) => s.id === skill.id) : -1;
+        if (i < 0) continue;
+        const avant = resolved.skills[i].bonus;
+        effets.noter({ valeur, public: { object: nom, item: nom, target: `skill.${skill.id}`, mode: "bonus", condition: "always" } },
+          `resolved.skills[${skill.id}].bonus`, avant, avant + valeur);
+        resolved.skills[i] = { ...resolved.skills[i], bonus: avant + valeur };
+      }
+    }
+  }
   for (let i = 0; i < tools.length; i += 1) {
     const bonus = effets.appliquer("check.all", `resolved.tools[${tools[i].id}].bonus`, tools[i].bonus);
     if (bonus !== tools[i].bonus) tools[i] = { ...tools[i], bonus };
@@ -1678,6 +2018,18 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         variant: `+${piece.plus}` } }, "resolved.ac", ac, apres);
       ac = apres;
     }
+    /* ⚖️ LOT 372 — LE BONUS DE CA D'UN CHOIX DE CAPACITÉ (Defense : « While you're wearing
+       Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class »), DÉCLARÉ sur le don
+       (`armor_class_bonus` : la valeur, et la condition). Sans armure, il dort. */
+    for (const { nom, effets: e } of capacites) {
+      const b = e && e.armor_class_bonus;
+      if (!b || !Number.isInteger(b.value)) continue;
+      const condition = typeof b.condition === "string" ? b.condition : "always";
+      if (condition === "armor-worn" ? sansArmure : condition !== "always") continue;
+      effets.noter({ valeur: b.value, public: { object: nom, item: nom, target: "ac", mode: "bonus", condition } },
+        "resolved.ac", ac, ac + b.value);
+      ac += b.value;
+    }
     /* ② « if you are wearing no armor and using no Shield » (Bracers of Defense). */
     for (const a of effets.effets("ac").filter((x) => x.etat === "no-armor-no-shield")) {
       if (!sansArmure || bouclier) effets.ecarter(a, "state-unmet");
@@ -1688,7 +2040,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   /* Remise dans l'ordre du schéma : un document se relit à l'œil. */
   const ordered = {};
   for (const key of ["derivation", "identity", "abilities", "proficiency", "ac", "vitals", "speeds", "senses",
-    "languages", "saves", "skills", "tools", "actions", "spellcasting", "resources", "traits", "gear",
+    "languages", "saves", "skills", "tools", "training", "actions", "spellcasting", "spellSources", "resources", "traits", "gear",
     "currency", "craft", "stats", "notes"]) {
     if (Object.hasOwn(resolved, key)) ordered[key] = resolved[key];
   }

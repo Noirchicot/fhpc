@@ -20,19 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=916";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=916";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=929";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=929";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=916";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=929";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=916";
-import { renderConfirmDialog } from "./confirm.mjs?v=916";
-import { renderChoixGlisses } from "./glisser.mjs?v=916";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=916";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=929";
+import { renderConfirmDialog } from "./confirm.mjs?v=929";
+import { renderChoixGlisses } from "./glisser.mjs?v=929";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=929";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
    du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=916";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=929";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -355,7 +355,10 @@ export function capacitesChoisies(ctx) {
   return choixDeCapacite(ctx).flatMap((declaration) => {
     const plan = planAt(decisions, cheminDeCapacite(declaration));
     return (plan && Array.isArray(plan.selected) ? plan.selected : [])
-      .map((id) => ({ name: `${declaration.name}: ${nomDOptionDeCapacite(ctx.query, declaration, id)}`, source: record.name }));
+      /* 🎯 LOT 372 — l'`id` du trait que `derive` pose pour cette réponse (`<capacité>:<option>`, ou
+         le record désigné) : la Sheet REMPLACE ce trait par ce nom, elle ne l'ajoute pas. */
+      .map((id) => ({ id: declaration.options_from ? id : `${declaration.id}:${id}`,
+        name: `${declaration.name}: ${nomDOptionDeCapacite(ctx.query, declaration, id)}`, source: record.name }));
   });
 }
 
@@ -632,7 +635,13 @@ function resumeDeLItem(item, ctx, act) {
     const prises = (plan && Array.isArray(plan.selected) ? plan.selected : [])
       .map((id) => ({ nom: nomDOptionDeCapacite(ctx.query, capacite, id),
         onInfo: () => { const info = infoDOptionDeCapacite(ctx.query, capacite, id); if (info && act) act(info); } }));
-    return ligneDeBilan(null, prises);
+    /* 🎯 LOT 372 — le cantrip en plus, à la suite, avec son lien (la loi des liens : un sort qui
+       paraît mène au site). */
+    const cantrips = decisions.filter((p) => p && typeof p.path === "string" &&
+      p.path.startsWith(`${item.path}[`) && p.path.endsWith("].cantrips"))
+      .flatMap((p) => (Array.isArray(p.selected) ? p.selected : []))
+      .map((id) => ({ nom: spellLabel(ctx.query, id), href: lienSortParNomFhWeb(spellLabel(ctx.query, id)) }));
+    return ligneDeBilan(null, [...prises, ...cantrips]);
   }
 
   /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
@@ -1051,6 +1060,19 @@ export function renderClassChoices(ctx, onAction, seulement) {
       onInfo: (id) => { const info = infoDOptionDeCapacite(query, declaration, id); if (info) act(info); }
     });
     if (bloc) menu.append(bloc);
+    /* 🎯 LOT 372 — LE CANTRIP EN PLUS D'UNE OPTION (Thaumaturge, Magician), DANS LA MÊME PORTE.
+       Son plan vit SOUS la réponse (`class.divine-order[0].cantrips`), publié par le carnet
+       seulement quand l'option le déclare (`extra_cantrips`). ⭐ Le même organe, les mots
+       ratifiés des cantrips (« Cantrips », « Cantrip ») — ⛔ aucun mot neuf, aucun nom d'option. */
+    for (const sous of (Array.isArray(decisions) ? decisions : []).filter((p) => p && typeof p.path === "string" &&
+      p.path.startsWith(`${chemin}[`) && p.path.endsWith("].cantrips"))) {
+      const blocSous = renderChoixGlisses({
+        plan: sous, slots: planSlots(decisions, sous.path), titre: "Cantrips", mot: "Cantrip",
+        refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
+        onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); }
+      });
+      if (blocSous) menu.append(blocSous);
+    }
   }
 
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════

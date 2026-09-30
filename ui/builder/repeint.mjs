@@ -100,6 +100,14 @@ export function avantLeRepeint(repeindre, doc = globalThis.document) {
   return () => rendreLeTexte(doc, identite, texte);
 }
 
+/** Le champ de texte où le joueur tape en ce moment, ou `null`. ⚖️ Lot 361, sur la sauvegarde automatique du lot 374 :
+ *  un repeint qui ne vient pas d'un geste (l'état d'un envoi qui change, 800 ms après) ne se fait pas SOUS la frappe —
+ *  il attend que ce champ perde le focus. */
+export function champDeTexteActif(doc = globalThis.document) {
+  const champ = doc ? doc.activeElement : null;
+  return estUnChampDeTexte(champ) ? champ : null;
+}
+
 /** Ce qu'est un champ, d'un repeint à l'autre : son `id`, sinon son nom (`aria-label`). ⛔ Jamais sa place. */
 function identiteDuChamp(champ) {
   if (champ.id) return { id: champ.id };

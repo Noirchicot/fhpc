@@ -324,8 +324,26 @@ export const FR_UNDERIVED = {
     "`description` est de la prose dont un parseur approximatif ferait une fiche fausse. La couche SRD, elle, " +
     "les porte depuis la réparation de l'extraction à deux colonnes.",
   "underived.no-trait-field-for-class-feat-background": () =>
-    "le contrat ne porte aucun champ de trait pour les genres `class`, `feat` et `background` : " +
-    "`features[].description` et `feat.description` sont de la prose.",
+    "le contrat ne porte aucun champ de trait pour les aptitudes de `class` ni pour `background` : " +
+    "`features[].description` est de la prose. Les dons CHOISIS (d'origine, de style) et les choix de capacité " +
+    "entrent depuis le lot 372.",
+  "underived.class-missing-training-fields": (p) =>
+    `le record de classe « ${p.recordId} » ne porte ni \`armor_training\` ni \`weapon_proficiencies\` : ` +
+    "ses maîtrises d'armes et d'armures ne se dérivent pas.",
+  /* 🧬 LOT 373 — les lignées et « une valeur parmi N » */
+  "underived.size-not-chosen": () =>
+    "la taille de cette espèce se choisit quand on la prend (« chosen when you select this species ») : " +
+    "aucune réponse à `species.size` — elle ne se devine pas.",
+  "underived.lineage-unit-mismatch": (p) =>
+    `l'effet de lignée est écrit en pieds, et le document vit en ${p.distanceUnit} : il ne se convertit pas en devinant.`,
+  "underived.lineage-sense-missing": () =>
+    "la lignée accroît un sens que l'espèce ne porte pas : son nom ne se fabrique pas dans le moteur.",
+  "underived.lineage-spell-missing": () =>
+    "un sort que la lignée donne n'est pas dans la pile montée.",
+  "underived.spell-source-ability-unchosen": (p) =>
+    `« ${p.source} » : la caractéristique d'incantation n'est pas choisie — sans elle, ni DD ni attaque.`,
+  "underived.no-spell-source": () =>
+    "aucune source d'incantation hors classe : ni la lignée ni un don d'origine ne fait lancer un sort à ce personnage.",
   "underived.no-craft-module": () =>
     "une entrée d'artisanat vient d'un module moteur activé par un drapeau (décision Q4) ; aucun module " +
     "d'artisanat n'existe au M2.",
@@ -476,8 +494,25 @@ export const EN_UNDERIVED = {
     "`description` is prose an approximate parser would turn into a false sheet. The SRD layer, itself, has " +
     "carried them since the two-column extraction was repaired.",
   "underived.no-trait-field-for-class-feat-background": () =>
-    "the contract carries no trait field for the `class`, `feat` and `background` genres: " +
-    "`features[].description` and `feat.description` are prose.",
+    "the contract carries no trait field for `class` features nor for `background`: " +
+    "`features[].description` is prose. CHOSEN feats (origin, fighting style) and feature choices " +
+    "enter since lot 372.",
+  "underived.class-missing-training-fields": (p) =>
+    `the class record "${p.recordId}" carries neither \`armor_training\` nor \`weapon_proficiencies\`: ` +
+    "its weapon and armor training is not derived.",
+  /* 🧬 LOT 373 — lineages and "one value among N" */
+  "underived.size-not-chosen": () =>
+    "this species' size is chosen when you select it: `species.size` has no answer, and it is not guessed.",
+  "underived.lineage-unit-mismatch": (p) =>
+    `the lineage effect is written in feet and the document lives in ${p.distanceUnit}: it is not converted by guesswork.`,
+  "underived.lineage-sense-missing": () =>
+    "the lineage extends a sense the species does not carry: its name is not made up inside the engine.",
+  "underived.lineage-spell-missing": () =>
+    "a spell the lineage grants is not in the mounted stack.",
+  "underived.spell-source-ability-unchosen": (p) =>
+    `"${p.source}": no spellcasting ability chosen — without it, neither a save DC nor an attack bonus.`,
+  "underived.no-spell-source": () =>
+    "no spellcasting source outside the class: neither the lineage nor an origin feat gives this character a spell to cast.",
   "underived.no-craft-module": () =>
     "a crafting entry comes from an engine module gated by a flag (decision Q4); no crafting module exists at M2.",
   "underived.no-active-stat-module": (d) =>

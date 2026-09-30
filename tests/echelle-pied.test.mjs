@@ -30,7 +30,11 @@ test("le Done d'un item verdit quand l'item est répondu — canal data-avance",
      (même expression que itemsDeLEtape : answered ≥ expected, verrou refusé),
      le CSS peint. */
   assert.match(SHELL_MJS, /done\.dataset\.avance = repondu \? "fait" : "en-cours"/);
-  assert.match(SHELL_MJS, /plan\.answered >= plan\.expected && !plan\.lock/);
+  /* 🔄 LOT 372 — l'expression vit dans `parcours.mjs` (`itemRepondu`, qui compte aussi ce que le
+     carnet publie sous les réponses de l'item) ; la coquille la LIT, elle ne la recopie plus. */
+  assert.match(SHELL_MJS, /const repondu = itemRepondu\(state\.decisions, state\.parcoursItem\.path\);/);
+  const PARCOURS = readFileSync(new URL("../ui/builder/parcours.mjs", import.meta.url), "utf8");
+  assert.match(PARCOURS, /p\.answered >= p\.expected && !p\.lock/);
   assert.match(SHELL_CSS, /\.parcours-pied button\.sortie-done\[data-avance="fait"\] \{[^}]*--bouton-fond:\s*var\(--positive\)/);
 });
 

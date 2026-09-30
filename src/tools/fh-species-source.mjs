@@ -520,6 +520,40 @@ export const LINEAGE_INTROS = {
     "The table gives each boon."
 };
 
+/* ══ 🧬 LOT 373 — LES EFFETS D'UNE LIGNÉE, TYPÉS (ARCHI 35, 30/09) ══════════════════════
+   Ce qu'une option DONNE, dans la forme que `derive` lit — la même que `srfh-mecaniques-en`
+   pour le SRD : `data[lineage_effects]`, par id d'option. ⚠️ UN CHAMP DE SCHÉMA, PAS UN
+   CHEMIN PAR LE MOT : `data.lineages[mole-people].…` viserait un élément par son mot, ce que
+   `tests/chemin-par-le-mot-ferme.test.mjs` interdit (un mot a une langue).
+   Chaque champ porte son `extrait`, un morceau EXACT du texte de niveau 1 de l'option
+   (`LINEAGES`, ci-dessous) — `tests/lignees-373.test.mjs` le relit : `cantrips` / `spells`
+   (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `granted_skill_budget`.
+   Le Dragonborn et le Goliath n'en portent aucun : le type de dégâts (`damage`) est déjà la
+   donnée que lisent ses traits, et un don de Goliath n'a pas de chiffre de fiche — il se lit
+   dans le trait de lignée, avec son texte.
+   ⛔ Ces valeurs ne se corrigent pas ici : le chapitre du vault (Races & Species) fait foi. */
+export const LINEAGE_EFFECTS = {
+  hoddon: {
+    "forest-folk": {
+      cantrips: [{ id: "srd:spell:en:minor-illusion", extrait: "You know the Minor Illusion cantrip." }],
+      spells: [{ id: "srd:spell:en:speak-with-animals", extrait: "You also always have the Speak with Animals spell prepared" }]
+    },
+    "rock-folk": {
+      cantrips: [
+        { id: "srd:spell:en:mending", extrait: "You know the Mending and Prestidigitation cantrips." },
+        { id: "srd:spell:en:prestidigitation", extrait: "You know the Mending and Prestidigitation cantrips." }
+      ]
+    },
+    "mole-people": {
+      darkvision: { range_ft: 120, extrait: "The range of your Darkvision increases to 120 feet." },
+      /* ⚖️ ARCHI 35, lot 373, Q2 → a) : une bourse CAPTIVE, la forme de Keen Senses — un point,
+         captif d'une liste d'UN outil. Chapitre : « 1 skill point (Novice) in tinker's tools ».
+         Meticulous (l'avantage) n'a pas de chiffre : il se lit dans le texte du trait de lignée. */
+      granted_skill_budget: { points: 1, from: ["srd:tool:en:tinker-s-tools"], extrait: "1 skill point (Novice) in tinker's tools" }
+    }
+  }
+};
+
 export const LINEAGES = {
   dragonborn: [
     { id: "black",  name: "Black",  damage: "Acid" },

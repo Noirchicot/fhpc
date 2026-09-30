@@ -46,27 +46,26 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=916";
+import { renderConfirmDialog } from "./confirm.mjs?v=929";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=916";
+import { motDeLEchelon } from "./echelle.mjs?v=929";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=916";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=929";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=916";
-/* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
-   rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
-   ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
-   n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=916";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=929";
+/* 🗂️ LOT 374 — le rang B `characters` EST My characters, tel qu'Eric l'a dicté, et son rendu vit
+   dans son propre fichier (le déménagement de `Layers` au 188, et du magasin au 195).
+   ⛔ `mes-personnages` n'importe rien d'ici : pas de cycle à arbitrer. */
+import { renderMesPersonnages } from "./mes-personnages.mjs?v=929";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -361,6 +360,21 @@ export async function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
  *  saved ») est retiré par Eric le 29/09 ; il ne reste que la naissance. */
 export const NOM_DU_PERSONNAGE_NEUF = "Name character";
 
+/** ⚖️ LOT 366 — LA LANGUE ET LES UNITÉS D'UNE PREMIÈRE VISITE. La fiche vierge n'a aucun
+ *  personnage d'avant dont hériter (`personnageNeuf`, shell.mjs), et `composer` refuse d'en
+ *  inventer (décision D3) : c'est donc un réglage DONNÉ, écrit ici une fois.
+ *  · `en` — toute la pile montée est anglaise (chaque couche déclare `lang: "en"`) ;
+ *  · pieds et livres — la règle du schéma (`units`, schemas/fh-char.schema.json) : *« le SRD
+ *    en impérial »*.
+ *  C'est ce que tout joueur voyait déjà avant ce lot, par l'exemple : l'écran ne change pas.
+ *  ⚖️ LE MOT EST REÇU — Eric, 30/09, par ARCHI 35, à *« dans quelle langue et quelles unités naît
+ *  la fiche vierge d'une première visite ? »* → **« Anglais + pieds/livres »**.
+ *  Un joueur ne les choisit encore nulle part (Display les montre). */
+export const REGLAGES_DE_LA_PREMIERE_VISITE = Object.freeze({
+  lang: "en",
+  units: Object.freeze({ distance: "ft", weight: "lb" })
+});
+
 /** LES MOTS DE LA FENÊTRE — le brouillon du plan v10 (Eric arrête les mots que le
  *  joueur lit). Un avertissement par ligne : `paintPopup` (shell.mjs) fait un
  *  paragraphe de chaque ligne. ⛔ Ni « couche » ni « homebrew » (lexique du 10/09).
@@ -393,30 +407,60 @@ export function ceQuiFaitLePersonnage(document) {
 }
 
 /** Y A-T-IL UN PERSONNAGE EN COURS ? — PUR, pour qu'un garde le lise sans coquille.
- *  📏 LE NAVIGATEUR N'EST JAMAIS VIDE : le démarrage retombe sur l'exemple commité, et
- *  `memoriser()` l'écrit dans la mémoire dès le premier rendu. « Rien dans la mémoire »
- *  ne dit donc rien après le démarrage. Ce qui dit « pas de perso à moi », c'est un
- *  document qui est ENCORE l'exemple — comparé sur `ceQuiFaitLePersonnage`, jamais sur
- *  le document entier, dont l'heure change à chaque démarrage.
- *  ⛔ UN EXEMPLE QU'ON N'A PAS PU CHARGER NE PROMET RIEN : sans texte de référence, le
- *  perso est tenu pour « en cours » — la fenêtre offre alors `Cancel · Delete · Save`, et rien
- *  n'est effacé sans que le joueur l'ait choisi.
- *  @param {string|null} texteDuDocument  `canonicalText(ceQuiFaitLePersonnage(document))`, ou `null`
- *  @param {string|null} texteDeLExemple  la même chose pour l'exemple commité, ou `null` */
-export function personnageEnCours(texteDuDocument, texteDeLExemple) {
-  if (typeof texteDuDocument !== "string") return false;
-  return typeof texteDeLExemple !== "string" || texteDuDocument !== texteDeLExemple;
+ *  ⚖️ LOT 366 — « PAS DE PERSO EN COURS » SE LIT DANS LA DONNÉE DU DOCUMENT : AUCUN CHOIX FAIT.
+ *  Eric, 30/09, à *« Première visite du builder : aujourd'hui, l'exemple Ilyra est chargé en
+ *  silence et traité comme ton perso. Que doit voir un joueur neuf ? »* → **« Fiche vierge »**.
+ *  🗄️ CE QU'ELLE REMPLACE (lot 350) : « le document est encore l'exemple commité », comparé au
+ *  texte de l'exemple que la coquille chargeait au démarrage — pour un joueur, donc.
+ *  ⭐ LA RÉFÉRENCE N'EST PLUS UN AUTRE DOCUMENT, C'EST LA NAISSANCE DE CELUI-CI : `composer`
+ *  (le seul écrivain d'un document neuf) refait le document que ses propres faits de naissance
+ *  auraient donné — même `id`, même `created`, même langue, mêmes unités, même manifeste de
+ *  couches, le nom d'avant le premier geste (`NOM_DU_PERSONNAGE_NEUF`). Ce qui diffère est un
+ *  geste du joueur : un choix au-delà du niveau de naissance, un nom, une description, une
+ *  signature… ⛔ PAS UNE LISTE PAR NOM de ce qui compte : le champ qu'on ajoutera demain compte
+ *  tout seul, et dans le sens qui n'efface rien.
+ *  ⚠️ Comparé sur `ceQuiFaitLePersonnage` (la dérivation estampille `modified` et `resolved`), et
+ *  SANS l'ordre des clefs : `canonicalText` ne trie pas, et un écran qui réécrit `build` peut
+ *  ranger ses clefs autrement sans rien choisir.
+ *  ⛔ UN DOCUMENT QUE `composer` NE SAIT PAS REFAIRE N'EST PAS UNE NAISSANCE : il est tenu pour
+ *  « en cours » — la fenêtre offre alors `Cancel · Delete · Save`, et rien n'est effacé sans que
+ *  le joueur l'ait choisi.
+ *  @param {object|null} document  le document de la page, ou `null`
+ *  @param {Function} composer     `createDocWriters({ schema }).composer` */
+export function personnageEnCours(document, composer) {
+  if (!document || typeof document !== "object") return false;
+  let naissance;
+  try {
+    naissance = composer({
+      name: NOM_DU_PERSONNAGE_NEUF, lang: document.lang, units: document.units,
+      layers: document.build && document.build.layers, id: document.id, at: document.created
+    });
+  } catch (_) {
+    return true;
+  }
+  return !memeDonnee(ceQuiFaitLePersonnage(document), ceQuiFaitLePersonnage(naissance));
+}
+
+/** Deux valeurs JSON portent-elles la même donnée, l'ordre des clefs mis à part ? */
+function memeDonnee(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const clefsA = Object.keys(a).filter((k) => a[k] !== undefined);
+  const clefsB = Object.keys(b).filter((k) => b[k] !== undefined);
+  return clefsA.length === clefsB.length && clefsA.every((k) => memeDonnee(a[k], b[k]));
 }
 
 /** LA FENÊTRE « NEW CHARACTER » — la description d'état que `paintPopup` (shell.mjs)
  *  sait déjà peindre (`{titre, role, texte, actions}`, lot 173) : ⛔ AUCUN COMPOSANT
  *  NEUF, la même voie que le popup du lot 193 qu'elle remplace.
- *  · rôle `guide` — elle prévient, elle ne dit pas d'erreur (§7 : le gendarme DIT
- *    L'ERREUR) ;
+ *  · rôle `aiguilleur` — ⚖️ LOT 371 : elle EXIGE une réponse (`popup-question-exige-une-reponse`),
+ *    et ce qu'on ne peut pas refuser est un aiguilleur, pas un guide
+ *    (`popup-aiguilleur-nom-et-critere`) ;
  *  · `Delete` porte `defait` — il efface, donc le rouge de ce qui coûte (§6) ;
- *  · ⛔ elle n'EXIGE pas de réponse : rien ne bouge avant qu'on choisisse, donc la
- *    fermer d'un tap dehors vaut `Cancel`. C'est la différence avec le popup du 193,
- *    qui repartait à zéro AVANT de poser sa question.
+ *  · 🔄 ~~elle n'EXIGE pas de réponse : la fermer d'un tap dehors vaut `Cancel`~~ — une lecture
+ *    du lot 350, pas un mot d'Eric (sa citation dit « Cancel aussi », jamais le tap dehors) :
+ *    la fenêtre ne se ferme plus que par `Cancel`, `Delete`, `Save` ou `Start`.
  *  ⛔ ELLE NE SAIT PAS CE QUE `choisir` FAIT — même loi que `confirm.mjs` : le
  *  composant ne connaît aucun verbe, la coquille décide.
  *  @param {{enCours: boolean, choisir: (voie: "cancel"|"delete"|"save"|"start") => void}} p */
@@ -427,7 +471,8 @@ export function popupNouveauPersonnage({ enCours, choisir }) {
     : [{ mot: "Cancel", voie: "cancel" }, { mot: "Start", voie: "start" }];
   return {
     titre,
-    role: "guide",
+    role: "aiguilleur",
+    exigeUneReponse: true,
     texte: (enCours ? avertissements : avertissements.slice(0, 2)).join("\n"),
     actions: voies.map(({ mot, voie, defait }) => ({ mot, defait: defait === true, faire: () => choisir(voie) }))
   };
@@ -628,17 +673,11 @@ function renderCranChoice({ echelle, onPick }) {
  *  vue double appartient à un autre chantier en cours, et déplacer son organe
  *  pendant qu'on l'écrit est le meilleur moyen de le perdre. À rapatrier
  *  quand ce chantier est fusionné. */
-/* 🗄️ B1 — MY CHARACTERS EST LE MAGASIN DEPUIS LE LOT 195, et son rendu vit
-   dans `magasin-ecran.mjs` — même déménagement que `Layers` au lot 188, et
-   pour la même raison : l'écran qui porte le plus de dedans a son fichier.
-
-   🔴 CE QUI EST MORT ICI, ET IL FAUT SAVOIR CE QUE C'ÉTAIT. Cet écran rendait
-   UNE ligne — le personnage du navigateur — sous la phrase *« This browser
-   keeps one character »*. Elle était VRAIE tant que `memoire.mjs` était le
-   seul rangement (une clef, un personnage). Le magasin garde une entrée DATÉE
-   par Save : la phrase mentait dès la seconde sauvegarde, et Eric l'a dit
-   autrement le 10/09 (*« dans cette fenêtre, toutes mes saves »*). Elle est
-   réécrite dans `magasin-ecran.mjs`, pas rognée. */
+/* 🗂️ B1 — MY CHARACTERS, et son rendu vit dans `mes-personnages.mjs` (lot 374) — le déménagement
+   de `Layers` au lot 188, et pour la même raison : l'écran qui porte le plus de dedans a son fichier.
+   🗄️ Deux âges avant lui : UNE ligne sous *« This browser keeps one character »* (vraie tant que
+   `memoire.mjs` était le seul rangement), puis le magasin des versions datées (lot 195,
+   `magasin-ecran.mjs`, retiré). La dictée du 29/09 donne une ligne par personnage. */
 
 function renderDisplayEcran(ctx, onAction) {
   const section = el("section", "universe-step display-ecran dalle-intermediaire");
@@ -706,6 +745,14 @@ function renderDisplayEcran(ctx, onAction) {
  *  tutoriel-disent-meme-etape`) : il ne nomme que ce qui est écrit sur un bouton. */
 export const MOT_DE_L_AIGUILLEUR_DU_MENU =
   "You can switch a book on or off in Layers. Your Dungeon Master can give you a campaign code.";
+
+/** ⚖️ LOT 367 — LA LIGNE DES RÈGLES MISES À JOUR. Eric, 30/09, à « prévenir le joueur que
+ *  les règles ont changé depuis la sauvegarde ? » → **une ligne au Menu**, le brouillon
+ *  proposé (Eric arrête la lettre). Elle vit tant que la MARQUE du recalage vit
+ *  (`marqueVivante`, recalage.mjs) : jusqu'au premier geste du joueur.
+ *  ⛔ Aucun nom de sous-couche : le joueur ne connaît que ses livres (`Books`, juste au-dessus). */
+export const MOT_DES_REGLES_MISES_A_JOUR =
+  "The rules were updated since this character was saved. Your choices are kept; anything that no longer exists is named on its step.";
 
 /** LA LIGNE `Books` — ⚖️ Eric, 29/09, à « le SRD dans Books ? » : *« Books est un terme
  *  générique ; le SRD est le book de base »* (engine + catalog) — il apparaît donc, et
@@ -833,13 +880,93 @@ function renderDungeonMasterEcran() {
   return section;
 }
 
+/* ══ 🗄️ LOT 376 — VAULT, LE RANG B2 DU MENU : LE STOCKAGE SE CHOISIT ICI, UNE FOIS ══════════════════
+   ⚖️ Eric, 29/09, la dictée : *« Vault (droite -> B2) »* · *« Là où seront stockés les fichiers »* ; à
+   *« Vault : adresses à taper ? »* → **« exact, un bouton par stockage, + un choix libre "Other" »** ; le
+   mandat du Menu R (B2) : *« Dropbox (en tête) · Google Drive · OneDrive · un fichier (la voie iCloud) ·
+   GitHub (catalogues de table publics) · Other (choix libre) »* — seul le fichier est câblé. Et le 28/09 :
+   *« on le fait une fois au début et après. c'est streamlined »*.
+   ⭐ LA PAGE NE CONNAÎT NI L'ORDRE NI CE QUI EST CÂBLÉ : elle reçoit la table des lieux (`ctx.lieux`,
+   `LIEUX` de magasin.mjs, tendue par la coquille) et le lieu choisi (`ctx.lieu`). Un lieu câblé est une
+   PORTE (bleue : elle ne touche pas au personnage) qui porte le halo de l'actif quand il est choisi, et
+   son mot dessous ; un lieu non câblé est une PLACE RÉSERVÉE (`placeReservee` : présente, éteinte,
+   « soon » sous elle). ⛔ Jamais d'adresse à recopier.
+   ⭐ `SAVE LOCATION` VIT ICI (Eric, 10/09 : *« un bouton reste présent : save location »* ; ratifié le
+   30/09 à 12:50 — sur My characters *« jusqu'au lot Vault »*) : le dossier de Chrome et d'Edge est la
+   façon « dossier » du lieu Fichier. Là où le navigateur ne sait pas choisir, il reste présent, éteint,
+   et il dit pourquoi (📍 `menu-reglage-impossible-reste-visible`).
+   ⛔ Elle ne porte pas sa sortie (`data-sortie-ici`) et ne défile pas (Eric, 29/09 : *« pas de scroll »*).
+   ⚠️ Mots en brouillon anglais à Eric. */
+export const MOTS_DE_VAULT = Object.freeze({
+  titre: "Vault",
+  lieu: "Save location",
+  lieuImpossible: "This browser cannot pick a folder — your saves go to a file you keep."
+});
+
+function renderVaultEcran(ctx, onAction) {
+  const section = el("section", "universe-step vault-ecran dalle-intermediaire");
+  section.dataset.objet = "dalle";
+  section.dataset.sortieIci = "true";
+  section.dataset.ecran = "vault";
+  section.append(el("h3", "tdc-titre-b", [text(MOTS_DE_VAULT.titre)]));
+  const lieux = Array.isArray(ctx.lieux) ? ctx.lieux : [];
+  const choisi = ctx.lieu ? ctx.lieu.id : null;
+  const places = lieux.map((l) => {
+    if (!l.cable) {
+      const place = placeReservee(l.mot);
+      place.querySelector("button").dataset.lieu = l.id;
+      return place;
+    }
+    const b = porte(l.mot, () => onAction({ kind: "choisirUnLieu", id: l.id }));
+    b.dataset.lieu = l.id;
+    const estChoisi = choisi === l.id;
+    /* ⭐ LE LIEU CHOISI SE VOIT : le halo de l'actif (celui des portes carrées d'Équipement), et le mot
+       de ce lieu dessous — « a file you keep », ou le nom du dossier retenu. */
+    if (estChoisi) b.setAttribute("aria-current", "true");
+    const place = el("div", "tdc-place", [b]);
+    if (estChoisi && ctx.lieu.mot) place.append(el("span", "vault-lieu-mot", [text(ctx.lieu.mot)]));
+    return place;
+  });
+  const portes = el("nav", "tdc-portes");
+  portes.setAttribute("aria-label", MOTS_DE_VAULT.titre);
+  for (let i = 0; i < places.length; i += 3) portes.append(rangee("trois", places.slice(i, i + 3)));
+  section.append(portes);
+  if (ctx.lieu) section.append(el("div", "vault-pied", [renderSaveLocation(ctx.lieu, onAction)]));
+  return section;
+}
+
+/** `SAVE LOCATION` — ⚖️ descendu de My characters (lot 374) au lot 376. Le clic est le geste que Chrome
+ *  exige pour ouvrir sa boîte de dossiers (`choisirLeLieu`, la coquille). */
+function renderSaveLocation(lieu, onAction) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "menu-porte vault-lieu";
+  b.append(text(MOTS_DE_VAULT.lieu));
+  b.setAttribute("aria-label", `${MOTS_DE_VAULT.lieu} — ${lieu.mot}`);
+  if (lieu.choisissable) {
+    b.addEventListener("click", () => onAction({ kind: "choisirLeLieu" }));
+  } else {
+    b.disabled = true;
+    b.dataset.reserve = "true";
+    b.title = MOTS_DE_VAULT.lieuImpossible;
+  }
+  return b;
+}
+
+/** ⚖️ LOT 374 — LES DEUX MOTS DE L'ENVOI À MY CHARACTERS — ⚠️ brouillons anglais à Eric. */
+export const MOTS_DE_L_ENVOI = Object.freeze({
+  refus: (raison) => `My characters did not get your last changes: ${raison}. They are safe in this browser, and will be sent again when the app reopens.`,
+  repris: "Your last changes reached My characters when the app reopened."
+});
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document            le document `fh-char/1` courant
  * @param {Function} ctx.query             `layers.verbs.query`
  * @param {(action: object) => void} onAction
  *   R : `{kind:"ouvrirNouveauPersonnage"}` · `{kind:"ouvrirLeMagasin"}` ·
- *   `{kind:"ouvrirDungeonMaster"}` · `{kind:"ouvrirLayers"}` · `{kind:"ouvrirDisplay"}`.
+ *   `{kind:"ouvrirDungeonMaster"}` · `{kind:"ouvrirVault"}` · `{kind:"ouvrirLayers"}` · `{kind:"ouvrirDisplay"}`.
+ *   Vault : `{kind:"choisirUnLieu", id}` · `{kind:"choisirLeLieu"}` (le dossier).
  *   🗄️ Lot 357 : `ouvrirLaCreation` (l'ancien `Create character`) et `describe/campaign`
  *   (l'ancien champ) ne sont plus émis. Lot 351 : la confirmation du maître n'est plus
  *   peinte ici, la coquille la pose en fenêtre (`paintPopup`).
@@ -849,9 +976,10 @@ export function renderUniverseStep(ctx, onAction) {
      coquille ignorante du dedans de l'étape : elle dit à quel RANG on est
      (`ecran`), l'écran dit ce qu'on y voit. */
   if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
-  if (ctx.ecran === "characters") return renderMagasinEcran(ctx, onAction);
+  if (ctx.ecran === "characters") return renderMesPersonnages(ctx, onAction);
   if (ctx.ecran === "layers") return renderLayersEcran(ctx, onAction);
   if (ctx.ecran === "dm") return renderDungeonMasterEcran();
+  if (ctx.ecran === "vault") return renderVaultEcran(ctx, onAction);
   const doc = ctx.document;
   /* `dalle-intermediaire` — le voile à 50 % : ⚖️ Eric, 29/09, *« fond habituel,
      transparence 50 % »* (NORMES §4), pris à la matrice des dalles et jamais
@@ -925,6 +1053,16 @@ export function renderUniverseStep(ctx, onAction) {
       text(`This browser is not keeping your character: ${memoire.raison}. Save it from Sheet.`)
     ]));
   }
+  /* ⚖️ LOT 374 — § 10 : *« un envoi raté repart à la réouverture, ET LE DIT »*. La copie de
+     My characters n'a pas reçu les derniers changements → le gendarme, en rouge, avec sa raison ; elle
+     les a reçus à la réouverture → une note, jusqu'au prochain envoi réussi. ⛔ Aucun mot quand tout
+     est arrivé : la ligne d'état « saved » est retirée (`menu-r-ligne-d-etat-retiree`). */
+  const envoi = ctx.envoi || { etat: "a-jour" };
+  if (envoi.etat === "refus") {
+    tete.append(el("p", "doc-field-error tdc-envoi", [text(MOTS_DE_L_ENVOI.refus(envoi.raison))]));
+  } else if (envoi.etat === "repris") {
+    tete.append(el("p", "universe-note tdc-envoi", [text(MOTS_DE_L_ENVOI.repris)]));
+  }
   section.append(tete);
 
   /* ② LE CODE DE CAMPAGNE — une place réservée (voir `codeDeCampagne`). */
@@ -956,6 +1094,12 @@ export function renderUniverseStep(ctx, onAction) {
     ]));
   }
   section.append(ligneLue("Books", livresDuMenu(doc).join(" · ")));
+  /* ⚖️ LOT 367 — les règles ont bougé sous ce personnage, et il a été recalé (voir le mot). */
+  if (ctx.reglesMisesAJour) {
+    const ligne = el("p", "universe-note", [text(MOT_DES_REGLES_MISES_A_JOUR)]);
+    ligne.dataset.recalage = "true";
+    section.append(ligne);
+  }
 
   /* ⑤ L'AIGUILLEUR — l'organe `.guide-mot` (NORMES §6 pré bis), ⛔ jamais un sosie :
      bleu, une boîte de TROIS lignes, et sur le verre il écrit en `--text`
@@ -965,7 +1109,8 @@ export function renderUniverseStep(ctx, onAction) {
   /* ⑥ LES CINQ PORTES, EN DEUX RANGÉES CENTRÉES — lot 357 : *« 1ere rangée : My
      characters / Dungeon Master · 2e rangée : Vault / Layers / Display »*.
      ⭐ `Dungeon Master` DEVIENT VIVANTE : elle ouvre sa page (le rang B3, `ouvrirDungeonMaster`).
-     ⏳ `Vault` reste une place réservée : son lot (353) la construira.
+     ⭐ LOT 376 — `Vault` DEVIENT VIVANTE : elle ouvre sa page (le rang B2, `ouvrirVault`), où le
+     joueur choisit son stockage. (🗄️ Jusqu'au 375 : une place réservée.)
      🗄️ Lot 350 : six portes sur trois rangées, dont `New character` au centre (devenu le
      grand bouton) et `Dungeon Master` réservée. */
   const portes = el("nav", "tdc-portes");
@@ -975,7 +1120,7 @@ export function renderUniverseStep(ctx, onAction) {
     porte("Dungeon Master", () => onAction({ kind: "ouvrirDungeonMaster" }))
   ]));
   portes.append(rangee("trois", [
-    placeReservee("Vault"),
+    porte("Vault", () => onAction({ kind: "ouvrirVault" })),
     porte("Layers", () => onAction({ kind: "ouvrirLayers" })),
     porte("Display", () => onAction({ kind: "ouvrirDisplay" }))
   ]));

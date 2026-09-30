@@ -129,10 +129,13 @@ test("ACCEPTATION — le magicien elfe niveau 1 est construit par la SURFACE MCP
      le noir » y figure EN PLUS du sens du même nom — un trait qui accorde un
      sens paraît des deux côtés de la fiche, et le moteur ne les rapproche pas
      (il faudrait comparer des noms affichables, loi §0.13). */
-  assert.deepEqual(got.traits.map((trait) => trait.id),
+  /* 🔄 LOT 372 — les traits d'ESPÈCE parmi les traits : le don d'arrière-plan choisi y entre aussi. */
+  const traitsDEspece = got.traits.filter((trait) => trait.category === undefined);
+  assert.deepEqual(traitsDEspece.map((trait) => trait.id),
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"]);
-  assert.deepEqual([...new Set(got.traits.map((trait) => trait.source))], ["Elfe"],
-    "`source` est le nom du record d'espèce, recopié — les traits de classe et de don, eux, sont déclarés non dérivés");
+  assert.deepEqual([...new Set(traitsDEspece.map((trait) => trait.source))], ["Elfe"],
+    "`source` est le nom du record d'espèce, recopié — les aptitudes de classe, elles, sont déclarées non dérivées");
+  assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.id), ["background:srd:feat:en:magic-initiate"]);
 
   /* LES DIX-HUIT COMPÉTENCES NOMMÉMENT, entrées comprises — un compte reste
      vert si la pile en rend dix-huit mauvaises. */
@@ -195,6 +198,7 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "notes",
     "resources",
     "senses[perception-passive]",
+    "spellSources",   // 🧬 LOT 373 — vide et déclaré : ni lignée qui fasse lancer, ni don
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
@@ -219,14 +223,15 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
   /* REWRITTEN 2026-08-08 — révision du schéma (GAP-DERIVED) : `stats` est le
      treizième champ non dérivé. Le compte est réécrit à la nouvelle vérité, pas
      relâché en `/NON DÉRIVÉ \(\d+\)/` — un compte flou ne verrait plus rien. */
-  assert.match(texte, /NON DÉRIVÉ \(13\)/);
+  /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et déclaré (ni lignée qui fasse lancer, ni don). */
+  assert.match(texte, /NON DÉRIVÉ \(14\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
     assert.ok(texte.includes(String(entry)), `le texte doit porter la RAISON de « ${entry.field} »`);
   }
   assert.match(texte, /RECORDS RECOUVERTS \(\d+\)/, "et `shadowed` a sa ligne, même vide");
-  assert.match(texte, /CHOIX NON CONSOMMÉS \(3\)/,
-    "lignage, don d'arrière-plan, don homebrew — « langue » retirée le 2026-09-08. ⚠️ CINQ jusqu'au 2026-09-08 : " +
+  assert.match(texte, /CHOIX NON CONSOMMÉS \(2\)/,
+    "lignage, don homebrew — 🔄 lot 372 : le don d'arrière-plan est LU (trait `feat`). « langue » retirée le 2026-09-08. ⚠️ CINQ jusqu'au 2026-09-08 : " +
     "`abilities.mode` est devenu un SOUVENIR DÉCLARÉ — il n'est plus un choix inerte, " +
     "c'est un champ qu'aucune règle ne DOIT lire. Le chiffre reste exact, pas assoupli.");
 
@@ -262,8 +267,8 @@ test("`build.validate` ne trouve rien à redire — et un refus reste un RÉSULT
   assert.equal(result.structuredContent.ok, true);
   assert.deepEqual(result.structuredContent.violations, []);
   const inertes = result.structuredContent.warnings.filter((line) => line.includes("n'a été consommé"));
-  assert.equal(inertes.length, 3,
-    "trois orphelins depuis le 2026-09-08 (« langue » retirée) — `abilities.mode` est sorti par `memos`, " +
+  assert.equal(inertes.length, 2,
+    "deux orphelins depuis le lot 372 (le don d'arrière-plan est lu), trois depuis le 2026-09-08 (« langue » retirée) — `abilities.mode` est sorti par `memos`, " +
     "pas par la porte des défauts. ⛔ Un cinquième qui reviendrait ici serait un VRAI " +
     "orphelin, et il faudrait le réparer, pas le déclarer.");
 });

@@ -39,7 +39,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
    `document` au montage — même préparation que `tests/universe-step.test.mjs`. */
 globalThis.document = createTestDocument();
 
-const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_SANS_RAISON, MOT_CRAN_NON_MONTE, MOT_SANS_NIVEAU }
+const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_HORS_DES_REGLES, MOT_CRAN_NON_MONTE, MOT_SANS_NIVEAU }
   = await import("../ui/builder/ecran-mort.mjs");
 /* 🌱 LOT 198 — un document neuf porte son niveau de naissance (`composer`) ;
    les sondes d'ici le portent aussi, lu à la constante. Les six scores se
@@ -108,7 +108,7 @@ test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — av
     "Soulforging éteint + catalogue absent : deux états légitimes, pas une pile inconnue");
   const mot = motDeLEcranMort(docAvec({ layers: PILE_D_HIER, choices: [CHOIX_CLASSE] }));
 
-  assert.notEqual(mot, MOT_SANS_RAISON,
+  assert.notEqual(mot, MOT_HORS_DES_REGLES,
     "⛔ c'est LE défaut du lot 183 : l'écran rendait la phrase muette sur ce personnage-là");
   assert.equal(mot, MOT_PILE_INCONNUE);
   /* LA CAUSE — dans les mots du Menu, pour que les deux écrans disent la
@@ -168,14 +168,16 @@ test("⚔️ UNE PILE VIDE N'EST PAS ACCUSÉE — elle n'empêche rien, `rebuild
    il reste un chemin par lequel un joueur lit une impasse sans sortie. Le
    jour où l'une reçoit son mot d'Eric, c'est ici qu'on vient le brancher. */
 
-test("⏳ LA PHRASE MUETTE SURVIT, ET ELLE EST DÉCLARÉE MUETTE — les causes restantes attendent un mot d'Eric", () => {
+test("⚖️ LA PHRASE MUETTE A REÇU SON MOT (lot 367) — ce qui ne suit pas les règles se dit, avec ses deux sorties", () => {
+  /* 🗄️ Ce garde tenait « la phrase muette survit, et elle est déclarée muette ». Eric, 30/09,
+     lui a donné son mot : réécrit à la nouvelle vérité, pas relâché — le même état y mène. */
   const complet = docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE, ...SIX_SCORES] });
-  assert.equal(motDeLEcranMort(complet), MOT_SANS_RAISON,
-    "niveau, classe et scores posés : ce qui empêche encore de dériver n'a pas de mot");
-  assert.doesNotMatch(MOT_SANS_RAISON, /Menu|Class|switch/,
-    "elle ne prétend PAS donner une sortie — c'est ce qui la rend repérable");
+  assert.equal(motDeLEcranMort(complet), MOT_HORS_DES_REGLES,
+    "niveau, classe et scores posés, et rien de mort : ce qui empêche de dériver est hors des règles connues");
+  assert.match(MOT_HORS_DES_REGLES, /Save character/, "la sortie qui garde le personnage");
+  assert.match(MOT_HORS_DES_REGLES, /New character/, "la sortie qui repart de zéro");
   /* ⚔️ et les deux causes qui viennent de recevoir leur mot ne tombent PLUS ici */
-  assert.notEqual(motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE] })), MOT_SANS_RAISON,
+  assert.notEqual(motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE] })), MOT_HORS_DES_REGLES,
     "⛔ sans scores, c'était le défaut de v621 : la phrase muette sur Abilities");
   assert.equal(motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE, ...SIX_SCORES], naissance: false })), MOT_SANS_NIVEAU,
     "sans niveau : un fichier d'avant le lot, nommé avec sa sortie");
@@ -229,7 +231,7 @@ test("🔴 LOT 186 — UN CRAN NON MONTÉ EST NOMMÉ, avec sa cause ET sa sortie
 
 test("🔴 `shell.mjs` ne fabrique plus la phrase — il la DEMANDE", () => {
   const shell = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.mjs"), "utf8"));
-  assert.match(shell, /motDeLEcranMort\(state\.document\)/,
+  assert.match(shell, /motDeLEcranMort\(state\.document, state\.violations\)/,
     "la coquille doit poser la phrase du module, sur le document vivant");
   /* ⚖️ LOT 186 — MÊME LOI POUR LE CRAN NON MONTÉ : la coquille DEMANDE la
      phrase, elle ne la fabrique pas, et elle la pose sur la condition qui la

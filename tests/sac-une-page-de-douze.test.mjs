@@ -409,9 +409,9 @@ test("7 — 🔒 LE CÂBLAGE : tout ce qui arrive au sac sans main passe par `ra
   /* ② LE TROP-PLEIN S'ÉCRIT AUX DEUX OUVERTURES, par un seul organe */
   const organe = /function leSacNormalise\(document\) \{([\s\S]*?)\n\}/.exec(shell);
   assert.ok(organe && /normaliserLeSac\(\{ document, verbs \}\)/.test(organe[1]), "⛔ l'organe d'ouverture n'appelle plus `normaliserLeSac`");
-  assert.match(shell, /state\.document = garde\.etat === "lu" \? garde\.document : exemple;\s*(?:\/\*[\s\S]*?\*\/\s*)?state\.document = leSacNormalise\(state\.document\);/,
+  assert.match(shell, /state\.document = garde\.etat === "lu" \? garde\.document : personnageNeuf\(null\);\s*(?:\/\*[\s\S]*?\*\/\s*)?state\.document = leSacNormalise\(state\.document\);/,
     "⛔ le démarrage n'écrit plus le trop-plein du personnage qu'il rouvre");
-  assert.match(shell, /function poserLeDocumentOuvert\(document\) \{\s*state\.document = leSacNormalise\(document\);/,
+  assert.match(shell, /function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{\s*state\.document = leSacNormalise\(document\);/,
     "⛔ l'ouverture d'un fichier n'écrit plus le trop-plein");
   /* ③ LE `+ Backpack dropdown` ÉCRIT SON NOM ET SON GENRE */
   assert.match(bloc("ajouterSection"), /if \(action\.depot === true\) \{[\s\S]*?nomDuProchainDepot\(pris\)[\s\S]*?cheminDuDepot\(index\), value: 1/,

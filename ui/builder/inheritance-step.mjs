@@ -29,12 +29,13 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=916";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=916";
-import { renderChoixGlisses } from "./glisser.mjs?v=916";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=916";
+} from "./carnet.mjs?v=929";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=929";
+import { renderChoixGlisses } from "./glisser.mjs?v=929";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=929";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=916";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=929";
+import { MOT_CARAC_D_INCANTATION } from "./caracteristique-glisse.mjs?v=929";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -538,7 +539,9 @@ export function featSousLabel(chemin) {
   const segment = segmentDe(chemin);
   const bloc = FEAT_SPELL_BLOCS.find((b) => b.segment === segment);
   if (bloc) return bloc.titre;
-  return segment === "list" ? "Spell list" : segment === "proficiencies" ? "Skills or tools" : null;
+  return segment === "list" ? "Spell list" : segment === "proficiencies" ? "Skills or tools"
+    /* 🧬 LOT 373 — la caractéristique d'incantation du don (Magic Initiate) */
+    : segment === "ability" ? MOT_CARAC_D_INCANTATION : null;
 }
 
 /* ══ 🎯 LOT 364 — LES MAÎTRISES D'UN DON (Skilled : « three skills or tools ») ══
@@ -605,7 +608,8 @@ export function donsDOrigineNommes(ctx, detenteurs) {
     const config = listeId ? listeLabel(query, listeId)
       : poses.length > 0 ? poses.map((x) => motDuChoix(query, genreDansLaPile(query, x) || "skill", x)).join(", ")
       : null;
-    lignes.push({ name: `${accorde}: ${featLabel(query, id)}${config ? ` (${config})` : ""}`, source });
+    /* 🎯 LOT 372 — l'`id` du don : `derive` en pose le trait, la Sheet le nomme par ces mots-ci. */
+    lignes.push({ id: `${racine.split(".")[0]}:${id}`, name: `${accorde}: ${featLabel(query, id)}${config ? ` (${config})` : ""}`, source });
   }
   return lignes;
 }

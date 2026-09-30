@@ -320,6 +320,11 @@ test("les deux grammaires de chemin sont celles du SCHÉMA, mot pour mot", () =>
      en commentaire n'est pas une garantie. */
   assert.equal(
     SPELL_TEXT_MAX,
-    schema.$defs.resolved.properties.spellcasting.oneOf[1].properties.spells.items.properties.text.maxLength
+    schema.$defs.spell.properties.text.maxLength
   );
+  /* 🧬 LOT 373 — le sort est écrit UNE fois (`$defs.spell`) et lu par les deux rubriques. */
+  for (const rubrique of [schema.$defs.resolved.properties.spellcasting.oneOf[1].properties.spells,
+    schema.$defs.resolved.properties.spellSources.items.properties.spells]) {
+    assert.equal(rubrique.items.$ref, "#/$defs/spell");
+  }
 });

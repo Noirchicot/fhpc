@@ -61,7 +61,7 @@ function livrerLesMutations() { for (const v of [...veilleurs]) v.rappel([]); }
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(ROOT, "ui", "builder");
 
-const { avantLeRepeint } = await import("../ui/builder/repeint.mjs");
+const { avantLeRepeint, champDeTexteActif } = await import("../ui/builder/repeint.mjs");
 const { armerJeton } = await import("../ui/builder/glisser.mjs");
 const { renderConceptStep } = await import("../ui/builder/concept-step.mjs");
 const { swapContent } = await import("../ui/builder/socle.mjs");
@@ -407,7 +407,7 @@ test("8 — ⛔ deux jumeaux, aucun, ou un jumeau éteint : on ne choisit pas, o
 
 test("9 — `refresh()` passe par `avantLeRepeint` juste après `memoriser()`, et finit par `apres()`", () => {
   const src = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
-  assert.match(src, /import \{ avantLeRepeint \} from "\.\/repeint\.mjs\?v=\d+";/);
+  assert.match(src, /import \{ avantLeRepeint, champDeTexteActif \} from "\.\/repeint\.mjs\?v=\d+";/);
   const debut = src.indexOf("function refresh() {");
   const fin = src.indexOf("\nfunction peindreLePassif");
   assert.ok(debut > 0 && fin > debut, "refresh() et son voisin se trouvent");
@@ -439,4 +439,43 @@ test("10 — chaque organe armé déclare sa `cle` — ⛔ sauf le dé d'Abiliti
   }
   assert.ok(appels >= 10, `les appels d'organe se trouvent (${appels})`);
   assert.deepEqual(sans, [], "⛔ un organe armé sans `cle` : repeint, son objet armé s'éteindrait");
+});
+
+test("11 — ⭐ LA SAUVEGARDE AUTOMATIQUE (lot 374) NE REPEINT PAS SOUS LA FRAPPE : son repeint attend que le champ perde le focus", async () => {
+  /* ⚖️ ARCHI 35, 30/09 : « vérifie qu'elle ne provoque aucun repeint pendant qu'on tape le nom ». Mesuré au code :
+     `memoriser()` programme l'envoi (800 ms) à chaque modification, et `envoyerEtDire()` repeint quand l'ÉTAT de l'envoi
+     change (refus, conflit, reprise). Tombé sous la frappe, ce repeint enregistrait le texte mais ôtait le focus : le
+     clavier se fermait au milieu d'un mot. ⭐ On rejoue ICI le vrai corps de la fonction, lu dans `shell.mjs`. */
+  const src = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+  const m = src.match(/async function envoyerEtDire\(\) \{([\s\S]*?)\n\}/);
+  assert.ok(m, "`envoyerEtDire` se trouve dans shell.mjs");
+  const fabriquer = new Function("state", "envoyerALApp", "refresh", "champDeTexteActif",
+    `return async function envoyerEtDire() {${m[1]}};`);
+  const essai = async (champ, etatApres) => {
+    const state = { envoi: { etat: "a-jour" } };
+    let repeints = 0;
+    const ecoute = {};
+    const actif = champ ? { addEventListener: (t, fn) => { ecoute[t] = fn; } } : null;
+    const f = fabriquer(state, async () => { state.envoi = { etat: etatApres }; }, () => { repeints += 1; }, () => actif);
+    await f();
+    const avantBlur = repeints;
+    if (ecoute.blur) ecoute.blur();
+    return { avantBlur, apresBlur: repeints };
+  };
+  assert.deepEqual(await essai(true, "refus"), { avantBlur: 0, apresBlur: 1 },
+    "⛔ l'état de l'envoi a changé pendant la frappe : le repeint est passé SOUS le champ actif");
+  assert.deepEqual(await essai(false, "refus"), { avantBlur: 1, apresBlur: 1 }, "sans champ actif, il repeint tout de suite");
+  assert.deepEqual(await essai(true, "a-jour"), { avantBlur: 0, apresBlur: 0 }, "rien n'a changé : aucun repeint");
+  /* et le témoin lit bien le champ où l'on tape — ⛔ pas une case, pas le corps de la page */
+  aucalme();
+  const champ = document.createElement("input");
+  champ.type = "text";
+  document.activeElement = champ;
+  assert.equal(champDeTexteActif(), champ);
+  const coche = document.createElement("input");
+  coche.type = "checkbox";
+  document.activeElement = coche;
+  assert.equal(champDeTexteActif(), null);
+  document.activeElement = document.body;
+  assert.equal(champDeTexteActif(), null);
 });

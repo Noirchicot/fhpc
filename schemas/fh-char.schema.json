@@ -686,6 +686,77 @@
             }
           }
         },
+        "training": {
+          "$comment": "LOT 372 (ARCHI 35, 30/09, Q1 → a) — LES MAÎTRISES D'ARMES ET D'ARMURES. Elles n'avaient aucune rubrique : même le training de base de la classe (`armor_training`, `weapon_proficiencies`) n'était dérivé nulle part. D'abord la classe, puis les choix de capacité qui en ajoutent (Protector, Warden). ⚠️ FACULTATIVE AU SCHÉMA, même forme d'ajout que `effects` (lot 289) : un document d'avant ce lot reste valide ; `derive` la pose toujours.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "armor",
+            "weapons"
+          ],
+          "properties": {
+            "armor": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "text",
+                  "source"
+                ],
+                "properties": {
+                  "id": {
+                    "$comment": "L'identité de l'entrée, pour qu'un override la vise (`resolved.training.armor[class].text`) : `class`, ou l'id du choix de capacité.",
+                    "$ref": "#/$defs/slug"
+                  },
+                  "text": {
+                    "$comment": "Le texte tel que la source l'écrit (« Light and Medium armor and Shields », « Heavy armor ») — jamais décomposé en catégories : ce serait une règle de lecture inventée.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "source": {
+                    "$comment": "Ce qui l'accorde : la classe, ou le choix de capacité (« Divine Order: Protector »). Recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                }
+              }
+            },
+            "weapons": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "text",
+                  "source"
+                ],
+                "properties": {
+                  "id": {
+                    "$comment": "L'identité de l'entrée, pour qu'un override la vise (`resolved.training.armor[class].text`) : `class`, ou l'id du choix de capacité.",
+                    "$ref": "#/$defs/slug"
+                  },
+                  "text": {
+                    "$comment": "Le texte tel que la source l'écrit (« Light and Medium armor and Shields », « Heavy armor ») — jamais décomposé en catégories : ce serait une règle de lecture inventée.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "source": {
+                    "$comment": "Ce qui l'accorde : la classe, ou le choix de capacité (« Divine Order: Protector »). Recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        },
         "actions": {
           "$comment": "Attaques ET actions dans une seule collection : une attaque est une action de catégorie `attack`. Vocabulaire porté du panneau v1 fh-panel-actions.js (economy action/bonus/reaction, catégories Attack/Check/Damage/Utility), mis en minuscules — clefs machine.",
           "type": "array",
@@ -846,82 +917,65 @@
                 "spells": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "$comment": "⚠️ `castType` était REQUIS jusqu'au 2026-08-08. Retiré des obligatoires par l'architecte, à la fusion des lots 8 et 9, et c'est le SCHÉMA qui avait tort. Mesuré par le lot 8 : la prose du SRD porte au moins CINQ constructions qui ressemblent à une sauvegarde et une seule est le fait (le sort lui-même, la sauvegarde d'une créature invoquée dans un bloc encastré, un bonus qui donne l'avantage AUX sauvegardes comme Bénédiction, un test de caractéristique contre le DD, la sauvegarde d'un tiers) — et Couteau de glace comme Main arcanique sont GÉNUINEMENT les deux à la fois, ce que l'énumération ne sait pas dire. Un champ obligatoire sans source force le moteur à deviner : c'est le schéma qui pousse le code au mensonge. Et une fiche de magicien SANS AUCUN SORT (l'entrée serait sautée, invariant 5 du bloc build) est plus fausse qu'une fiche dont le mode de résolution est inconnu ET DÉCLARÉ. L'énumération elle-même est reconnue insuffisante : point ouvert daté.",
-                    "required": [
-                      "id",
-                      "name",
-                      "level",
-                      "prepared"
-                    ],
-                    "properties": {
-                      "id": {
-                        "$ref": "#/$defs/slug"
-                      },
-                      "name": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 100
-                      },
-                      "level": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 9
-                      },
-                      "prepared": {
-                        "type": "boolean"
-                      },
-                      "castType": {
-                        "enum": [
-                          "none",
-                          "attack",
-                          "save"
-                        ]
-                      },
-                      "saveAbility": {
-                        "$ref": "#/$defs/ability"
-                      },
-                      "saveEffect": {
-                        "enum": [
-                          "none",
-                          "half"
-                        ]
-                      },
-                      "damage": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/$defs/damage"
-                        }
-                      },
-                      "range": {
-                        "type": "string",
-                        "maxLength": 60
-                      },
-                      "castingTime": {
-                        "type": "string",
-                        "maxLength": 120
-                      },
-                      "duration": {
-                        "type": "string",
-                        "maxLength": 120
-                      },
-                      "concentration": {
-                        "type": "boolean"
-                      },
-                      "ritual": {
-                        "type": "boolean"
-                      },
-                      "text": {
-                        "type": "string",
-                        "maxLength": 4000
-                      }
-                    }
+                    "$ref": "#/$defs/spell"
                   }
                 }
               }
             }
           ]
+        },
+        "spellSources": {
+          "$comment": "🧬 LOT 373 (ARCHI 35, 30/09, Q1 → a) — LES SORTS QUI NE VIENNENT PAS DE LA CLASSE. Une entrée par SOURCE hors classe — la lignée de l'espèce, chaque don d'origine (Magic Initiate) — et chacune porte SA caractéristique d'incantation, celle que le joueur a choisie (« une valeur parmi N » : « Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage) »). `dc` = 8 + maîtrise + modificateur, `attackBonus` = maîtrise + modificateur : les deux règles SRD que `spellcasting` applique déjà, ici avec la caractéristique de la source. Pas d'emplacements : ces sorts se lancent par leur trait (une fois par Repos long, ou avec les emplacements du personnage). ⚠️ POURQUOI UNE CLEF À CÔTÉ, ET PAS LE TABLEAU PROMIS PAR `spellcasting` : cette porte-là est écrite pour le MULTICLASSAGE (des emplacements partagés) ; une lignée ou un don n'a pas d'emplacements, et `spellcasting` reste celui de la classe, lu tel quel par tous ses lecteurs. FACULTATIVE : un document d'avant ce lot reste valide ; `derive` la pose toujours (vide sans source). Une source dont la caractéristique n'est pas choisie n'y entre pas : `underived` la nomme. EXEMPLE (un Drow en Charisme, un Acolyte en Sagesse — le validateur de `src/doc/schema.mjs` n'applique pas `examples`, l'exemple vit donc ici) : [{\"id\":\"species:elven-lineage\",\"name\":\"Elven Lineage: Drow\",\"source\":\"Elf\",\"ability\":\"cha\",\"dc\":12,\"attackBonus\":4,\"spells\":[{\"id\":\"dancing-lights\",\"name\":\"Dancing Lights\",\"level\":0,\"prepared\":true}]},{\"id\":\"background:srd:feat:en:magic-initiate\",\"name\":\"Magic Initiate\",\"source\":\"Acolyte\",\"ability\":\"wis\",\"dc\":13,\"attackBonus\":5,\"spells\":[{\"id\":\"guidance\",\"name\":\"Guidance\",\"level\":0,\"prepared\":true},{\"id\":\"bless\",\"name\":\"Bless\",\"level\":1,\"prepared\":true}]}]",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "ability",
+              "dc",
+              "attackBonus",
+              "spells"
+            ],
+            "properties": {
+              "id": {
+                "$comment": "L'identité de la source, pour qu'un override la vise (`resolved.spellSources[species:elven-lineage].dc`) : `species:<trait de lignée>`, ou `<détenteur>:<id du don>` — le même id que le trait du don (lot 372).",
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "$comment": "Ce que la fiche affiche : le trait de lignée et l'option (« Elven Lineage: Drow »), ou le nom du don — recopiés de la pile.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "source": {
+                "$comment": "Le nom du record qui ACCORDE la source : l'espèce, ou le détenteur du don (l'arrière-plan, l'espèce par Versatile).",
+                "type": "string",
+                "maxLength": 80
+              },
+              "ability": {
+                "$comment": "La caractéristique CHOISIE (`species.lineage[0].ability[0]`, `<racine>.originFeat[0].ability[0]`).",
+                "$ref": "#/$defs/ability"
+              },
+              "dc": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 40
+              },
+              "attackBonus": {
+                "type": "integer",
+                "minimum": -20,
+                "maximum": 30
+              },
+              "spells": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/spell"
+                }
+              }
+            }
+          }
         },
         "resources": {
           "$comment": "TOUT ce qui se compte : dés de vie, usages d'aptitude, charges d'objet. Un seul endroit qui compte, décrémenté au règlement (événement), jamais par élagage de références.",
@@ -1040,7 +1094,9 @@
                 "enum": [
                   "eldritch-invocation",
                   "training",
-                  "weapon-mastery"
+                  "weapon-mastery",
+                  "feat",
+                  "class-feature"
                 ]
               }
             }
@@ -1285,7 +1341,6 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "line",
                   "object",
                   "item",
                   "target",
@@ -1297,7 +1352,7 @@
                 ],
                 "properties": {
                   "line": {
-                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet.",
+                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet. ⚖️ LOT 372 — facultatif : l'effet d'une RÈGLE (Defense, le bonus d'un Thaumaturge) n'a pas de ligne ; `object` et `item` nomment alors le don ou l'option.",
                     "type": "integer",
                     "minimum": 0
                   },
@@ -1718,6 +1773,79 @@
         "training",
         "weapon"
       ]
+    },
+    "spell": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "🧬 LOT 373 — UN SORT SUR LA FICHE, écrit UNE fois et lu par `spellcasting.spells` et `spellSources[].spells` (un seul écrivain). ⚠️ `castType` était REQUIS jusqu'au 2026-08-08. Retiré des obligatoires par l'architecte, à la fusion des lots 8 et 9, et c'est le SCHÉMA qui avait tort. Mesuré par le lot 8 : la prose du SRD porte au moins CINQ constructions qui ressemblent à une sauvegarde et une seule est le fait (le sort lui-même, la sauvegarde d'une créature invoquée dans un bloc encastré, un bonus qui donne l'avantage AUX sauvegardes comme Bénédiction, un test de caractéristique contre le DD, la sauvegarde d'un tiers) — et Couteau de glace comme Main arcanique sont GÉNUINEMENT les deux à la fois, ce que l'énumération ne sait pas dire. Un champ obligatoire sans source force le moteur à deviner : c'est le schéma qui pousse le code au mensonge. Et une fiche de magicien SANS AUCUN SORT (l'entrée serait sautée, invariant 5 du bloc build) est plus fausse qu'une fiche dont le mode de résolution est inconnu ET DÉCLARÉ. L'énumération elle-même est reconnue insuffisante : point ouvert daté.",
+      "required": [
+        "id",
+        "name",
+        "level",
+        "prepared"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "prepared": {
+          "type": "boolean"
+        },
+        "castType": {
+          "enum": [
+            "none",
+            "attack",
+            "save"
+          ]
+        },
+        "saveAbility": {
+          "$ref": "#/$defs/ability"
+        },
+        "saveEffect": {
+          "enum": [
+            "none",
+            "half"
+          ]
+        },
+        "damage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/damage"
+          }
+        },
+        "range": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "castingTime": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "duration": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "concentration": {
+          "type": "boolean"
+        },
+        "ritual": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      }
     }
   }
 }

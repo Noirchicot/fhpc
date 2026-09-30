@@ -1,173 +1,488 @@
 <!doctype html><meta charset="utf-8">
-<!-- ══ LE BANC DES LISTES — §0 « GOOGLE HEADLESS », appliqué aux viviers ══
-     Il joue le builder ENTIER dans un vrai Chrome, à la largeur CIBLE (360),
-     va s'asseoir sur un écran, et COMPTE ce que la page rend : combien de
-     jetons, combien de pages, et si la page déborde.
+<title>EN COURS — banc des listes</title>
+<!-- ══ LE BANC DES LISTES — il ouvre au doigt chaque liste de jetons du builder, à 360, et la juge sur la Bible ══
+     Refait au lot 368 (30/09) sur le produit d'aujourd'hui : Menu R au démarrage, portes du guide,
+     sous-écrans à pied `Cancel · Done`, grammaire « armer puis poser ».
 
-     Usage, depuis la racine du dépôt :
-       node -e "const{exempleFhEn}=await import('./src/tools/exemple-fh-en.mjs');
-         (await import('node:fs')).writeFileSync('fixture-banc.json',
-         JSON.stringify(exempleFhEn().document));" --input-type=module
-       python3 -m http.server 8920
-       chrome --headless --disable-gpu --window-size=360,553 \
-         --virtual-time-budget=20000 --dump-dom \
-         "http://localhost:8920/ui/builder/banc-listes.html#species"
+     CE QU'IL JUGE, liste par liste — les règles de la Bible (`FH-WEB/Builder Bible/6-listes.md`) :
+       liste-quinze-par-page              15 jetons par page, en rangées de 3
+       liste-pages-sans-plafond           pages = ceil(objets ÷ 15), le 15 lu au socle (`LISTE_PAR_PAGE`)
+       liste-une-seule-page-pas-de-fleches  une page → aucune flèche ; plusieurs → les deux
+       liste-set-incomplet-se-centre      la dernière rangée incomplète se centre
+       liste-pagination-jamais-defilement la liste ne défile pas, l'écran (`.stage`) ne déborde pas
+     Et « tourne » : le tour complet des pages revient à la première, et la page SURVIT à un dépôt
+     (la coquille reconstruit toute la carte à chaque action).
+     ⛔ Il ne juge ni les couleurs ni les cotes d'un jeton : `tests/collecteur-jeton.test.mjs` tient la
+     cote, ce banc tient la PEINTURE — que la rangée porte bien trois jetons une fois les gouttières posées.
 
-     Scénarios : species · class · inheritance · concept · tout.
-     Le relevé sort dans <title> ET dans #rapport — le `--dump-dom` porte
-     les deux. -->
-<style>html,body{margin:0;height:100%}iframe{border:0;width:360px;height:553px}
-#rapport{position:fixed;inset:auto 0 0 0;font:11px monospace;white-space:pre-wrap;background:#fff;color:#000;z-index:9}</style>
+     Usage, depuis la racine du dépôt (le serveur de la bibliothèque coupe des connexions sous ~90
+     modules : on lui donne une file d'attente) :
+       python3 -c "import http.server as h; h.ThreadingHTTPServer.request_queue_size = 128; \
+         h.ThreadingHTTPServer(('127.0.0.1', 8920), h.SimpleHTTPRequestHandler).serve_forever()"
+       perl -e 'alarm 90; exec @ARGV' "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+         --headless=new --user-data-dir=/tmp/banc-listes-chrome --window-size=360,553 \
+         --virtual-time-budget=90000 --dump-dom \
+         "http://127.0.0.1:8920/ui/builder/banc-listes.html" | grep -o '<title>[^<]*</title>'
+     Sans hash = #tout. Un scénario seul : #concept · #species · #inheritance · #class · #tourne ·
+     #photo (l'écran paginé, nu, pour `--screenshot`). Le verdict sort dans <title> ET dans #rapport.
+     ⚠️ Avant de croire un titre : le serveur sert-il CE dépôt ? `md5 -q ui/builder/banc-listes.html`
+     contre `curl -s …/ui/builder/banc-listes.html | md5` — un port tenu par un autre worktree sert
+     un autre banc (piège du 30/09). ⚠️ `perl … alarm` n'est pas décoratif : Chrome 153 écrit le DOM
+     puis ne rend jamais la main ; l'alarme le coupe, le verdict est déjà sorti. Le profil jetable
+     garde ton Chrome hors du banc. Ou : ouvrir la page dans un onglet affiché et lire son titre.
+     ⚠️ En `--virtual-time-budget` la page NE PEINT PAS (ni `requestAnimationFrame` ni `scroll`) : le
+     banc le mesure (⓪) et fournit les images par minuteur ; le titre le dit (« images par minuteur »).
+
+     LES TÉMOINS, dans l'ordre où ils peuvent accuser :
+     ⓪ LA PAGE PEINT — images comptées 300 ms au départ ; sinon un minuteur de 16 ms les fournit.
+     ① L'APP A DÉMARRÉ — le personnage est écrit ET le belt porte ses 8 étapes (il naît SRD à 6).
+     ② LE DOIGT — jamais `n.click()` (il traverse `pointer-events` et atteint une tuile hors de l'écran) :
+        `elementFromPoint` au centre, puis pointerdown · pointerup · click au point, pointerType
+        « touch ». Hors de l'écran (depuis le Menu R, Class est à x = 418 à 360), la porte y est
+        d'abord amenée par défilement, et la ligne le dit (« défilé »). L'appui long ARME (500 ms).
+     ③ ⛔ CANCEL N'EST JAMAIS TOUCHÉ — `bouton-deux-mots-retour-et-couleur-se-deduit-mot` : Cancel,
+        rouge, abandonne du travail. On sort d'un sous-écran par `Done`, qui signe ce qui est là et
+        remonte d'un cran (`bouton-done-signe`). Un écouteur posé sur la page note tout toucher de
+        Cancel : le scénario tombe alors en CASSÉ.
+     ④ LE PERSONNAGE SORT INTACT — à la fin, les choix du document égalent ceux de l'exemple, choix
+        par choix (chemin et valeur). Sinon : CASSÉ, et le rapport nomme ce qui manque ou s'ajoute.
+
+     LA GRAINE : l'exemple commité (`examples/personnage-fh-en-niveau1.fh-char.json`, Ilyra, Wizard —
+     octet pour octet `exempleFhEn()`), POSÉ PAR LE BANC sous `fhpc.personnage` dans un stockage VIDÉ,
+     et RENDU à la fin. ⚖️ Lot 366 : la première visite ouvre une fiche vierge, un banc qui part de
+     l'exemple le pose lui-même. ⭐ L'exemple arrive VALIDÉ : ses étapes n'ont donc plus de porte
+     (`bouton-troisieme-age-est-l-absence`). Le banc retire de `build.confirmed` les items de l'étape
+     qu'il va ouvrir — la racine (`class`) reste confirmée, ses items (`class.prepared`…) ne le sont
+     plus — et les portes reviennent ; ses `Done` les re-signent. « tourne » retire aussi un choix
+     (Sleep, `class.prepared[3]`) pour le reposer au doigt : le document revient à l'exemple.
+     ⛔ Hors de localhost le banc refuse de jouer : il viderait le personnage d'un joueur.
+
+     🧊 L'ANCIEN BANC (26/08, commit 2034f651 → lot 368), MORT LE 30/09. Mesuré sur main v914, Chrome
+     headless ET volet, mêmes titres : il lisait une graine gitignorée ABSENTE du disque
+     (`/fixture-banc.json`), cliquait le belt par `.click()`, et, faute de porte sur une étape validée,
+     touchait CANCEL pour « remonter au guide » — Cancel efface. Scénario · titre lu · ce qu'il faisait :
+       concept      FINI 4 relevés    ✅ le seul honnête (Gender 3, Alignment 9, rien d'effacé)
+       inheritance  FINI 6 relevés    mesurait 3 listes, titrées « undefined », et EFFAÇAIT 5 choix
+       species      FINI 3 relevés    0 porte, 0 mesure — dé-choisissait Elf
+       class        FINI 3 relevés    0 porte, 0 mesure — dé-choisissait Wizard
+       tout         FINI 16 relevés   les trois : à la fin, ni classe ni espèce
+       tourne       ERREUR            null.closest — la porte « Prepared » introuvable
+       photo        PHOTO             photographiait le catalogue des classes, Wizard dé-choisi
+     Son code vit dans l'historique : `git show 70efc689:ui/builder/banc-listes.html`. Ce qu'il avait
+     établi reste vrai : à 360, la rangée paginée tient trois colonnes entre ses deux gouttières. -->
+<style>
+html,body{margin:0;background:#1d1d1f}
+iframe{border:0;width:360px;height:553px;display:block}
+#rapport{position:fixed;inset:auto 0 0 0;max-height:60vh;overflow:auto;margin:0;padding:6px 8px;
+  font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#fff;color:#000;z-index:9}
+</style>
 <pre id="rapport">…</pre>
 <script type="module">
-const cible = location.hash.slice(1) || "tout";
-localStorage.setItem("fhpc.personnage", await (await fetch("/fixture-banc.json")).text());
+import { LISTE_PAR_PAGE } from "./normes.mjs?v=929";
 
-const f = document.createElement("iframe");
-f.src = "./index.html?v=916";
-const dors = (ms) => new Promise((r) => setTimeout(r, ms));
+const demande = location.hash.slice(1) || "tout";
+const CLE = "fhpc.personnage";
+const LOCAL = ["localhost", "127.0.0.1", "[::1]", "::1"];
+const MS_DEMARRAGE = 20000;
+const MS_ECRAN = 5000;
+const MS_APPUI_LONG = 650;
+
 const lignes = [];
-const note = (m) => { lignes.push(m); document.getElementById("rapport").textContent = lignes.join("\n"); };
-
-/** Le tap d'`armerJeton` : pointerdown puis pointerup, sans mouvement. */
-const tape = (n) => {
-  for (const type of ["pointerdown", "pointerup"]) {
-    n.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 1, isPrimary: true,
-      clientX: 10, clientY: 10 }));
+const rapport = document.getElementById("rapport");
+const note = (m) => { lignes.push(m); rapport.textContent = lignes.join("\n"); };
+const titre = (t) => { document.title = t; };
+const dors = (ms) => new Promise((r) => setTimeout(r, ms));
+const attendre = async (condition, ms) => {
+  const fin = performance.now() + ms;
+  while (performance.now() < fin) {
+    try { const v = condition(); if (v) return v; } catch (_) { /* l'écran se monte encore */ }
+    await dors(50);
   }
+  return null;
 };
 
-f.addEventListener("load", async () => {
-  try {
-    const d = f.contentDocument;
-    const w = f.contentWindow;
-    const tous = (s) => [...d.querySelectorAll(s)];
-    await dors(900);
+/** Un chemin qui manque à sa promesse : le message dit lequel, et pourquoi. */
+class Echec extends Error {}
 
-    /* ══ LE SCÉNARIO « TOURNE » — on tourne les pages POUR DE VRAI ═════════
-       §0 : une pagination se vérifie en la faisant tourner, pas en lisant son
-       arithmétique. On va sur la seule liste du personnage-témoin qui pagine
-       (les sorts préparés du Mage, 31 objets), on fait le tour complet, et on
-       vérifie au passage que la page SURVIT à un dépôt — la coquille
-       reconstruit toute la carte à chaque action. */
-    /* ══ « PHOTO » — l'écran paginé, nu, pour le regarder ═══════════════════
-       Même chemin que « tourne », mais on s'arrête sur la première page et on
-       retire le relevé : `--screenshot` prend alors l'écran du joueur. */
-    if (cible === "tourne" || cible === "photo") {
-      tous(".belt-item").find((b) => b.textContent.includes("Class"))?.click();
-      await dors(800);
-      for (let r = 0; r < 3 && tous(".parcours-item-porte").length === 0; r += 1) {
-        tous("button").find((b) => /^(Cancel|Back)$/.test(b.textContent.trim()))?.click();
-        await dors(600);
-      }
-      tous(".parcours-item-porte").find((b) => b.textContent.includes("Prepared"))?.click();
-      await dors(800);
-      if (cible === "photo") {
-        document.getElementById("rapport").remove();
-        document.title = "PHOTO";
-        return;
-      }
-      const suivant = () => tous('.grille-fleche[aria-label="Next page"]').at(0);
-      const dit = () => {
-        const v = d.querySelector(".glisse-vivier");
-        const bloc = v.closest(".choix-glisse");
-        const mots = [...v.querySelectorAll(".glisse-jeton")].map((b) => b.textContent.trim());
-        return `${[...bloc.querySelectorAll(".grille-compte")].map((c) => c.textContent).join(" · ")}`
-          + ` jetons=${mots.length} h=${v.getBoundingClientRect().height.toFixed(0)}`
-          + ` interne=${v.scrollHeight}/${v.clientHeight}`
-          + ` 1er=« ${mots[0]} » dernier=« ${mots.at(-1)} »`;
-      };
-      for (let tour = 0; tour < 4; tour += 1) {
-        note(`page ${tour} : ` + dit());
-        suivant()?.click();
-        await dors(300);
-      }
-      /* LE DÉPÔT : on tape un jeton de la page 1 (une seconde page tournée),
-         ce qui déclenche un `refresh()` de toute la carte. La page doit
-         SURVIVRE — sinon le joueur est renvoyé au début à chaque sort. */
-      suivant()?.click();
-      await dors(300);
-      note("avant dépôt : " + dit());
-      tape(d.querySelectorAll(".glisse-jeton")[0]);
-      await dors(800);
-      note("après dépôt : " + dit());
-      /* ET LE BUDGET DE L'ÉCRAN, bande par bande — §1 quater. */
-      const ecran = d.querySelector(".parcours-item-dalle") || d.querySelector(".decision-card");
-      const bandes = [...ecran.querySelectorAll(":scope > *, .choix-glisse > *")]
-        .map((c) => `${c.tagName.toLowerCase()}.${String(c.className).split(" ")[0]}=${c.getBoundingClientRect().height.toFixed(0)}`);
-      const st = d.querySelector(".stage");
-      note("budget: stage " + st.scrollHeight + "/" + st.clientHeight + " | " + bandes.join(" "));
-      document.title = "FINI";
-      return;
-    }
-
-    const etapes = cible === "tout" ? ["Identity", "Species", "Inheritance", "Class"]
-      : { species: ["Species"], class: ["Class"], inheritance: ["Inheritance"], concept: ["Identity"] }[cible];
-
-    for (const nom of etapes) {
-      tous(".belt-item").find((b) => b.textContent.includes(nom))?.click();
-      await dors(800);
-      /* On remonte au GUIDE : l'étape garde en mémoire l'item ouvert la fois
-         d'avant, et un item n'expose qu'un seul vivier. */
-      for (let r = 0; r < 3 && tous(".parcours-item-porte").length === 0; r += 1) {
-        tous("button").find((b) => /^(Cancel|Back)$/.test(b.textContent.trim()))?.click();
-        await dors(600);
-      }
-      note(`── ${nom} : ` + tous("button").map((b) => `[${(b.className || "").split(" ")[0]}]${b.textContent.trim().slice(0, 22)}`).join(" · ").slice(0, 900));
-      note("   plan: " + contour(d.querySelector(".stage") || d.body, 0).slice(0, 1200));
-      releve(`${nom}/entrée`, d, w);
-      /* Le guide : chaque item du parcours, un par un. On les ouvre à
-         l'aveugle — c'est le seul chemin qui montre un vivier. */
-      const combien = tous(".parcours-item-porte").length;
-      note(`   portes=${combien}`);
-      for (let i = 0; i < combien; i += 1) {
-        const frais = tous(".parcours-item-porte")[i];
-        if (!frais) continue;
-        const mot = frais.textContent.trim().slice(0, 26);
-        frais.click();
-        await dors(700);
-        releve(`${nom}/« ${mot} »`, d, w);
-        for (let r = 0; r < 3 && tous(".parcours-item-porte").length === 0; r += 1) {
-          tous("button").find((b) => /^(Cancel|Back)$/.test(b.textContent.trim()))?.click();
-          await dors(500);
-        }
-      }
-    }
-    document.title = "FINI " + lignes.length + " relevés";
-  } catch (e) { note("ERREUR: " + e.message + " | " + e.stack); document.title = "ERREUR"; }
+/* ⓪ LA PAGE PEINT-ELLE ? */
+const IMAGES = await new Promise((fin) => {
+  let n = 0;
+  const t0 = performance.now();
+  const compter = () => { n += 1; if (performance.now() - t0 < 300) requestAnimationFrame(compter); };
+  requestAnimationFrame(compter);
+  setTimeout(() => fin(n), 400);
 });
+const PEINT = IMAGES >= 5;
 
-function contour(n, prof) {
-  if (!n || prof > 2) return "";
-  return [...n.children].map((c) => {
-    const nom = c.tagName.toLowerCase() + (c.className ? "." + String(c.className).split(" ")[0] : "");
-    const dedans = contour(c, prof + 1);
-    return dedans ? `${nom}(${dedans})` : nom;
-  }).join(" ");
+/* ── LA GRAINE : l'exemple, les items de l'étape à ouvrir dé-validés ─────── */
+const EXEMPLE = await (await fetch("../../examples/personnage-fh-en-niveau1.fh-char.json?v=929")).json();
+function graine({ ouvrir = [], retirer = [] } = {}) {
+  const doc = structuredClone(EXEMPLE);
+  const item = (c, racine) => c.startsWith(`${racine}.`) || c.startsWith(`${racine}[`);
+  doc.build.confirmed = doc.build.confirmed.filter((c) => !ouvrir.some((r) => item(c, r)));
+  doc.build.choices = doc.build.choices.filter((c) => !retirer.includes(c.path));
+  return doc;
+}
+/** Un choix, réduit à ce qu'il décide : son chemin et sa valeur (le libellé n'est pas un choix). */
+const choixDe = (doc) => (doc?.build?.choices || []).map((c) =>
+  `${c.path}=${c.ref ? `${c.ref.kind}:${c.ref.id}` : JSON.stringify(c.value)}`).sort();
+
+/* ── LE STOCKAGE : vidé pour chaque scénario, rendu à la fin ─────────────── */
+const photo = (s) => Object.fromEntries(Object.keys(s).map((k) => [k, s.getItem(k)]));
+const vider = (s) => { for (const k of Object.keys(s)) s.removeItem(k); };
+const rendre = (s, p) => { vider(s); for (const [k, v] of Object.entries(p)) s.setItem(k, v); };
+
+/* ── L'APP, montée à 360 ─────────────────────────────────────────────────── */
+async function monterApp(doc) {
+  vider(localStorage);
+  vider(sessionStorage);
+  localStorage.setItem(CLE, JSON.stringify(doc));
+  const f = document.createElement("iframe");
+  f.src = "./index.html?v=929";
+  document.body.prepend(f);
+  const d = await attendre(() => {
+    const x = f.contentDocument;
+    return localStorage.getItem(CLE) && x && x.querySelectorAll(".belt-item").length === 8 ? x : null;
+  }, MS_DEMARRAGE);
+  if (!d) {
+    const x = f.contentDocument;
+    const n = x ? x.querySelectorAll(".belt-item").length : 0;
+    f.remove();
+    throw new Echec(`APP NON DÉMARRÉE en ${MS_DEMARRAGE / 1000} s (personnage écrit : ` +
+      `${localStorage.getItem(CLE) ? "oui" : "non"} · belt : ${n} étape(s))`);
+  }
+  /* ① Le belt naît, puis se RECONSTRUIT quand le personnage arrive (~1,7 s, mesuré au lot 350) : un
+     toucher trop tôt vise un nœud déjà remplacé (« absent », mesuré le 30/09). On attend le Menu R,
+     puis deux relevés du belt identiques à 300 ms d'écart. */
+  let avant = null;
+  let pret = false;
+  for (const fin = performance.now() + MS_DEMARRAGE; !pret && performance.now() < fin; await dors(300)) {
+    const belt = [...d.querySelectorAll(".belt-item")];
+    pret = !!d.querySelector(".universe-step") && belt.length === 8 && !!avant && belt.every((b, i) => b === avant[i]);
+    avant = belt;
+  }
+  if (!pret) { f.remove(); throw new Echec("APP NON DÉMARRÉE : le Menu R ou un belt stable n'est jamais venu"); }
+  const style = d.createElement("style");
+  style.textContent = "*,*::before,*::after{scroll-behavior:auto!important}";
+  d.head.append(style);
+  const W = f.contentWindow;
+  if (!PEINT) {
+    W.requestAnimationFrame = (rappel) => W.setTimeout(() => rappel(W.performance.now()), 16);
+    W.cancelAnimationFrame = (id) => W.clearTimeout(id);
+  }
+  /* ③ LA SENTINELLE : tout toucher de Cancel est noté, qu'il vienne du banc ou d'ailleurs. */
+  const cancels = [];
+  for (const type of ["pointerdown", "click"]) {
+    d.addEventListener(type, (e) => {
+      const b = e.target && e.target.closest ? e.target.closest("button") : null;
+      if (b && (b.matches(".parcours-annuler, .sortie-annule") || b.textContent.trim() === "Cancel")) {
+        cancels.push(`${type} sur ${b.className.split(" ")[0] || "button"}`);
+      }
+    }, true);
+  }
+  return { f, d, w: W, cancels, chemin: [] };
 }
 
-function releve(ou, d, w) {
-  const viviers = [...d.querySelectorAll(".glisse-vivier")];
-  if (viviers.length === 0) return;
-  const scroller = d.querySelector(".stage") || d.body;
-  const debord = scroller.scrollHeight - scroller.clientHeight;
-  const dit = viviers.map((v) => {
-    const bloc = v.closest(".choix-glisse");
-    const titre = bloc ? (bloc.querySelector("h3") || {}).textContent : "?";
-    const jetons = v.querySelectorAll(".glisse-jeton").length;
-    const r = v.getBoundingClientRect();
-    const lis = [...v.children];
-    const l0 = lis.length ? lis[0].getBoundingClientRect() : { top: 0, width: 0, height: 0 };
-    const parRangee = lis.filter((li) => Math.abs(li.getBoundingClientRect().top - l0.top) < 2).length;
-    const fleches = bloc ? bloc.querySelectorAll(".grille-fleche").length : 0;
-    const comptes = bloc ? [...bloc.querySelectorAll(".grille-compte")].map((c) => c.textContent).join("|") : "";
-    return `    « ${titre} » jetons=${jetons} vivier=${r.width.toFixed(0)}x${r.height.toFixed(0)}`
-      + ` case=${l0.width.toFixed(0)}x${l0.height.toFixed(0)} parRangée=${parRangee}`
-      + ` chevrons=${fleches} comptes=${comptes}`;
-  }).join("\n");
-  const carte = d.querySelector(".decision-card");
-  note(`${ou} : ${viviers.length} vivier(s), stage ${scroller.scrollHeight}/${scroller.clientHeight}`
-    + ` (déborde de ${debord}) carte=${carte ? carte.getBoundingClientRect().width.toFixed(0) : "?"}\n${dit}`);
+/* ── LE DOIGT ────────────────────────────────────────────────────────────── */
+const visible = (n) => !!n && n.getClientRects().length > 0 && getComputedStyle(n).visibility !== "hidden";
+function recoit(app, n) {
+  const r = n.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  const c = app.d.elementFromPoint(x, y);
+  return { x, y, c, ok: !!c && (c === n || n.contains(c)) };
 }
-document.body.append(f);
+const decrire = (n) => !n ? "rien" : n.tagName.toLowerCase() + (n.classList.length ? "." + n.classList[0] : "");
+
+/** Toucher (ou, `maintien` long, ARMER) : jamais `n.click()` — le doigt tombe où il tombe.
+ *  `trouver` rend la cible : elle est RE-cherchée après un défilement, car l'écran peut s'être
+ *  reconstruit entre-temps — c'est la cible d'aujourd'hui que le doigt touche, pas celle d'il y a 80 ms. */
+async function toucher(app, trouver, nom, maintien = 50) {
+  let n = trouver();
+  if (!n) throw new Echec(`${nom} : absent`);
+  if (n.disabled || n.getAttribute("aria-disabled") === "true") throw new Echec(`${nom} : désactivé`);
+  if (!visible(n)) throw new Echec(`${nom} : présent mais invisible`);
+  let v = recoit(app, n);
+  let defile = false;
+  if (!v.ok) {
+    n.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
+    await dors(120);
+    n = trouver();
+    if (!n) throw new Echec(`${nom} : disparu pendant le défilement`);
+    v = recoit(app, n);
+    defile = true;
+    if (!v.ok) throw new Echec(`${nom} : couvert par ${decrire(v.c)} (${Math.round(v.x)}, ${Math.round(v.y)})`);
+  }
+  const W = app.w;
+  const base = { bubbles: true, cancelable: true, composed: true, view: W, button: 0, clientX: v.x, clientY: v.y };
+  const doigt = { ...base, pointerId: 7, isPrimary: true, pointerType: "touch" };
+  v.c.dispatchEvent(new W.PointerEvent("pointerdown", { ...doigt, buttons: 1 }));
+  await dors(maintien);
+  v.c.dispatchEvent(new W.PointerEvent("pointerup", { ...doigt, buttons: 0 }));
+  if (maintien < 200) v.c.dispatchEvent(new W.MouseEvent("click", { ...base, detail: 1 }));
+  app.chemin.push(defile ? `${nom} (défilé)` : nom);
+}
+
+/* ── LES ÉCRANS ──────────────────────────────────────────────────────────── */
+const portes = (app) => [...app.d.querySelectorAll(".parcours-item-porte")].filter(visible);
+const nomDePorte = (p) => (p.getAttribute("aria-label") || "").split(" — ")[0];
+const boutonDone = (app) => [...app.d.querySelectorAll(".decision-card button")]
+  .find((b) => b.textContent.trim() === "Done" && visible(b));
+
+async function versEtape(app, etape) {
+  await toucher(app, () => app.d.querySelector(`.belt-item[aria-label="${etape}"]`), etape);
+  if (!(await attendre(() => app.d.querySelector(`.belt-item[aria-label="${etape}"][aria-current="step"]`)
+    && app.d.querySelector(".decision-card"), MS_ECRAN))) {
+    throw new Echec(`${etape} : touchée, mais l'étape ne s'ouvre pas`);
+  }
+  await dors(150);
+}
+async function ouvrirPorte(app, nom) {
+  await toucher(app, () => portes(app).find((x) => nomDePorte(x) === nom), `« ${nom} »`);
+  if (!(await attendre(() => portes(app).length === 0 && boutonDone(app), MS_ECRAN))) {
+    throw new Echec(`« ${nom} » : touchée, mais son sous-écran ne s'ouvre pas`);
+  }
+  await dors(150);
+}
+async function signer(app, nom) {
+  await toucher(app, () => boutonDone(app), `Done (${nom})`);
+  if (!(await attendre(() => visible(app.d.querySelector(".parcours-guide")), MS_ECRAN))) {
+    throw new Echec(`Done de « ${nom} » : touché, mais le guide ne revient pas`);
+  }
+  await dors(150);
+}
+
+/* ── LA MESURE ET LE JUGE ────────────────────────────────────────────────── */
+function mesurer(app, v, nomParDefaut) {
+  const bloc = v.closest(".choix-glisse");
+  const h3 = bloc && bloc.querySelector("h3");
+  const comptes = bloc ? [...bloc.querySelectorAll(".grille-compte")].map((c) => c.textContent.trim()) : [];
+  const jetons = [...v.querySelectorAll(".glisse-jeton")];
+  const kn = /^(\d+)\/(\d+)$/.exec(comptes[1] || "");
+  const lis = [...v.children].filter(visible);
+  const rangees = [];
+  for (const li of lis) {
+    const r = li.getBoundingClientRect();
+    const rg = rangees.find((x) => Math.abs(x.top - r.top) < 2);
+    if (rg) { rg.n += 1; rg.g = Math.min(rg.g, r.left); rg.d = Math.max(rg.d, r.right); }
+    else rangees.push({ top: r.top, n: 1, g: r.left, d: r.right });
+  }
+  const rv = v.getBoundingClientRect();
+  const st = app.d.querySelector(".stage");
+  return {
+    titre: h3 ? h3.textContent.trim() : nomParDefaut,
+    total: comptes[0] ? Number(comptes[0]) : jetons.length,
+    page: kn ? Number(kn[1]) : 1,
+    pages: kn ? Number(kn[2]) : 1,
+    jetons: jetons.length,
+    premier: jetons[0] ? jetons[0].textContent.trim() : "",
+    fleches: bloc ? bloc.querySelectorAll(".grille-fleche").length : 0,
+    rangees: rangees.map((x) => x.n),
+    ecartCentre: rangees.length ? ((rangees.at(-1).g + rangees.at(-1).d) / 2) - ((rv.left + rv.right) / 2) : 0,
+    defileListe: v.scrollHeight - v.clientHeight,
+    stage: st ? `${st.scrollHeight}/${st.clientHeight}` : "?",
+    debordeStage: st ? st.scrollHeight - st.clientHeight : 0
+  };
+}
+function juger(m) {
+  const N = LISTE_PAR_PAGE;
+  const fautes = [];
+  const attendues = Math.max(1, Math.ceil(m.total / N));
+  if (m.pages !== attendues) fautes.push(`liste-pages-sans-plafond : ${m.pages} page(s) pour ${m.total}, attendu ${attendues}`);
+  const surLaPage = Math.min(N, m.total - N * (m.page - 1));
+  if (m.jetons !== surLaPage) fautes.push(`liste-quinze-par-page : ${m.jetons} jetons en page ${m.page}, attendu ${surLaPage}`);
+  let reste = m.jetons;
+  for (const [i, n] of m.rangees.entries()) {
+    if (n !== Math.min(3, reste)) { fautes.push(`liste-quinze-par-page : rangée ${i + 1} à ${n}, attendu ${Math.min(3, reste)}`); break; }
+    reste -= n;
+  }
+  const fleches = m.pages > 1 ? 2 : 0;
+  if (m.fleches !== fleches) fautes.push(`liste-une-seule-page-pas-de-fleches : ${m.fleches} flèche(s) pour ${m.pages} page(s)`);
+  if (m.rangees.length && m.rangees.at(-1) < 3 && Math.abs(m.ecartCentre) > 2) {
+    fautes.push(`liste-set-incomplet-se-centre : dernière rangée décentrée de ${m.ecartCentre.toFixed(1)} px`);
+  }
+  if (m.defileListe > 1) fautes.push(`liste-pagination-jamais-defilement : la liste défile de ${m.defileListe} px`);
+  if (m.debordeStage > 1) fautes.push(`liste-pagination-jamais-defilement : l'écran déborde de ${m.debordeStage} px`);
+  return fautes;
+}
+/** Relever toutes les listes visibles de l'écran, et les juger. */
+function relever(app, r, ou) {
+  const viviers = [...app.d.querySelectorAll(".glisse-vivier")].filter(visible);
+  if (!viviers.length) { r.lignes.push(`    · ${ou} — aucune liste`); return []; }
+  const ms = [];
+  for (const v of viviers) {
+    const m = mesurer(app, v, ou);
+    const fautes = juger(m);
+    r.listes += 1;
+    r.fautes.push(...fautes.map((f) => `« ${m.titre} » ${f}`));
+    r.lignes.push(`    ${fautes.length ? "✗" : "✓"} ${ou} › « ${m.titre} » ${m.total} objets · page ${m.page}/${m.pages}` +
+      ` · ${m.jetons} jetons en rangées ${m.rangees.join("·")} · flèches ${m.fleches} · stage ${m.stage}` +
+      (fautes.length ? `\n        ✗ ${fautes.join("\n        ✗ ")}` : ""));
+    ms.push(m);
+  }
+  return ms;
+}
+
+/* ── LES SCÉNARIOS ───────────────────────────────────────────────────────── */
+/** Une étape : son entrée, puis chacune de ses portes — ouverte, relevée, signée par Done. */
+async function etape(app, r, nom, { avecPortes }) {
+  await versEtape(app, nom);
+  relever(app, r, "entrée");
+  const noms = portes(app).map(nomDePorte);
+  if (avecPortes && !noms.length) throw new Echec(`${nom} : aucune porte — la graine n'a pas été dé-validée`);
+  for (const p of noms) {
+    await ouvrirPorte(app, p);
+    relever(app, r, p);
+    await signer(app, p);
+  }
+  if (avecPortes && portes(app).length) {
+    r.fautes.push(`bouton-troisieme-age-est-l-absence : ${nom} signée, et ses portes restent (${portes(app).map(nomDePorte).join(", ")})`);
+  }
+}
+async function versPrepared(app) {
+  await versEtape(app, "Class");
+  const p = portes(app).find((x) => /^Prepared/.test(nomDePorte(x)));
+  if (!p) throw new Echec("Class : la porte « Prepared spells » manque");
+  await ouvrirPorte(app, nomDePorte(p));
+}
+const compteDePage = (app) => app.d.querySelector(".choix-glisse .grille-rang .grille-gouttiere:last-child .grille-compte")?.textContent.trim() || "";
+
+const SCENARIOS = {
+  concept: { graine: {}, async jouer(app, r) { await etape(app, r, "Identity", { avecPortes: false }); } },
+  species: { graine: { ouvrir: ["species"] }, async jouer(app, r) { await etape(app, r, "Species", { avecPortes: true }); } },
+  inheritance: { graine: { ouvrir: ["background"] }, async jouer(app, r) { await etape(app, r, "Inheritance", { avecPortes: true }); } },
+  class: { graine: { ouvrir: ["class"] }, async jouer(app, r) { await etape(app, r, "Class", { avecPortes: true }); } },
+
+  /* On tourne les pages POUR DE VRAI — une pagination se vérifie en la faisant tourner, pas en
+     lisant son arithmétique : la seule liste de l'exemple qui pagine, les sorts préparés (31). */
+  tourne: {
+    graine: { ouvrir: ["class"], retirer: ["class.prepared[3]"] },
+    async jouer(app, r) {
+      await versPrepared(app);
+      const [m0] = relever(app, r, "Prepared, page 1");
+      if (!m0 || m0.pages < 2) throw new Echec(`Prepared : ${m0 ? `${m0.pages} page` : "aucune liste"} — rien à tourner`);
+      const vues = [`${m0.page}/${m0.pages} « ${m0.premier} »`];
+      for (let t = 1; t <= m0.pages; t += 1) {
+        await toucher(app, () => app.d.querySelector('.grille-fleche[aria-label="Next page"]'), "Next page");
+        await dors(250);
+        const [m] = relever(app, r, `Prepared, tour ${t}`);
+        vues.push(`${m.page}/${m.pages} « ${m.premier} »`);
+        const attendue = (t % m0.pages) + 1;
+        if (m.page !== attendue) r.fautes.push(`tourner : après ${t} « Next », page ${m.page}, attendu ${attendue}`);
+      }
+      r.lignes.push(`    · le tour : ${vues.join(" → ")}`);
+      /* LE DÉPÔT : Sleep, retiré de la graine, se repose au doigt (appui long, puis tap sur le
+         créneau libre) depuis la page 2. La coquille reconstruit la carte : la page doit tenir. */
+      await toucher(app, () => app.d.querySelector('.grille-fleche[aria-label="Next page"]'), "Next page");
+      await dors(250);
+      const avant = compteDePage(app);
+      const sleep = () => [...app.d.querySelectorAll(".glisse-vivier .glisse-jeton")].find((j) => j.textContent.trim() === "Sleep");
+      if (!sleep()) throw new Echec(`dépôt : « Sleep » absent de la page ${avant}`);
+      await toucher(app, sleep, "Sleep (appui long)", MS_APPUI_LONG);
+      await dors(150);
+      await toucher(app, () => app.d.querySelector('.glisse-creneau[data-creneau="class.prepared[3]"]'), "créneau Spell 4");
+      const pose = await attendre(() => /^4 of 4\b/.test(app.d.querySelector(".choix-glisse-compte")?.textContent || ""), MS_ECRAN);
+      const apres = compteDePage(app);
+      r.lignes.push(`    ${pose && apres === avant ? "✓" : "✗"} le dépôt : Sleep posé ${pose ? "oui" : "NON"} · page ${avant} → ${apres}`);
+      if (!pose) r.fautes.push("dépôt : Sleep touché puis déposé, et le compte ne dit pas « 4 of 4 »");
+      if (apres !== avant) r.fautes.push(`dépôt : la page n'a pas survécu (${avant} → ${apres})`);
+      relever(app, r, "Prepared, après le dépôt");
+      await signer(app, "Prepared spells");
+    }
+  },
+
+  /* L'écran paginé, nu, pour le regarder : `--screenshot` prend l'écran du joueur. */
+  photo: {
+    graine: { ouvrir: ["class"] },
+    garder: true,
+    async jouer(app, r) {
+      await versPrepared(app);
+      relever(app, r, "Prepared");
+    }
+  }
+};
+const TOUT = ["concept", "species", "inheritance", "class", "tourne"];
+
+/* ── JOUER ───────────────────────────────────────────────────────────────── */
+async function jouer(nom) {
+  const s = SCENARIOS[nom];
+  const r = { nom, ok: false, casse: [], fautes: [], lignes: [], listes: 0 };
+  let app = null;
+  try {
+    app = await monterApp(graine(s.graine));
+    await s.jouer(app, r);
+    await dors(300);
+    r.ok = true;
+  } catch (e) {
+    r.echec = e instanceof Echec ? e.message : `ERREUR DU BANC : ${e.message}`;
+  }
+  if (app) {
+    /* ③ et ④ : le banc a-t-il touché Cancel, et le personnage sort-il intact ? */
+    if (app.cancels.length) {
+      r.casse.push(`Cancel touché — ${app.cancels.filter((c) => c.startsWith("click")).length || app.cancels.length} fois, ` +
+        `sur ${[...new Set(app.cancels.map((c) => c.split(" sur ")[1]))].join(", ")}`);
+    }
+    let doc = null;
+    try { doc = JSON.parse(localStorage.getItem(CLE)); } catch (_) { /* rendu illisible : il accuse */ }
+    const attendu = choixDe(EXEMPLE);
+    const lu = choixDe(doc);
+    const manque = attendu.filter((c) => !lu.includes(c));
+    const plus = lu.filter((c) => !attendu.includes(c));
+    if (manque.length || plus.length) {
+      r.casse.push(`personnage abîmé — ${manque.length} choix perdu(s)${manque.length ? ` (${manque.slice(0, 4).join(", ")})` : ""}` +
+        `${plus.length ? ` · ${plus.length} en plus (${plus.slice(0, 4).join(", ")})` : ""}`);
+    }
+    r.chemin = app.chemin.join(" · ");
+    if (!s.garder) app.f.remove();
+  }
+  return r;
+}
+const marque = (r) => r.casse.length ? "⛔ CASSÉ" : r.ok && !r.fautes.length ? "✅" : "⛔";
+
+if (!LOCAL.includes(location.hostname)) {
+  titre("REFUSÉ — ce banc vide le stockage de l'origine : il ne joue qu'en local (localhost)");
+  note(document.title);
+} else if (demande !== "tout" && !(demande in SCENARIOS)) {
+  titre(`SCÉNARIO INCONNU — #${demande} ; connus : tout · ${Object.keys(SCENARIOS).join(" · ")}`);
+  note(document.title);
+} else {
+  const gardeLocal = photo(localStorage);
+  const gardeSession = photo(sessionStorage);
+  const resultats = [];
+  if (!PEINT) {
+    note(`⚠️ la page ne peint pas (${IMAGES} image(s) en 300 ms : onglet caché, ou headless en ` +
+      "temps virtuel) — l'app reçoit ses images d'un minuteur de 16 ms");
+  }
+  try {
+    for (const nom of demande === "tout" ? TOUT : [demande]) {
+      note(`#${nom} …`);
+      const r = await jouer(nom);
+      resultats.push(r);
+      lignes.pop();
+      note(`${marque(r)} #${nom} — ${r.listes} liste(s) · ${r.chemin || "(rien touché)"}` +
+        (r.echec ? `\n    ✗ ${r.echec}` : "") + r.casse.map((c) => `\n    💥 ${c}`).join(""));
+      for (const l of r.lignes) note(l);
+    }
+  } finally {
+    rendre(localStorage, gardeLocal);
+    rendre(sessionStorage, gardeSession);
+  }
+  const resume = (r) => r.casse[0] || r.echec || r.fautes[0] || "";
+  if (demande === "photo" && resultats[0].ok) {
+    rapport.remove();
+    titre(`PHOTO — Prepared spells ${resultats[0].casse.length ? "(CASSÉ)" : ""}`.trim());
+  } else if (demande === "tout") {
+    const bons = resultats.filter((r) => marque(r) === "✅").length;
+    const tombe = resultats.find((r) => marque(r) !== "✅");
+    const tete = resultats.some((r) => r.casse.length) ? "⛔ CASSÉ" : tombe ? "⛔" : "✅";
+    titre(`${tete} tout ${bons}/${resultats.length} — ` + resultats.map((r) => `${r.nom} ${marque(r)}`).join(" · ") +
+      (tombe ? ` — ${tombe.nom} : ${resume(tombe)}` : ""));
+  } else {
+    const r = resultats[0];
+    titre(`${marque(r)} #${r.nom} — ${r.listes} liste(s)${resume(r) ? ` — ${resume(r)}` : ""}`);
+  }
+  if (!PEINT) titre(`${document.title} · (images par minuteur)`);
+  window.__banc = resultats;
+  if (document.getElementById("rapport")) note(`— stockage de l'origine rendu (${Object.keys(gardeLocal).length} clé(s))`);
+}
 </script>

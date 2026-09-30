@@ -1304,6 +1304,12 @@ body {
    ce qui réussit (`--positive`), la même que le voyant d'une étape signée. */
 .sortie-bouton.sortie-done[data-lit="true"] { --bouton-fond: var(--positive); }
 .sortie-bouton.sortie-annule[data-arme="true"] { --bouton-fond: var(--critical); }
+/* 🔵 LOT 371 — `BACK` EST BLEU, ET PAS SEULEMENT DANS UN PIED DE PARCOURS (`bouton-back-bleu-done-vert`,
+   `bouton-trois-verbes` : Back NAVIGUE). 📏 Mesuré au lot 370 : sur les rangs B du Menu (Layers, Display,
+   Dungeon Master) il rendait `--bouton-fond: transparent` — la règle bleue ne vivait que sous
+   `.parcours-pied`. ⭐ Même spécificité que les deux états ci-dessus : un seul producteur (`renderSortieEtape`),
+   une seule règle, tous les `Back` de la coquille d'un geste. */
+.sortie-bouton.sortie-back { --bouton-fond: var(--info); }
 
 /* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
    « Certaines fiches auront EN PLUS une navigation interne, fixe elle
@@ -3108,7 +3114,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=916") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=929") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3437,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=916") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=929") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5089,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=916") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=929") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6038,6 +6044,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .tdc-r > .tdc-code > .doc-field-input,
 .tdc-ligne-valeur { grid-column: 2; min-width: 0; }
 .tdc-ligne-valeur { font-size: var(--t4); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+/* ⚖️ LOT 367 — LA LIGNE DES RÈGLES MISES À JOUR (`menu-r-ligne-des-regles-mises-a-jour`), sous `Books`.
+   R est une dalle de VERRE : une phrase y écrit en `--text` (`cadre-encre-sur-verre` — le gris de
+   `.universe-note` n'y tient pas les 4,5:1). ⛔ Et sa marge tombe : c'est la GRILLE de R qui écrit
+   l'écart (sacré n° 3), une marge d'enfant s'AJOUTERAIT au `row-gap`. */
+.tdc-r > [data-recalage] { margin: 0; color: var(--text); }
 /* LE CODE DE CAMPAGNE — T0 (8 px) : *« campaign code : 123654849 (t0) »* (Eric, 29/09).
    Place réservée : présent, éteint, et son mot (`.tdc-bientot`) SOUS le champ. */
 .tdc-code-champ { font-size: var(--t0); }
@@ -6106,8 +6117,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    · `ligne-familles` — *« engine · world · catalog (en italique t0) »* : ce que la source
      apporte, lu, jamais réglé. */
 .ligne-tete { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-4); }
+/* ⚖️ LOT 371 — T1, PAS T0 : « Aucun texte ne peut passer sous T1 » (`ecriture-aucun-texte-sous-t1`,
+   `panneau-plancher`). ⛔ Seules les FAMILLES restent en T0 : c'est la dictée d'Eric (« en italique t0 »),
+   une cote donnée ; l'étiquette est un brouillon du plan v10, elle n'en a aucune. */
 .ligne-etiquette {
-  font-size: var(--t0); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  font-size: var(--t1); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   color: var(--accent); background: var(--accent-wash);
   border-radius: var(--radius-pill); padding: var(--sp-2) var(--sp-4);
 }
@@ -6193,65 +6207,70 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* B1 — le titre d'un rang B du Menu (My characters, Layers). */
 .tdc-titre-b { margin: 0 0 var(--sp-8); font-size: var(--t5); font-weight: 600; text-align: center; }
 
-/* ══ 🗄️ B1 — LE MAGASIN DE SAUVEGARDES (Eric, 10/09) ══════════════════════
-   *« quand j'appuie sur Open, j'ai une page avec toutes mes sauvegardes
-   dedans »* · *« un bouton reste présent : save location »*.
+/* ══ 🗂️ B1 — MY CHARACTERS (dictée du 29/09, lot 374) ═══════════════════════════════════════
+   *« image / Ratchapapoulos / Humain Guerrier lvl4 / Les chevaliers Noirs / bouton pour ouvrir fiche
+   de perso »* · `Open` 105 × 40 · *« la poubelle tout à droite »*, 40 × 40.
+   📐 UNE LIGNE = QUATRE COLONNES, ET C'EST LA GRILLE QUI ÉCRIT L'ÉCART (🔒 sacré n° 3) : l'image dans
+   une cible carrée (`--touch`), le texte qui prend le reste (`minmax(0, 1fr)` : un nom long cède, il
+   ne pousse pas la poubelle hors de la dalle), `Open` au gabarit LARGE (`--bouton-moyen`), la
+   poubelle dans son carré (`--touch`). Hauteur : la cible, 44.
+   ⛔ AUCUNE COULEUR ÉCRITE ICI : `Open` est une `menu-porte` (bleu — il navigue), la poubelle a son
+   habit d'organe (`button.poubelle`), un refus prend `.doc-field-error`.
+   ⚠️ SUR LE VERRE, SEULE L'ENCRE `--text` TIENT LES 4,5:1 (📍 `cadre-encre-sur-verre`) : les trois
+   lignes de texte la portent toutes ; c'est la TAILLE et la GRAISSE qui les hiérarchisent.
+   ⛔ LA PAGE NE DÉFILE PAS : la liste PAGINE (`LIGNES_PAR_PAGE`, mes-personnages.mjs). */
+.mes-personnages { display: flex; flex-direction: column; gap: var(--sp-8); }
+.mes-personnages > .tdc-titre-b { margin: 0; }
+.mes-personnages-bloc { display: flex; flex-direction: column; gap: var(--sp-8); }
+.mes-personnages-lignes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
+.mes-personnages-ligne {
+  display: grid;
+  grid-template-columns: var(--touch) minmax(0, 1fr) var(--bouton-moyen) var(--touch);
+  gap: var(--sp-8);
+  align-items: center;
+  min-block-size: var(--touch);
+}
+.mes-personnages-image,
+.mes-personnages-image-vide {
+  inline-size: var(--touch); block-size: var(--touch);
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+.mes-personnages-texte { display: flex; flex-direction: column; min-inline-size: 0; }
+/* ⭐ UNE LIGNE PAR MOT, qui cède par l'ellipse plutôt que de pousser la ligne au-delà de 44 : le nom
+   entier reste dans le nom accessible d'`Open` et de la poubelle. */
+.mes-personnages-nom,
+.mes-personnages-quoi,
+.mes-personnages-campagne {
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  color: var(--text); line-height: 1.2;
+}
+.mes-personnages-nom { font-size: var(--t2); font-weight: 600; }
+.mes-personnages-quoi,
+.mes-personnages-campagne { font-size: var(--t1); }
+.mes-personnages-ouvrir { justify-self: center; }
+/* LA RANGÉE DES PAGES — deux chevrons de page (l'organe de Wares et de X5) et leur compte, centrés. */
+.mes-personnages-pages {
+  display: grid;
+  grid-template-columns: var(--touch) auto var(--touch);
+  justify-content: center; align-items: center;
+  gap: var(--sp-8);
+}
+.mes-personnages-pied { display: flex; justify-content: center; }
 
-   🔴 UN PERSONNAGE, PUIS SES VERSIONS. Le nom une fois, en tête de son groupe ;
-   dessous, une ligne par Save, la plus récente d'abord. ⛔ Répéter le nom sur
-   chaque ligne remplirait la largeur d'une information qu'on vient de lire.
-
-   ⛔ LES LIGNES NE PORTENT AUCUNE COULEUR ÉCRITE ICI en dehors des jetons : le
-   refus prend `.doc-field-error`, comme partout ailleurs.
-   📏 Chaque ligne garde `--touch` : on ouvre une sauvegarde au pouce.
-   ⛔ ET LA PAGE NE DÉFILE PAS DANS ELLE-MÊME : elle défile comme la dalle, avec
-   le reste — un contenu qui ne tient pas se règle en portant moins, jamais par
-   un ascenseur interne (📍 `geste-deux-gardes-fous-du-defilement-interne`). */
-.magasin-groupes { display: flex; flex-direction: column; gap: var(--sp-12); }
-.magasin-groupe { display: flex; flex-direction: column; gap: var(--sp-4); }
-.magasin-nom { margin: 0; font-size: var(--t4); font-weight: 600; color: var(--text); }
-.magasin-entrees { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
-.magasin-entree { display: flex; }
-.magasin-ouvrir {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
-  width: 100%; min-height: var(--touch); padding: 0 var(--sp-8);
-  border: 0; border-radius: var(--radius-md); background: var(--sunken);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-  color: var(--text); font: inherit; font-size: var(--t3); text-align: left; cursor: pointer;
+/* ══ 🗄️ B2 — VAULT (dictée du 29/09, lot 376) ══════════════════════════════════════════════════════
+   Les six lieux dans les rangées de R et de Dungeon Master (`.tdc-portes`, `.tdc-rangee` à trois), puis
+   `Save location` au pied. ⭐ Le lieu choisi porte le halo de l'actif (la règle des portes carrées, plus
+   bas, étendue — un seul écrivain du halo) et son MOT dessous, en T1 dans la boîte d'une porte. */
+.vault-ecran { display: flex; flex-direction: column; gap: var(--sp-8); }
+.vault-ecran > .tdc-titre-b { margin: 0; }
+.vault-lieu-mot {
+  max-inline-size: var(--bouton-moyen);
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  font-size: var(--t1); color: var(--text);
 }
-.magasin-date { color: var(--text); }
-/* LA VERSION — un mot sourd, à droite : elle qualifie, elle ne se lit pas en
-   premier. C'est le NOM du jeu (SRD · Fate's Hand), jamais un id de couche. */
-.magasin-version {
-  flex: none; font-size: var(--t1); letter-spacing: .06em;
-  color: var(--text-muted);
-}
-/* ⛔ UNE ENTRÉE ILLISIBLE N'EST PAS CLIQUABLE — et elle reste VISIBLE : la
-   faire disparaître ferait croire au joueur qu'il n'a jamais sauvegardé. */
-.magasin-entree[data-refus="true"] {
-  align-items: baseline; gap: var(--sp-8); min-height: var(--touch); padding: 0 var(--sp-8);
-  border-radius: var(--radius-md); background: var(--sunken);
-  box-shadow: inset 0 0 0 1px var(--border-strong); font-size: var(--t3);
-}
-.magasin-mot { margin: 0; }
-
-/* LE PIED — `Open a file…` au format réglementé, et la LIGNE DISCRÈTE.
-   ⭐ `Save location` est la SEULE chose qui change entre les deux sols, et elle
-   est DISCRÈTE (Eric : « une option discrète ») : pas de teinte, un liseré, le
-   corps sourd. ⛔ Jamais caché quand il ne peut rien choisir — présent, éteint,
-   avec sa raison (📍 `menu-reglage-impossible-reste-visible`). */
-/* 🔑 LOT 202 — LE DOSSIER À AUTORISER : le nom du dossier, puis UN bouton, au
-   format réglementé des petits boutons (`.parcours-pied button`) et vert comme
-   `Open` · `Save` — il ouvre ce que le joueur possède, il ne signe rien. */
-.magasin-autorisation { margin-top: var(--sp-8); }
-.magasin-pied { margin-top: var(--sp-12); }
-.magasin-lieu {
-  min-height: var(--touch); padding: 0 var(--sp-8);
-  border: 0; border-radius: var(--radius-md); background: none;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-  color: var(--text-muted); font: inherit; font-size: var(--t1); cursor: pointer;
-}
-.magasin-lieu:disabled { cursor: not-allowed; }
+.vault-pied { display: flex; justify-content: center; }
 
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
@@ -9312,6 +9331,54 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 button.gear-porte[data-organe="companions"][data-porte] {
   font-size: var(--t1); padding-inline: var(--sp-4);
 }
+/* ⚖️ LOT 371 — LA SORTIE DE GEAR (`Done`, puis `Next`) : le corps d'un bouton à libellé, 16 / 600
+   (`bouton-deux-largeurs`) — ⛔ pas le cran serré de la rangée, dont l'exception est nommée pour elle seule ;
+   et la couleur de son VERBE : `Done` valide → vert (`bouton-trois-verbes`), `Next` navigue → le bleu de la
+   famille. Même forme de sélecteur que Companions : il gagne par l'ordre, pas par un artifice. */
+button.gear-porte[data-organe="done"][data-porte] { font-size: var(--t4); }
+button.gear-porte[data-organe="done"][data-porte="done"] { --bouton-fond: var(--positive); }
+
+/* ══ LOT 363 — LE `?` DU PIED À 8 DU BORD, ET LE RÉCAP DE L'ÉTAPE ════════════════════════════════
+   ⚖️ Eric, 30/09 : *« pousse le ? à droite »*, puis *« ? à 8 blg du bord droit »*. ⭐ LES TROIS PIEDS
+   D'ÉQUIPEMENT à la fois (`equipement-trois-pages-alignees` : une cote du pied se règle sur les trois
+   écrans ou pas du tout) — Gear, Pack et Wares le déclarent au plan : dessin 345..367, cible 331..375.
+   📐 LA CIBLE COLLE AU BORD (comme la lune à gauche) : elle sort de la marge de la rangée (4) ; le
+   DESSIN, lui, est à 8 — il n'est donc plus centré dans sa cible, il s'y décale de
+   (44 − 22) / 2 − 8 = 3. Les trois couches du `?` (le cercle, le glyphe, le disque « jamais vu »)
+   se décalent ensemble, du MÊME jeton. */
+[data-rangee][data-pied="equipement"] > .tuto-point {
+  --q-decalage: calc((var(--touch) - 22px) / 2 - var(--sp-8));
+  margin-inline-end: calc(-1 * var(--sp-4));
+  padding-inline-start: calc(2 * var(--q-decalage));
+}
+[data-rangee][data-pied="equipement"] > .tuto-point::before { translate: var(--q-decalage) 0; }
+[data-rangee][data-pied="equipement"] > .tuto-point[data-vu="non"] {
+  background: radial-gradient(circle 11px at calc(50% + var(--q-decalage)) 50%, var(--surface) 96%, transparent 100%);
+}
+/* ⚖️ LE RÉCAP — *« un texte de recap. probablement un recap sur un popup car peu de place pour le faire
+   sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre »* (Eric, 30/09). La famille
+   de la bourse : la surface et son liseré de verre, sur le voile transparent qui ferme au clic à côté.
+   ⭐ Posé dans l'écran, à 8 des bords : il porte trois listes, pas un bouton. */
+.gear-recap {
+  position: absolute; inset-inline: var(--sp-8); top: var(--sp-8);
+  display: flex; flex-direction: column; gap: var(--sp-8);
+  padding: var(--sp-8);
+  border-radius: var(--organe-rayon);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+.gear-recap-bloc { display: flex; flex-direction: column; gap: var(--sp-4); }
+.gear-recap-tete {
+  margin: 0; font-size: var(--t1); font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-soft);
+}
+.gear-recap-liste { margin: 0; font-size: var(--t2); color: var(--text); }
+.gear-recap-liste[data-vide] { font-style: italic; color: var(--text-soft); }
+.gear-recap-pied { display: flex; justify-content: center; gap: var(--sp-8); }
+.gear-recap-pied > .gear-porte { inline-size: var(--bouton-petit); }
+/* 🔵 LOT 371 — le récap porte `Back` (Eric, 30/09 : « a) »), qui prend le bleu de la famille : aucune règle à lui.
+   La phrase qui invite à retoucher : l'encre douce d'une proposition, au-dessus de la paire. */
+.gear-recap-invite { margin: 0; font-size: var(--t2); font-style: italic; color: var(--text-soft); text-align: center; }
 
 /* ══ LOT 311 — LE PIED D'ÉQUIPEMENT : TROIS CARRÉS, SEND CENTRÉ, LE `?` À DROITE ══════════════
    ⚖️ Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le
@@ -9407,7 +9474,9 @@ button.porte-carree::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-
    un halo en `box-shadow` l'écraserait. Le filtre s'AJOUTE, et il suit le dessin (40), pas la cible (44).
    ⛔ Le carré n'est pas `disabled` : c'est `aria-current`, seul, qui le désigne — il reste plein. */
 button.porte-carree[aria-current="page"] { cursor: default; }
-button.porte-carree[aria-current="page"]::before {
+button.porte-carree[aria-current="page"]::before,
+/* ⚖️ LOT 376 — le lieu choisi de Vault : le MÊME halo, pas un second. */
+button.menu-porte[aria-current="true"]::before {
   filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
           drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
           drop-shadow(0 0 var(--halo-epais) var(--belt-halo));

@@ -59,9 +59,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=916";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=916";
-import { etapeParId } from "./etapes.mjs?v=916";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=929";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=929";
+import { etapeParId } from "./etapes.mjs?v=929";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -81,6 +81,9 @@ export const MOTS_FICHE = {
   aucun: "None",
   partiel: "Some entries are not derived yet.",
   pied: "Expert view shows every value with its path, and why a part is not derived.",
+  /* LOT 372 — les deux lignes de « Armor · Weapons » (les mots d'ARCHI 35, Q1). */
+  armures: "Armor",
+  armes: "Weapons",
   espece: "Species",
   classe: "Class",
   niveau: "Level",
@@ -388,6 +391,22 @@ function blocNoms(cle, r, etat, nomDe) {
   return bloc(cle, titre, [liste, etat === "partielle" ? motPartiel() : null]);
 }
 
+/* ══ LOT 372 — LES MAÎTRISES D'ARMES ET D'ARMURES (ARCHI 35, Q1 → a) ══════════════════════
+   Une ligne par entrée de `resolved.training`, le texte TEL QUE LE MOTEUR LE PORTE (celui de la
+   source, jamais décomposé), et dessous, en provenance, ce qui l'accorde : la classe, ou le choix
+   de capacité (« Divine Order: Protector »). ⛔ Rien d'additionné ni de dédoublonné ici. */
+function blocTraining(r, etat) {
+  const titre = LIBELLES_EN.training;
+  if (etat === "absente" || etat === "vide") return bloc("training", titre, [motDAbsence(etat)]);
+  const liste = el("ul", "perso-liste");
+  for (const [mot, cle] of [[MOTS_FICHE.armures, "armor"], [MOTS_FICHE.armes, "weapons"]]) {
+    for (const entree of Array.isArray(r.training[cle]) ? r.training[cle] : []) {
+      if (entree && typeof entree.text === "string") liste.append(ligne(mot, entree.text, { provenance: entree.source || null }));
+    }
+  }
+  return bloc("training", titre, [liste, etat === "partielle" ? motPartiel() : null]);
+}
+
 function blocSorts(r, etat, reg, declarees) {
   const sc = r.spellcasting;
   if (etat === "absente" || etat === "vide") return bloc("spellcasting", LIBELLES_EN.spellcasting, [motDAbsence(etat)]);
@@ -426,6 +445,48 @@ function blocSorts(r, etat, reg, declarees) {
   enfants.push(liste);
   if (etat === "partielle") enfants.push(motPartiel());
   return bloc("spellcasting", LIBELLES_EN.spellcasting, enfants);
+}
+
+/* ══ 🧬 LOT 373 — LES AUTRES SOURCES D'INCANTATION (`resolved.spellSources`) ══════════════════
+   La lignée (« Elven Lineage: Drow ») et chaque don (Magic Initiate) lancent avec LEUR
+   caractéristique, celle que le joueur a choisie : une grille par source — caractéristique, DD,
+   attaque — avec, en note, ce que le moteur nomme (la source), puis ses sorts par niveau. Les
+   mêmes mots que le bloc de classe (`MOTS_FICHE`), la même grammaire de chemins.
+   ⛔ SANS SOURCE, PAS DE BLOC : un personnage qui n'en a aucune n'a rien à lire ici (le moteur le
+   déclare pour le carnet, pas pour la fiche). Une source qui ATTEND sa caractéristique se dit
+   « not derived yet » — c'est un manque, pas un vide. */
+function blocSourcesDeSorts(r, declarees) {
+  const titre = LIBELLES_EN.spellSources;
+  const sources = Array.isArray(r.spellSources) ? r.spellSources.filter(estObjet) : [];
+  const champs = [...(declarees.champs || [])].filter((champ) => typeof champ === "string");
+  /* une source NOMMÉE qui attend sa caractéristique (`spellSources[<id>]`) — pas les manques communs
+     à tous les sorts (`spellSources[].spells[].damage`), qui font seulement la rubrique partielle */
+  const enAttente = champs.some((champ) => /^spellSources\[[^\]]/.test(champ));
+  const partielle = champs.some((champ) => champ.startsWith("spellSources["));
+  if (sources.length === 0) return enAttente ? bloc("spellSources", titre, [motDAbsence("absente")]) : null;
+  const enfants = [];
+  for (const s of sources) {
+    const chemin = `resolved.spellSources[${s.id}]`;
+    const grille = el("div", "perso-grille perso-grille-combat");
+    grille.append(cellule(MOTS_FICHE.caracDeSort, typeof s.ability === "string" ? s.ability.toUpperCase() : null,
+      { note: s.name || null }));
+    grille.append(cellule(MOTS_FICHE.ddSort, Number.isInteger(s.dc) ? String(s.dc) : null,
+      { provenance: s.source || null, chemin: `${chemin}.dc` }));
+    grille.append(cellule(MOTS_FICHE.attaqueSort, Number.isInteger(s.attackBonus) ? signe(s.attackBonus) : null,
+      { provenance: s.source || null, chemin: `${chemin}.attackBonus` }));
+    enfants.push(grille);
+    const liste = el("ul", "perso-liste");
+    const parNiveau = new Map();
+    for (const sort of Array.isArray(s.spells) ? s.spells : []) {
+      if (!estObjet(sort)) continue;
+      if (!parNiveau.has(sort.level)) parNiveau.set(sort.level, []);
+      parNiveau.get(sort.level).push(sort.name);
+    }
+    for (const [niveau, noms] of parNiveau) liste.append(ligne(MOTS_FICHE.niveauDeSort(niveau), noms.join(", ")));
+    enfants.push(liste);
+  }
+  if (partielle) enfants.push(motPartiel());
+  return bloc("spellSources", titre, enfants);
 }
 
 function blocStats(r, etat) {
@@ -540,17 +601,31 @@ export function renderFicheTemporaire(ctx) {
   fiche.append(blocSens(r, etat("senses"), unite));
   fiche.append(blocNoms("languages", r, etat("languages"), (l) => [estObjet(l) ? l.name : l]));
   fiche.append(blocMaitrises("tools", r, etat("tools"), reg, paliers));
+  fiche.append(blocTraining(r, etat("training")));
   fiche.append(blocSorts(r, etat("spellcasting"), reg, declarees));
+  /* 🧬 LOT 373 — les sorts de la lignée et des dons, chacun avec SA caractéristique. */
+  const sourcesDeSorts = blocSourcesDeSorts(r, declarees);
+  if (sourcesDeSorts) fiche.append(sourcesDeSorts);
   fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name]));
   /* ⭐ LOT 360 — LES CHOIX DE CAPACITÉ (Divine Order, Primal Order, Fighting Style) ENTRENT
      DANS « Traits and features ». Le moteur ne les compose pas — Q1 d'ARCHI 35 : on écrit et
      on MONTRE, les effets attendent leur lot sur `derive` — donc c'est l'interface qui les
      nomme (`capacitesChoisies`, class-step), comme le lignage (`lignageChoisi`). Une
      rubrique vide ou absente qui reçoit un choix se dit PARTIELLE : le reste n'est pas dérivé. */
+  /* 🎯 LOT 372 — ET DEPUIS QUE `derive` LES POSE, UN SEUL ÉCRIVAIN PAR ENTRÉE : le moteur porte le
+     trait (la donnée), l'interface compose ses MOTS (« Primal Order: Warden », « Versatile: Magic
+     Initiate (Wizard) » — §0.13 interdit au moteur de composer un affichable). Un choix composé dont
+     l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place ; ⛔ jamais deux lignes pour
+     une réponse (mesuré au banc : « Primal Order: Magician » deux fois). L'appariement se fait par
+     l'`id` du record, jamais par le nom. */
   const choix = ctx && Array.isArray(ctx.choix) ? ctx.choix.filter((c) => c && typeof c.name === "string") : [];
+  const parId = new Map(choix.filter((c) => typeof c.id === "string").map((c) => [c.id, c]));
+  const traitsDuMoteur = (Array.isArray(r.traits) ? r.traits : []).map((t) => (t && parId.has(t.id) ? { ...t, ...parId.get(t.id) } : t));
+  const lus = new Set((Array.isArray(r.traits) ? r.traits : []).map((t) => t && t.id));
+  const enPlus = choix.filter((c) => !lus.has(c.id));
   const etatDesTraits = etat("traits");
   fiche.append(blocNoms("traits",
-    choix.length > 0 ? { ...r, traits: [...(Array.isArray(r.traits) ? r.traits : []), ...choix] } : r,
+    choix.length > 0 ? { ...r, traits: [...traitsDuMoteur, ...enPlus] } : r,
     choix.length > 0 && (etatDesTraits === "absente" || etatDesTraits === "vide") ? "partielle" : etatDesTraits,
     (t) => [t && t.name, t && t.source]));
   fiche.append(blocNoms("resources", r, etat("resources"), (x) => [x && x.name,

@@ -53,15 +53,21 @@ function etatSale() {
 
 /* ══ A — LE GARDE QUI COMPTE : LES CLEFS RÉELLES, JAMAIS UNE LISTE ═════════ */
 
-test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 41 champs, 10 survivent, 31 tombent", () => {
+test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 43 champs, 9 survivent, 34 tombent (lot 367 : + `recalage` ; lot 374 : le stockage)", () => {
   /* ⚠️ Ce n'est pas un garde de régression sur un chiffre — c'est le RELEVÉ
      daté qui rend la phrase du corpus vérifiable. Si un champ s'ajoute, ce
      test se met à jour AVEC son commentaire ; il ne se supprime pas. */
   const clefs = Object.keys(etatNeuf());
-  assert.equal(clefs.length, 41, "📏 mesuré le 2026-09-10 sur v620 — 41 champs déclarés");
-  assert.equal(Object.keys(CHAMPS_QUI_SURVIVENT).length, 10,
+  /* 🔄 LOT 367 (30/09) — un champ de plus, `recalage` (la marque du recalage : un fait d'écran,
+     il tombe avec le personnage) : 41 → 42, et il n'est PAS un survivant. */
+  /* 🔄 LOT 374 (30/09) — les trois champs du magasin du 195 (`magasin`, `magasinListe`, `magasinOu`,
+     survivants tous trois) partent ; quatre arrivent : `stockage` et `personnagesListe` (survivants :
+     l'organe et sa liste sont de la SESSION), `copieDeLApp` et `envoi` (du PERSONNAGE : ils tombent
+     avec lui). 42 − 3 + 4 = 43 ; survivants 10 − 3 + 2 = 9 ; tombent 32 + 2 = 34. */
+  assert.equal(clefs.length, 43, "📏 mesuré le 2026-09-10 sur v620 — 41 champs déclarés ; + `recalage` au lot 367 ; 43 au lot 374");
+  assert.equal(Object.keys(CHAMPS_QUI_SURVIVENT).length, 9,
     "la liste des survivants est COURTE, et c'est ce qui la rend relisable");
-  assert.equal(clefs.filter((c) => !(c in CHAMPS_QUI_SURVIVENT)).length, 31,
+  assert.equal(clefs.filter((c) => !(c in CHAMPS_QUI_SURVIVENT)).length, 34,
     "⛔ 18 sur 41 avant ce lot — l'inversion est ce chiffre-là");
 });
 
@@ -217,10 +223,10 @@ test("C1 — ⚔️ LA REMISE À ZÉRO D'AVANT (une liste de quinze noms) FAIT R
       try { assert.deepEqual(etat[clef], neuf[clef]); return false; } catch { return true; }
     });
   assert.deepEqual(restes.sort(), [
-    "abilityBilan", "abilityMethod", "decisions", "derivationImpossible", "destinySeq2",
-    "inheritanceOpen", "memoireIgnoree", "menuBranche", "ouvertureRefusee", "parcoursItem",
-    "parcoursRefus", "popup", "report", "resolved", "stepSecond", "violations"
-  ], "⛔ la liste par nom laisse SEIZE champs debout — quatorze dans l'organe, deux que ses appelants posaient à la main");
+    "abilityBilan", "abilityMethod", "copieDeLApp", "decisions", "derivationImpossible", "destinySeq2",
+    "envoi", "inheritanceOpen", "memoireIgnoree", "menuBranche", "ouvertureRefusee", "parcoursItem",
+    "parcoursRefus", "popup", "recalage", "report", "resolved", "stepSecond", "violations"
+  ], "⛔ la liste par nom laisse SEIZE champs debout — quatorze dans l'organe, deux que ses appelants posaient à la main ; DIX-SEPT depuis le lot 367 : le champ ajouté (`recalage`) est vu SANS que personne l'ajoute à la liste — c'est ce que l'inversion achète ; DIX-NEUF depuis le lot 374 (`copieDeLApp`, `envoi`), vus de la même façon");
 });
 
 test("C2 — ⚔️ ET UN CHAMP BIDON AJOUTÉ À L'ÉTAT NEUF EST VU PAR LA MÊME MESURE", () => {
@@ -269,12 +275,15 @@ test("D2 — ⚔️ AUCUNE LISTE DE CHAMPS NE REVIENT DANS UN CHEMIN DE REMISE �
   assert.deepEqual([...organe[1].matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), [],
     "⛔ la liste par nom est de retour dans `remettreLEcranAZero`");
 
-  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  const pose = shell.match(/function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe des deux portes existe");
   assert.match(pose[1], /remettreLEcranAZero\(\);/, "il réemploie l'organe");
+  /* 🔄 LOT 374 — UN SECOND CHAMP, NOMMÉ, ET CE N'EST PAS UNE REMISE À ZÉRO : `copieDeLApp` est le FAIT
+     que l'appelant tend (la révision du perso dans My characters), posé APRÈS l'organe, sur la seule
+     branche qui ne recharge pas. ⛔ Aucun autre champ. */
   assert.deepEqual([...pose[1].matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()),
-    ["state.document ="],
-    "⛔ il ne pose QUE le document — les deux nulls qu'il écrivait à la main sont dans l'organe");
+    ["state.document =", "state.copieDeLApp ="],
+    "⛔ il ne pose QUE le document, et le fait tendu par l'appelant — les deux nulls qu'il écrivait à la main sont dans l'organe");
 
   /* 🔄 LOT 350 — le troisième chemin s'appelle `naitre` (la fenêtre `New character`) : il
      remplace le `repartirAZero` du 193. ⛔ Le repère de début est VÉRIFIÉ — un `indexOf` à −1
@@ -293,7 +302,7 @@ test("D3 — ⭐ ET LA REMISE À ZÉRO PASSE AVANT LE PREMIER RENDU D'UN PERSONN
      l'écran de l'ANCIEN avant de remettre quoi que ce soit à zéro. Sur la
      branche qui recharge, personne ne le voyait ; sur celle qui ne recharge pas
      (magasin refusé), c'était l'écran que le joueur gardait. */
-  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/)[1];
+  const pose = shell.match(/function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{([\s\S]*?)\n\}/)[1];
   const rangReset = pose.indexOf("remettreLEcranAZero();");
   const rangRendu = pose.indexOf("refresh();");
   assert.ok(rangReset >= 0 && rangRendu >= 0);
@@ -321,7 +330,8 @@ test("E1 — ⚖️ « RESET OU BUILD A CHARACTER » : `Forget` est devenu le `D
   const debut = shell.indexOf('action.kind === "nouveauPersonnage"');
   assert.ok(debut !== -1, "le gestionnaire de la fenêtre existe");
   const geste = shell.slice(debut, shell.indexOf("}).then(() => refresh(),", debut));
-  assert.match(geste, /oublier: \(\) => \{ oublierPersonnage\(\); \}/, "`Delete` oublie la copie du navigateur…");
+  /* 🔄 LOT 374 — et la révision sur laquelle cette copie reposait (`oublierBase`), qui lui appartient. */
+  assert.match(geste, /oublier: \(\) => \{ oublierPersonnage\(\); oublierBase\(\); \}/, "`Delete` oublie la copie du navigateur…");
   assert.match(geste, /naitre: \(\) => \{[\s\S]*remettreLEcranAZero\(\);/,
     "…puis la naissance passe par l'ORGANE — c'est lui, désormais, qui rend l'écran vierge");
   assert.deepEqual([...geste.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), ["state.document ="],

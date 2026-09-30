@@ -61,7 +61,7 @@ globalThis.document = createTestDocument();
 const { STEPS, LECTURES, ceinture, manqueDuCran } = await import("../ui/builder/etapes.mjs");
 const {
   motDeLEcranMort, choixExigesManquants, motDuManque, motDuCran,
-  MOT_SANS_RAISON, MOT_SANS_CLASSE, MOT_SANS_NIVEAU, MOT_PILE_INCONNUE
+  MOT_HORS_DES_REGLES, MOT_SANS_CLASSE, MOT_SANS_NIVEAU, MOT_PILE_INCONNUE
 } = await import("../ui/builder/ecran-mort.mjs");
 const { renderAbilitiesStep } = await import("../ui/builder/abilities-step.mjs");
 const { renderEquipmentStep, orDuDepart, motDeLaBourse, equipmentValidate, rayonsEtEtageres } = await import("../ui/builder/equipment-step.mjs");
@@ -201,7 +201,7 @@ for (const [nom, H] of Object.entries(PILES)) {
     for (const [id, rendre] of Object.entries(rendus)) {
       const node = rendre();
       assert.ok(node && node.textContent.length > 0, `${id} rend quelque chose`);
-      for (const mot of [MOT_SANS_RAISON, MOT_SANS_CLASSE, MOT_SANS_NIVEAU, MOT_PILE_INCONNUE]) {
+      for (const mot of [MOT_HORS_DES_REGLES, MOT_SANS_CLASSE, MOT_SANS_NIVEAU, MOT_PILE_INCONNUE]) {
         assert.ok(!node.textContent.includes(mot), `${id} ne porte pas le refus`);
       }
       assert.ok(!node.textContent.includes("there is no sheet"), `${id} ne nomme aucun manque : la fiche est là`);
@@ -219,7 +219,7 @@ test("B4 — 🔴 ABILITIES REND SANS FICHE : le sélecteur des méthodes est l�
     const tuiles = node.querySelectorAll(".ability-entry");
     assert.equal(tuiles.length, 4, `pile ${nom} : les quatre méthodes se choisissent`);
     assert.equal(node.querySelectorAll(".ability-row-final").length, 0, `pile ${nom} : pas de colonne finale sans fiche`);
-    assert.ok(!node.textContent.includes(MOT_SANS_RAISON) && !node.textContent.includes(MOT_SANS_CLASSE));
+    assert.ok(!node.textContent.includes(MOT_HORS_DES_REGLES) && !node.textContent.includes(MOT_SANS_CLASSE));
   }
 });
 
@@ -250,7 +250,7 @@ for (const [nom, H] of Object.entries(PILES)) {
       let node;
       assert.doesNotThrow(() => { node = rendre(); }, `${id} ne jette pas sans fiche`);
       assert.ok(node && node.textContent.length > 0, `${id} rend quelque chose`);
-      for (const mot of [MOT_SANS_RAISON, MOT_SANS_CLASSE, MOT_SANS_NIVEAU, MOT_PILE_INCONNUE]) {
+      for (const mot of [MOT_HORS_DES_REGLES, MOT_SANS_CLASSE, MOT_SANS_NIVEAU, MOT_PILE_INCONNUE]) {
         assert.ok(!node.textContent.includes(mot), `${id} ne porte pas le refus de l'écran mort`);
       }
     }
@@ -276,7 +276,7 @@ test("B6 — 🔴 SKILLS SANS FICHE NOMME : le catalogue présent, le mot du man
   assert.equal(cellule.textContent, manque, "…qui porte LE mot d'`ecran-mort.mjs`, à l'octet");
   assert.ok(!sans.textContent.includes("No free pool"), "⛔ le mensonge du 10/09 : « No free pool — the SRD rules apply » sur une pile qui porte le pool");
   assert.ok(!sans.textContent.includes("Skills follow the SRD"), "⛔ l'aiguilleur ne dit rien des règles sans fiche");
-  assert.ok(!sans.textContent.includes(MOT_SANS_RAISON), "et pas la tête de l'écran mort : l'écran vit");
+  assert.ok(!sans.textContent.includes(MOT_HORS_DES_REGLES), "et pas la tête de l'écran mort : l'écran vit");
   assert.ok(!sans.textContent.includes("Proficient"), "aucun palier inventé sans fiche");
   /* la classe posée, les scores pas encore : le mot nomme Abilities, plus Class */
   const classeSeule = rendre(avec(neufDoc, [CLASSE]), null);
@@ -296,7 +296,8 @@ test("B6 — 🔴 SKILLS SANS FICHE NOMME : le catalogue présent, le mot du man
      « there is no sheet ». */
   const src = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "skills-step.mjs"), "utf8"));
   assert.doesNotMatch(src, /there is no sheet/, "⛔ la phrase recopiée : deux écrivains");
-  assert.match(src, /import \{[^}]*motDuManque[^}]*\} from "\.\/ecran-mort\.mjs/, "l'écran importe le mot");
+  /* ⚖️ lot 367 : l'écran importe l'écrivain qui compose `motDuManque`, puis la classe disparue, puis le mot hors des règles. */
+  assert.match(src, /import \{[^}]*causeDeLaFicheAbsente[^}]*\} from "\.\/ecran-mort\.mjs/, "l'écran importe le mot");
 });
 
 test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique présente, « My gold » porte le mot ; avec classe, l'or de départ et le mot absent", () => {
@@ -357,11 +358,11 @@ test("C1 — 🔴 sans classe → le mot dit Class ; sans scores → le mot dit 
   const motAbilities = ceinture([]).find((c) => c.id === "abilities").mot;
   /* le personnage NEUF : ni classe, ni scores */
   const neufMot = motDeLEcranMort(neuf(H, "c1"));
-  assert.notEqual(neufMot, MOT_SANS_RAISON, "⛔ c'est le défaut de v621 : la phrase muette sur un personnage neuf");
+  assert.notEqual(neufMot, MOT_HORS_DES_REGLES, "⛔ c'est le défaut de v621 : la phrase muette sur un personnage neuf");
   assert.ok(neufMot.includes(motClass) && neufMot.includes(motAbilities), "les deux crans sont nommés ensemble : un seul voyage");
   /* la classe posée, les scores pas encore : c'est l'état du joueur qui arrive sur Abilities */
   const classeSeule = motDeLEcranMort(avec(neuf(H, "c1b"), [CLASSE]));
-  assert.notEqual(classeSeule, MOT_SANS_RAISON);
+  assert.notEqual(classeSeule, MOT_HORS_DES_REGLES);
   assert.notEqual(classeSeule, MOT_SANS_CLASSE, "la classe est là — l'accuser enverrait faire un geste pour rien");
   assert.ok(classeSeule.includes(motAbilities), "la sortie nomme le cran qui pose les scores");
   for (const clef of ABILITY_KEYS) assert.ok(classeSeule.includes(clef.toUpperCase()), `la cause nomme ${clef}`);
@@ -372,18 +373,18 @@ test("C1 — 🔴 sans classe → le mot dit Class ; sans scores → le mot dit 
   assert.equal(motDeLEcranMort(avec(neuf(H, "c1d"), SIX)), MOT_SANS_CLASSE);
 });
 
-test("C2 — ⚔️ JAMAIS `MOT_SANS_RAISON` QUAND UN CHOIX EXIGÉ MANQUE — sur tous les sous-ensembles ; et il reste pour ce que le document ne sait pas nommer", () => {
+test("C2 — ⚔️ JAMAIS `MOT_HORS_DES_REGLES` QUAND UN CHOIX EXIGÉ MANQUE — sur tous les sous-ensembles ; et il reste pour ce que le document ne sait pas nommer (lot 367 : l'ex-phrase muette, qui a reçu son mot)", () => {
   const H = PILES.SRD;
   const exiges = [CLASSE, ...SIX];
   let muets = 0;
   for (let masque = 0; masque < (1 << exiges.length); masque += 1) {
     const choix = exiges.filter((_, i) => masque & (1 << i));
     const mot = motDeLEcranMort(avec(neuf(H, `c2-${masque}`), choix));
-    if (choix.length < exiges.length) assert.notEqual(mot, MOT_SANS_RAISON, `masque ${masque} : un choix exigé manque, la phrase ne peut pas être muette`);
-    else { assert.equal(mot, MOT_SANS_RAISON); muets += 1; }
+    if (choix.length < exiges.length) assert.notEqual(mot, MOT_HORS_DES_REGLES, `masque ${masque} : un choix exigé manque, c'est LUI qui se nomme`);
+    else { assert.equal(mot, MOT_HORS_DES_REGLES); muets += 1; }
   }
   assert.equal(muets, 1, "un seul état reste muet : tout est posé, et la cause est ailleurs (record absent, invariant)");
-  assert.doesNotMatch(MOT_SANS_RAISON, /Menu|Class|Abilities|switch/, "et elle ne prétend pas donner une sortie — c'est ce qui la rend repérable");
+  assert.match(MOT_HORS_DES_REGLES, /Save character[\s\S]*New character/, "⚖️ lot 367 : elle donne ses deux sorties — plus aucune impasse sans porte");
 });
 
 test("C3 — 📂 un fichier d'avant le lot, sans niveau, est NOMMÉ avec sa sortie — pas muet", () => {
@@ -474,7 +475,12 @@ test("E3 — 🔴 CE QUE LE MOTEUR PEUT DÉCLARER NON DÉRIVÉ, LE SCHÉMA NE L'
     ampute("armor", "srd:armor:en:leather-armor", "Leather Armor", { armor_class: "11 + Dex modifier" })) });
   const scenarios = [
     ["currency", PILES.SRD, []],
-    ["spellcasting", PILES.SRD, SIX_SORTS],
+    /* 🧬 LOT 373 — le Barbare-Acolyte n'OMET plus `spellcasting` : les sorts de Magic Initiate
+       vont à `spellSources` (ARCHI 35, Q1 → a — « le don fixe sa propre caractéristique »), et
+       `spellcasting` vaut `null`, dérivé. L'omission se PROVOQUE désormais par un sort posé sous
+       la CLASSE, qui n'a pas de caractéristique d'incantation. `SIX_SORTS` reste le scénario du
+       témoin inverse (plus bas, `spellSources`). */
+    ["spellcasting", PILES.SRD, [{ path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:guidance" } }]],
     ["proficiency", sansBonus, []],
     ["saves", sansBonus, []],
     ["ac", sansCa, CUIR]
@@ -486,6 +492,15 @@ test("E3 — 🔴 CE QUE LE MOTEUR PEUT DÉCLARER NON DÉRIVÉ, LE SCHÉMA NE L'
     assert.ok(!requis.includes(rubrique), `⛔ « ${rubrique} » est \`required\` : \`doc\` refuserait ce que \`build\` écrit`);
     assert.doesNotThrow(() => writers.assertValid(out.document, `e3-${rubrique}`), `le document sans « ${rubrique} » valide`);
     assert.doesNotThrow(() => writers.confirm({ document: out.document, path: "abilities" }), `…et se signe`);
+  }
+  /* 🧬 LOT 373 — …et les six sorts de l'Acolyte sans caractéristique choisie : `spellSources` est
+     POSÉ (vide), la source est DÉCLARÉE, et le document valide. */
+  {
+    const out = PILES.SRD.verbs.rebuild({ document: avec(neuf(PILES.SRD, "e3-sources"), [CLASSE, ...SIX, ...SIX_SORTS]) });
+    assert.equal(out.resolved.spellcasting, null, "le Barbare n'a pas d'incantation de classe — dérivé, pas omis");
+    assert.deepEqual(out.resolved.spellSources, [], "la source de Magic Initiate attend sa caractéristique");
+    assert.ok(out.underived.some((u) => u.field === "spellSources[background:srd:feat:en:magic-initiate]"), "…et le DIT");
+    assert.doesNotThrow(() => writers.assertValid(out.document, "e3-sources"));
   }
   /* ⚔️ et le témoin inverse : ce que le moteur écrit TOUJOURS reste exigé —
      un `resolved` sans `abilities` ne valide pas */
@@ -605,7 +620,7 @@ test("D1 — 🔴 `shell.mjs` : plus de liste d'écrans par nom ; il demande `ma
   assert.doesNotMatch(shell, /new Set\(\[\s*"(background|abilities|destiny|skills|equipment|review)"/,
     "⛔ un ensemble d'ids d'écran dans la coquille est une liste par nom, quel que soit son nom");
   assert.match(shell, /manqueDuCran\(step, faitsDuPersonnage\(\)\)/, "la coquille demande au cran ce qui lui manque");
-  assert.match(shell, /motDeLEcranMort\(state\.document\)/, "et pose le mot du module, sur le document vivant");
+  assert.match(shell, /motDeLEcranMort\(state\.document, state\.violations\)/, "et pose le mot du module, sur le document vivant (et ses refus, lot 367)");
   assert.match(shell, /derivable:\s*!state\.derivationImpossible/, "le fait est lu sur le refus de `rebuild`…");
   assert.doesNotMatch(shell, /classeChoisie/, "…et c'est le SEUL fait : le second (la classe, pour Equipment) est parti avec son lecteur");
   /* et la source de la loi porte UNE déclaration — celle de Sheet */

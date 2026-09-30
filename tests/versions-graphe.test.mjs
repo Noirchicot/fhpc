@@ -357,7 +357,7 @@ test("8 — les arcanes portent la version du module qui les demande", async () 
   assert.equal(nu.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.webp");
 });
 
-test("9 — le moteur demande couches, exemple et schéma SOUS SA version — la pile monte quand même", async () => {
+test("9 — le moteur demande couches et schéma SOUS SA version (lot 366 : plus l'exemple) — la pile monte quand même", async () => {
   const vraiFetch = globalThis.fetch;
   const demandees = [];
   globalThis.fetch = async (url) => {
@@ -371,19 +371,18 @@ test("9 — le moteur demande couches, exemple et schéma SOUS SA version — la
     };
   };
   try {
-    const { bootEngine, loadExampleDocument, loadDocSchema, LAYER_FILES, LIVRE_FILES } =
+    const { bootEngine, loadDocSchema, LAYER_FILES, LIVRE_FILES } =
       await import("../ui/builder/engine.mjs?v=888");
     /* `root` absolu : le stub lit le disque là où la page lirait le site. */
     const { build, layers } = await bootEngine({ root: ROOT });
-    await loadExampleDocument({ root: ROOT });
     await loadDocSchema({ root: ROOT });
     /* LOT 188 — le moteur DEMANDE aussi les livres du joueur (`layers-livres/`),
        sous leur version ; ici le stub lit le disque, le dossier n'y est pas, et
        le moteur passe — un 404 n'est pas une erreur. Les URL sont comptées
        parce qu'elles sont demandées : une URL sans version rechargerait le
        livre d'AVANT. */
-    assert.equal(demandees.length, LAYER_FILES.length + LIVRE_FILES.length + 2,
-      "les couches + les livres du joueur + l'exemple + le schéma");
+    assert.equal(demandees.length, LAYER_FILES.length + LIVRE_FILES.length + 1,
+      "les couches + les livres du joueur + le schéma — ⚖️ lot 366 : la page ne demande plus l'exemple");
     assert.ok(demandees.some((u) => u.includes("layers-livres/")), "les livres ont bien été demandés");
     assert.deepEqual(demandees.filter((u) => !u.endsWith("?v=888")), [],
       "une URL d'exécution sans la version du module rechargerait la pièce d'AVANT depuis le cache");

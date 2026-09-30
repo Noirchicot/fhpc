@@ -22,7 +22,7 @@
         naissance ; un Save refusé n'efface rien ; `Delete` oublie PUIS fait naître ;
         `Start` ne range rien ; `Cancel` ne fait rien. C'est l'ordre qui est la règle.
      B. la FENÊTRE pure (`popupNouveauPersonnage`) — ses voies selon qu'il y a un perso
-        en cours, ses trois avertissements, son rôle ; et `personnageEnCours`.
+        en cours, ses trois avertissements, son rôle ; et `personnageEnCours` (lot 366 : la naissance).
      C. le NOM d'un personnage sans nom — le mot d'Eric, celui de la naissance.
      D. ⚔️ LE MANIFESTE, CONFRONTÉ À CELUI QUE `rebuild` ADOPTE sur la VRAIE
         pile : deux écrivains de la même forme, et c'est ici qu'un troisième
@@ -177,43 +177,41 @@ test("B3 — 🗣️ TROIS AVERTISSEMENTS, DANS L'ORDRE D'ERIC — et le troisi�
   assert.equal(avec.actions.some((a) => /Layers|Vault/.test(a.mot)), false, "⛔ aucune voie ne mène à Layers ni à Vault");
 });
 
-test("B4 — ⛔ LA FENÊTRE PRÉVIENT, ELLE NE CONDAMNE PAS : rôle `guide`, `Delete` seul en rouge, pas de réponse exigée", () => {
+test("B4 — ⛔ LA FENÊTRE EXIGE SA RÉPONSE (lot 371) : rôle `aiguilleur`, `Delete` seul en rouge", () => {
   const popup = popupNouveauPersonnage({ enCours: true, choisir: () => {} });
-  assert.equal(popup.role, "guide", "§7 : le gendarme DIT L'ERREUR — ici rien n'est une erreur");
+  /* 🔄 LOT 371 — elle était un `guide` qu'on fermait d'un tap dehors : une lecture du lot 350, pas un mot
+     d'Eric (sa citation dit « Cancel aussi »). `popup-question-exige-une-reponse` : une question ne se ferme
+     que par ses réponses ; `popup-aiguilleur-nom-et-critere` : ce qu'on ne peut pas refuser est un aiguilleur. */
+  assert.equal(popup.role, "aiguilleur", "ce qu'on ne peut pas refuser n'est pas une aide");
   assert.deepEqual(popup.actions.map((a) => a.defait), [false, true, false], "`Delete` DÉFAIT, donc le rouge de ce qui coûte ; ⛔ ni Cancel ni Save");
-  /* ⭐ ELLE N'EXIGE PAS DE RÉPONSE, et c'est la différence avec le popup du 193 : lui
-     repartait à zéro AVANT de poser sa question, donc une question esquivée laissait
-     un document à moitié né. Ici rien ne bouge avant qu'on choisisse — fermer d'un tap
-     dehors vaut `Cancel`. */
-  assert.equal("exigeUneReponse" in popup, false, "⛔ rien n'est engagé avant la réponse : on peut la fermer");
+  assert.equal(popup.exigeUneReponse, true, "⛔ ni tap dehors, ni Échap : Cancel, Delete ou Save");
 });
 
-test("B5 — 🔴 « PAS DE PERSO EN COURS », C'EST L'EXEMPLE COMMITÉ — hors ce que la dérivation estampille", () => {
-  /* 📏 Le navigateur n'est jamais vide : le démarrage retombe sur l'exemple, et
-     `memoriser()` l'écrit dès le premier rendu. La mémoire ne dit donc rien ; le TEXTE
-     de ce qui fait le personnage, si.
-     ⚠️ CE GARDE A D'ABORD DIT LE CONTRAIRE, ET LE BANC L'A CORRIGÉ. Il affirmait que le
-     `rebuild` du démarrage ne change pas une lettre de l'exemple, et il comparait les
-     textes entiers. 📏 Mesuré au navigateur le 29/09 (visiteur neuf, stockage vidé) : la
-     fenêtre offrait `Cancel · Delete · Save`, parce que la dérivation ESTAMPILLE
-     `modified` et `resolved.derivation.at` à l'heure du démarrage — et rien d'autre. Le
-     témoin ci-dessous rejoue exactement cette estampille. */
-  const exemple = JSON.parse(fs.readFileSync(path.join(ROOT, "examples", "personnage-fh-en-niveau1.fh-char.json"), "utf8"));
-  const texte = (doc) => canonicalText(ceQuiFaitLePersonnage(doc));
-  const redemarre = structuredClone(exemple);
-  redemarre.modified = "2026-09-29T03:18:36.003Z";
-  redemarre.resolved.derivation.at = "2026-09-29T03:18:36.003Z";
-  assert.notEqual(canonicalText(redemarre), canonicalText(exemple), "témoin : le document ENTIER a bougé — c'est le piège");
-  assert.equal(personnageEnCours(texte(redemarre), texte(exemple)), false, "l'exemple re-dérivé n'est le perso de personne");
-  assert.equal(personnageEnCours(texte({ ...redemarre, name: "Ilyra" }), texte(exemple)), true, "⚔️ un nom posé, et c'est un perso à soi");
+test("B5 — 🔴 « PAS DE PERSO EN COURS », C'EST UN DOCUMENT QUI N'A RIEN FAIT DEPUIS SA NAISSANCE — hors ce que la dérivation estampille", () => {
+  /* ⚖️ LOT 366 — ce garde disait « c'est l'exemple commité » (lot 350). Eric, 30/09 : « Fiche
+     vierge » ; la page ne charge plus l'exemple, et la référence est la NAISSANCE du document
+     (`composer`, sur ses propres faits de naissance). Le piège mesuré au banc le 29/09 tient
+     toujours : la dérivation ESTAMPILLE `modified` et `resolved.derivation.at`, et un
+     document ainsi re-dérivé n'a rien choisi. Le témoin rejoue cette estampille. */
+  const { composer } = createDocWriters({ schema: readJson("schemas/fh-char.schema.json") });
+  const ne = composer({ name: NOM_DU_PERSONNAGE_NEUF, lang: "en", units: { distance: "ft", weight: "lb" },
+    layers: [{ id: "srd-5.2.1-en", version: "1.0.0", hash: "f".repeat(64) }], id: "b5-vierge", at: "2026-09-30T00:00:00.000Z" });
+  const redemarre = { ...structuredClone(ne), modified: "2026-09-30T03:18:36.003Z",
+    resolved: { derivation: { at: "2026-09-30T03:18:36.003Z" } } };
+  assert.notEqual(canonicalText(redemarre), canonicalText(ne), "témoin : le document ENTIER a bougé — c'est le piège");
+  assert.equal(personnageEnCours(redemarre, composer), false, "une fiche vierge re-dérivée n'est le perso de personne");
+  assert.equal(personnageEnCours({ ...redemarre, name: "Ilyra" }, composer), true, "⚔️ un nom posé, et c'est un perso à soi");
   const choisi = structuredClone(redemarre);
   choisi.build.choices.push({ path: "alignment", value: "Chaotic Good" });
-  assert.equal(personnageEnCours(texte(choisi), texte(exemple)), true, "⚔️ un choix de plus, aussi");
-  assert.deepEqual(Object.keys(ceQuiFaitLePersonnage(exemple)), Object.keys(exemple).filter((k) => k !== "modified" && k !== "resolved"),
+  assert.equal(personnageEnCours(choisi, composer), true, "⚔️ un choix de plus, aussi");
+  assert.deepEqual(Object.keys(ceQuiFaitLePersonnage(ne)), Object.keys(ne).filter((k) => k !== "modified"),
     "⛔ seuls les deux champs que la dérivation estampille sont retirés — `id`, `created`, `build` disent QUI il est");
-  assert.equal(personnageEnCours(null, texte(exemple)), false, "pas de document, rien à effacer");
-  assert.equal(personnageEnCours("{}", null), true,
-    "⛔ un exemple non chargé ne promet rien : le perso est tenu pour « en cours », et rien ne s'efface sans choix");
+  assert.equal(personnageEnCours(null, composer), false, "pas de document, rien à effacer");
+  assert.equal(personnageEnCours({ schema: "fh-char/1" }, composer), true,
+    "⛔ un document que `composer` ne sait pas refaire n'est pas une naissance : « en cours », et rien ne s'efface sans choix");
+  /* L'exemple commité reste au dépôt : c'est UN personnage, comme un autre. */
+  const exemple = JSON.parse(fs.readFileSync(path.join(ROOT, "examples", "personnage-fh-en-niveau1.fh-char.json"), "utf8"));
+  assert.equal(personnageEnCours(exemple, composer), true, "l'exemple a fait ses choix : il n'est plus une référence");
 });
 
 /* ══ C — LE NOM D'UN PERSONNAGE SANS NOM ═══════════════════════════════════ */
@@ -307,16 +305,16 @@ test("E1 — 🔌 `nouveauPersonnage` passe par la SÉQUENCE pure, et `Save` par
     "⛔ le nom de la porte ne s'écrit plus en dur dans le corps : il vient de l'appelant");
   /* 🗑️ `Delete` : l'organe de `memoire.mjs`, celui de l'ancien `Forget` — pas un
      `removeItem` écrit dans la coquille. */
-  assert.match(shell, /oublier: \(\) => \{ oublierPersonnage\(\); \}/);
+  /* 🔄 LOT 374 — la révision de base de cette copie part avec elle (`oublierBase`). */
+  assert.match(shell, /oublier: \(\) => \{ oublierPersonnage\(\); oublierBase\(\); \}/);
   assert.doesNotMatch(shell, /localStorage\.removeItem|\.removeItem\(/, "⛔ la clef du navigateur n'a qu'un écrivain");
   assert.match(naissance(), /^naitre: \(\) => \{\s*state\.document = personnageNeuf\(precedent\);/,
     "« repartir à zéro » est un document NEUF, pas des champs vidés un par un");
   /* La fenêtre est celle de l'écran, pas une boîte écrite dans la coquille — et
-     « perso en cours » se MESURE sur le texte, il ne se devine pas. */
+     « perso en cours » se MESURE sur la donnée du document (lot 366), il ne se devine pas. */
   assert.match(voie("ouvrirNouveauPersonnage"),
-    /state\.popup = popupNouveauPersonnage\(\{\s*enCours: personnageEnCours\(state\.document \? canonicalText\(ceQuiFaitLePersonnage\(state\.document\)\) : null, texteDeLExemple\),/);
-  assert.match(shell, /texteDeLExemple = canonicalText\(ceQuiFaitLePersonnage\(exemple\)\);/,
-    "la référence est l'exemple du démarrage, par le MÊME écrivain de texte ET le même tri (B5)");
+    /state\.popup = popupNouveauPersonnage\(\{\s*enCours: personnageEnCours\(state\.document, state\.docWriters\.composer\),/);
+  assert.doesNotMatch(shell, /texteDeLExemple/, "⛔ lot 366 : plus de référence à l'exemple dans la coquille (B5)");
   /* ⛔ JAMAIS LE `confirm()` DU NAVIGATEUR. ⚠️ Et le garde mesure la FORME
      D'EMPLOI, pas le mot : `state.docWriters.confirm({…})` est le verbe du bloc
      `doc`, il porte le même mot et n'a rien à voir. Le `confirm(` du navigateur
@@ -369,7 +367,7 @@ test("E6 — ⚖️ `New character` EST LE GRAND BOUTON : la fenêtre, PUIS l'é
   assert.equal((shell.match(/goToStep\(CONCEPT_INDEX\)/g) || []).length, 1,
     "la naissance de `New character` — pas un de plus");
   /* ⚔️ ET OUVRIR UN PERSONNAGE RANGÉ revient au Menu (rang R du magasin). */
-  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  const pose = shell.match(/function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe des deux portes existe");
   assert.doesNotMatch(pose[1], /goToStep\(/,
     "⛔ ouvrir un personnage rangé garde le Menu — c'est son rang R");
@@ -403,12 +401,19 @@ test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — et depuis le 197
      🔄 LOT 350 — la tranche de `ouvrirUnFichier` s'arrêtait au verbe
      `oublierPersonnage`, parti avec `Forget` : elle s'arrête désormais à la voie
      qui la suit, trouvée par `voie()`. */
+  /* 🔄 LOT 374 — le fichier ouvert ENTRE d'abord dans My characters (`ouvrirUnDocumentVenuDAilleurs`),
+     puis atterrit par l'organe ; la ligne de My characters (`ouvrirUnPersonnage`, l'ex-`ouvrirUneEntree`)
+     atterrit par l'organe avec sa révision. ⛔ Toujours UN atterrissage. */
   const ouvrir = voie("ouvrirUnFichier");
-  assert.match(ouvrir, /poserLeDocumentOuvert\(issue\.document\);/, "l'ouverture d'un fichier RÉEMPLOIE l'organe");
-  const entree = voie("ouvrirUneEntree");
-  assert.match(entree, /poserLeDocumentOuvert\(issue\.document\);/,
-    "rouvrir une sauvegarde du magasin est le MÊME atterrissage — ⛔ pas un second chemin");
-  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  assert.match(ouvrir, /ouvrirUnDocumentVenuDAilleurs\(issue\.document\);/, "l'ouverture d'un fichier passe par l'entrée dans l'app…");
+  const venu = shell.match(/async function ouvrirUnDocumentVenuDAilleurs\(document\) \{([\s\S]*?)\n\}/);
+  assert.ok(venu, "…qui existe");
+  assert.match(venu[1], /poserLeDocumentOuvert\(doc, \{ revision \}\);\s*$/, "…et RÉEMPLOIE l'organe, en dernier");
+  assert.deepEqual([...venu[1].matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), [], "⛔ elle ne pose aucun champ");
+  const entree = voie("ouvrirUnPersonnage");
+  assert.match(entree, /poserLeDocumentOuvert\(issue\.document, \{ revision: issue\.revision \}\);/,
+    "rouvrir un personnage de My characters est le MÊME atterrissage — ⛔ pas un second chemin");
+  const pose = shell.match(/function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe existe");
   assert.match(pose[1], /remettreLEcranAZero\(\);/, "et c'est LUI qui réemploie l'organe");
   /* ⚠️ LES DEUX PORTES ÉCRIVENT ENCORE UN CHAMP, ET UN SEUL : le refus de
@@ -416,7 +421,7 @@ test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — et depuis le 197
      PAS — c'est-à-dire quand `poserLeDocumentOuvert` n'est jamais atteint. Ce
      n'est pas une moitié de remise à zéro, c'est le mot du refus. ⛔ Tout
      autre champ ici serait le second écrivain de retour. */
-  for (const [ou, texte] of [["ouvrirUnFichier", ouvrir], ["ouvrirUneEntree", entree]]) {
+  for (const [ou, texte] of [["ouvrirUnFichier", ouvrir], ["ouvrirUnPersonnage", entree]]) {
     const poses = [...new Set([...texte.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()))];
     assert.deepEqual(poses, ["state.ouvertureRefusee ="],
       `\`${ou}\` ne pose que le refus de LECTURE — le reste appartient à l'organe`);
@@ -437,8 +442,12 @@ test("E4 — ⛔ LE MOTEUR PAS CHARGÉ EST UNE PORTE EN PANNE, comme pour `Save`
 
 test("E5 — 🔴 LE DOCUMENT NEUF NAÎT DE L'ÉCRIVAIN DU BLOC `doc`, et il hérite langue et unités", () => {
   assert.match(shell, /state\.docWriters\.composer\(\{/, "⛔ pas un objet littéral écrit dans la coquille");
-  assert.match(shell, /lang: precedent\.lang,\s*units: precedent\.units,/,
+  /* ⚖️ LOT 366 — RÉÉCRIT À LA NOUVELLE VÉRITÉ, PAS RELÂCHÉ : la naissance hérite toujours du
+     personnage qu'on range ; la PREMIÈRE VISITE, qui n'a rien à ranger, prend le réglage DONNÉ
+     (`REGLAGES_DE_LA_PREMIERE_VISITE`), jamais un défaut écrit dans la coquille. */
+  assert.match(shell, /const reglages = precedent \|\| REGLAGES_DE_LA_PREMIERE_VISITE;\s*return state\.docWriters\.composer\(\{\s*name: NOM_DU_PERSONNAGE_NEUF,\s*lang: reglages\.lang,\s*units: \{ \.\.\.reglages\.units \},/,
     "aucun défaut deviné (décision D3) : `en`/pieds posés d'office trahiraient un joueur en `fr`/mètres");
+  assert.doesNotMatch(stripComments(shell), /lang: "(en|fr)"|distance: "(ft|m)"/, "⛔ ni langue ni unité écrite en dur dans la coquille");
   assert.match(shell, /at: platformNow\(\)/, "l'horloge du bloc `doc`, pas une seconde écrite ici");
 });
 
@@ -552,14 +561,15 @@ test("G2 — 🔌 LA NAISSANCE DÉRIVE tout de suite, et chaque voie repeint —
     "témoin : la fenêtre se retire de l'état AVANT le geste, pour toutes les voies");
 });
 
-test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le champ qu'à UN endroit : la question de Fate's Hand (lot 351)", () => {
+test("G3 — LA FENÊTRE EXIGE SA RÉPONSE (lot 371), et la coquille ne pose le champ qu'à DEUX endroits nommés", () => {
   /* 🗄️ LOT 201 (Eric, 10/09) : *« Un popup doit me dire, avant même d'arriver à
      l'étape 1, tout de suite : tu veux SRD ou FH ? »* — la question exigeait sa
      réponse parce que le réglage ne se faisait QUE sur elle, APRÈS une remise à
      zéro déjà faite. 🔄 LOT 350 : rien n'est engagé avant la réponse, donc un tap
      dehors vaut `Cancel` (B4). */
+  /* 🔄 LOT 371 — elle l'exige désormais, dans ses deux formes (B4). */
   for (const enCours of [true, false]) {
-    assert.equal("exigeUneReponse" in popupNouveauPersonnage({ enCours, choisir: () => {} }), false);
+    assert.equal(popupNouveauPersonnage({ enCours, choisir: () => {} }).exigeUneReponse, true);
   }
   /* ⚔️ LE MÉCANISME SURVIT, et il a un autre porteur : le dépôt voisin pose ses
      questions par le verbe `popup` (lot 307, « Craft this item for … GP? »). La
@@ -571,8 +581,13 @@ test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le 
      renderConfirmationPile, trois voies intactes, réponse exigée »*. Posée dans `Layers`, elle
      faisait défiler la page. 🗄️ Ce garde disait « elle ne le pose nulle part » : c'était vrai
      jusqu'à cette décision. ⛔ Il ne se relâche pas : un SECOND site le ferait rougir. */
+  /* 🔄 LOT 371 — UN SECOND PORTEUR, NOMMÉ : la question qui précède un effacement (`questionAvantDEffacer`,
+     `bouton-famille-defaire` : « toujours accompagnée d'un popup »). ⛔ Le garde ne se relâche pas : un
+     TROISIÈME site le ferait rougir. */
   const poses = shell.match(/exigeUneReponse: true/g) || [];
-  assert.equal(poses.length, 1, "la coquille pose le champ à UN endroit, pas deux");
+  assert.equal(poses.length, 2, "la coquille pose le champ à DEUX endroits, pas trois");
   assert.match(shell, /renderConfirmationPile\([^)]*\)\], \{ exigeUneReponse: true \}/,
-    "…et cet endroit est la question du maître — ailleurs, la coquille ne fait que LIRE le champ");
+    "…l'un est la question du maître…");
+  assert.match(shell, /function questionAvantDEffacer\([^)]*\) \{[^]*?exigeUneReponse: true,/,
+    "…l'autre, la question avant d'effacer — ailleurs, la coquille ne fait que LIRE le champ");
 });

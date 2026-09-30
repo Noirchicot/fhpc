@@ -33,7 +33,7 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=916";
+import { currentStack } from "./universe-step.mjs?v=929";
 /* ⭐ LOT 188 — UN SOUS-ENSEMBLE DE COUCHES EST LÉGITIME, PAS INCONNU. Depuis
    l'écran `Layers`, un joueur coupe Trainings, ou Destiny, une par une ;
    `currentStack` ne sait nommer que les deux piles entières et rend `null` sur
@@ -41,16 +41,18 @@ import { currentStack } from "./universe-step.mjs?v=916";
    Fate's Hand pour défaire ce qu'il vient de choisir. `compositionFh` lit le
    document interrupteur par interrupteur : seule une composition qu'AUCUN
    interrupteur ne peut produire reste innommable. */
-import { compositionFh } from "./layers-ecran.mjs?v=916";
+import { compositionFh } from "./layers-ecran.mjs?v=929";
 /* LOT 191 — le nom d'un record absent : l'id humanisé, jamais l'id ; et
    l'interrupteur qui le porte, pour que la phrase nomme la bonne ligne. */
-import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=916";
-import { interrupteurDUnId } from "./interrupteurs.mjs?v=916";
+import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=929";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=929";
 /* 🌱 LOT 198 — les six clefs se LISENT au moteur (la même liste que `derive`
    exige), jamais recopiées ici ; et le numéro du cran où aller se lit sur la
    ceinture, jamais écrit en dur (la loi d'`etapeParId`). */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=916";
-import { etapeParId } from "./etapes.mjs?v=916";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=929";
+import { etapeParId } from "./etapes.mjs?v=929";
+/* ⚖️ LOT 367 — les refs morts, lus par l'organe du lot 359 (`parcours.mjs` n'importe rien). */
+import { refsMortsDeLEtape } from "./parcours.mjs?v=929";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -106,6 +108,15 @@ export const MOT_CRAN_NON_MONTE =
  *  jamais l'une sans l'autre — et la sortie nomme SES boutons mot pour mot :
  *  l'interrupteur de `Layers`, ou `I changed my mind` (*« change your
  *  mind »*, comme le pied du guide).
+ *  ⛔ ✍️ 2026-09-30, lot 369 — CE « MOT POUR MOT » EST ROMPU DEPUIS LE 05/09,
+ *  et la phrase ci-dessus reste comme trace de ce qu'il était. Le bouton du
+ *  pied s'appelle `Cancel` depuis ce jour-là (NORMES « DEUX MOTS, PAS
+ *  TROIS »), et la phrase que rend cette fonction dit encore *« or change
+ *  your mind and pick again »*. ⚠️ Elle ne nomme plus son bouton, et elle
+ *  voisine *« Nothing you chose has been erased »* alors que `Cancel`, lui,
+ *  EFFACE tout le préfixe (mesuré le 30/09 : on retombe au catalogue). ⏳ Lot
+ *  369 = commentaires seuls ; le texte est un brouillon qui attend Eric (voir
+ *  plus bas).
  *
  *  ⚖️ ET ELLE NOMME L'INTERRUPTEUR QUI PORTE CHAQUE RECORD — Eric, 09/09 :
  *  *« Araag comes with World — switch it on in Layers »* (le mot lit le label
@@ -151,12 +162,17 @@ export function motDesChoixNonResolus(refs) {
   const sortie = nommes === 0
     ? "Open Menu, the first tab, and turn that ruleset back on in Layers"
     : `switch ${nommes > 1 || total > 1 ? "them" : "it"} on in Layers (Menu, the first tab)`;
-  return `${liste(clauses)} — ${sortie}, or change your mind and pick again. Nothing you chose has been erased.`;
+  /* ⚖️ LOT 371 — « change your mind » nommait un bouton mort (`Cancel` depuis le 05/09). ✍️ BROUILLON d'ARCHI 35
+     (Eric, 30/09 : « a) propose des mots »), ADAPTÉ : la tête « X comes with Y — switch it on in Layers » est la
+     phrase citée par deux règles (`voyant-un-choix-mort-se-nomme-meme-sans-classe`,
+     `menu-layers-fate-s-hand-tout-ou-rien`) — elle ne bouge pas ; seule la voie morte est remplacée. */
+  return `${liste(clauses)} — ${sortie}, or use Cancel to clear this step and pick again. Nothing you chose has been erased.`;
 }
 
 /** LE MOT DU 2026-08-20, REPRIS À LA LETTRE — il n'avait aucun défaut.
  *  Il reste le mot EXACT du personnage qui a ses scores et perd sa classe
- *  (`I changed my mind` sur Class — le chemin mesuré ce jour-là).
+ *  (`I changed my mind` sur Class — le chemin mesuré ce jour-là ; ce bouton
+ *  s'appelle `Cancel` depuis le 05/09, NORMES « DEUX MOTS, PAS TROIS »).
  *  ⭐ LA CAUSE ET LA SORTIE VIVENT À PART DE LA TÊTE (lot 198) : un chapitre
  *  qui VIT sans fiche (Skills) les emploie telles quelles à la place du
  *  chiffre déduit — mêmes mots, un seul écrivain ; la tête reste celle de
@@ -281,17 +297,44 @@ export function motDuManque(doc) {
   return null;
 }
 
-/** ⛔ LE MOT MUET, GARDÉ TEL QUEL ET NOMMÉ COMME MUET.
- *  Depuis le lot 198, il ne couvre plus ni le niveau, ni la classe, ni les
- *  scores — chacun a son mot. Il reste pour les causes qu'aucun geste du
- *  builder ne produit et qu'aucune lecture du document ne sait nommer : un
- *  choix qui pointe un record que la pile ne porte plus, un refus d'invariant
- *  du moteur. Leur phrase de joueur n'est pas inventée ici — c'est à Eric de
- *  la dire, ou à un lot qui l'aura mesurée.
- *  ⚠️ Cette constante existe pour être TROUVABLE : tant qu'elle est atteinte,
- *  il reste un joueur qui lit une impasse sans sortie. */
-export const CAUSE_SANS_RAISON = "it cannot be derived yet.";
-export const MOT_SANS_RAISON = TETE + CAUSE_SANS_RAISON;
+/** 🗄️ PREMIER ÂGE — LE MOT MUET, « it cannot be derived yet. » (`CAUSE_SANS_RAISON`). Depuis le
+ *  lot 198, il ne couvrait plus ni le niveau, ni la classe, ni les scores ; il restait pour ce
+ *  qu'aucune lecture du document ne savait nommer, en attendant qu'Eric dise la phrase.
+ *  📏 LOT 367 : il était atteint par TROIS chemins, relevés au banc — une couche éditée sous un
+ *  personnage sauvé (le recalage le ferme, `recalage.mjs`), une classe que la pile ne porte
+ *  plus, et un refus d'invariant du moteur.
+ *
+ *  ⚖️ SECOND ÂGE, LOT 367 — Eric, 30/09, à « leurs mots ? » → **les deux brouillons proposés**.
+ *  · LA CLASSE DISPARUE : la tête, puis le mot déjà ratifié du lot 191 (`motDesChoixNonResolus`),
+ *    et `Cancel` sur Class comme sortie (`causeDeLaClasseDisparue`) — ⚠️ le brouillon disait
+ *    `I changed my mind`, libellé MORT depuis le 05/09 (NORMES « DEUX MOTS, PAS TROIS » :
+ *    *« remplace par cancel partout »*) ; correction d'ARCHI 35, 30/09 ;
+ *  · CE QUI NE SUIT PAS LES RÈGLES (un fichier abîmé, un refus du moteur) : ce mot-ci, avec les
+ *    deux portes qui existent — `Save character` (Sheet) et `New character` (Menu).
+ *  ⛔ Plus aucun chemin sans cause ni sortie. */
+export const CAUSE_HORS_DES_REGLES =
+  "something in this character does not follow the rules the builder knows. Save character keeps it safe; New character starts over.";
+export const MOT_HORS_DES_REGLES = TETE + CAUSE_HORS_DES_REGLES;
+
+/** ⚖️ LOT 367 — LA CLASSE QUE LA PILE NE PORTE PLUS. `derive` la lit par `must` et JETTE (une
+ *  classe est structurelle) ; `validate` la nomme quand même (`choice.ref-missing` sur `class`,
+ *  lot 359). ⭐ Le mot du lot 191, tel quel, puis la sortie de Class : `Cancel` (la famille
+ *  DÉFAIRE, `sortie-annule` — il efface le choix de classe).
+ *  @returns {string|null} */
+export function causeDeLaClasseDisparue(violations) {
+  const mot = motDesChoixNonResolus(refsMortsDeLEtape({ violations, racine: "class" }));
+  return mot === null ? null : `${mot} On Class, Cancel lets you pick another class.`;
+}
+
+/** ⚖️ LOT 367 — POURQUOI LA FICHE N'EXISTE PAS : UN SEUL ÉCRIVAIN, POUR L'ÉCRAN MORT ET POUR
+ *  LE CHAPITRE QUI VIT SANS FICHE (Skills). Dans l'ordre : ce que le document ne porte pas
+ *  (`motDuManque`, lot 198), puis ce que la pile ne porte plus (la classe), puis le mot de ce
+ *  qui ne suit pas les règles. ⛔ Jamais `null` : chaque chemin a sa cause et sa sortie.
+ *  @param {object} doc          le document vivant
+ *  @param {Array}  [violations] `state.violations` (les refus qui tiennent sans fiche, lot 359) */
+export function causeDeLaFicheAbsente(doc, violations) {
+  return motDuManque(doc) ?? causeDeLaClasseDisparue(violations) ?? CAUSE_HORS_DES_REGLES;
+}
 
 /** LA PHRASE DE L'ÉCRAN MORT, pour un document donné.
  *
@@ -321,7 +364,7 @@ export const MOT_SANS_RAISON = TETE + CAUSE_SANS_RAISON;
  *  @param {object} doc le document `fh-char/1` vivant
  *  @returns {string} la phrase à poser dans l'écran
  */
-export function motDeLEcranMort(doc) {
+export function motDeLEcranMort(doc, violations) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
   /* ⭐ LOT 188 — `currentStack` accuse tout ce qui n'est pas l'une des deux
      piles entières ; `compositionFh` ne retient l'accusation que si aucun
@@ -331,6 +374,5 @@ export function motDeLEcranMort(doc) {
   if (layers.length > 0 && currentStack(doc) === null && !compositionFh(doc).legitime) return MOT_PILE_INCONNUE;
   /* 🌱 LOT 198 — la tête, puis LE MÊME manque que celui qu'un chapitre vivant
      nomme (`motDuManque`) : un seul écrivain de la cause et de la sortie. */
-  const manque = motDuManque(doc);
-  return manque === null ? MOT_SANS_RAISON : TETE + manque;
+  return TETE + causeDeLaFicheAbsente(doc, violations);
 }

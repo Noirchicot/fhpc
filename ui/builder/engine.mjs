@@ -11,7 +11,7 @@
    l'URL de CE module : sans elle, un moteur frais pouvait recharger des
    couches de la version d'avant, servies par le cache (max-age=600 PAR
    fichier). Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=916";
+import { versionQuery } from "./version.mjs?v=929";
 
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
@@ -170,14 +170,14 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs?v=916");
-  const { createBuild } = await import("../../src/build/index.mjs?v=916");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=916");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=916");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=929");
+  const { createBuild } = await import("../../src/build/index.mjs?v=929");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=929");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=929");
   /* LOT 148 BIS — le module qui fait ARRIVER sur la fiche les traits que la
      couche des espèces AJOUTE (`Splinter of Anon`, `Outlasting`,
      `Twice-Born`). Sans lui, ils s'appliquent sans que le joueur les voie. */
-  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=916");
+  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=929");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
@@ -204,22 +204,18 @@ export async function bootEngine({ root = "../.." } = {}) {
   return { build, layers, bus, livresRefuses };
 }
 
-/** Charge le personnage d'exemple EN+FH — la seule matière réelle
- *  disponible tant que `doc.open` n'est pas branché (voir `contracts/doc.md`,
- *  « Comment le MCP s'y branchera » — hors périmètre de ce lot). À remplacer
- *  par un vrai document ouvert/créé plus tard. */
-export async function loadExampleDocument({ root = "../.." } = {}) {
-  return (await fetch(`${root}/examples/personnage-fh-en-niveau1.fh-char.json${versionQuery(import.meta.url)}`)).json();
-}
+/* 🗄️ LOT 366 — `loadExampleDocument` (le personnage d'exemple EN+FH, « la seule matière
+   réelle disponible ») est retiré : la page ne charge plus l'exemple pour un joueur (Eric,
+   30/09 : « Fiche vierge »). L'exemple reste au dépôt (`examples/`) pour les bancs et les
+   tests, qui le lisent eux-mêmes. */
 
 /* LOT 54 — Concept/Universe écrivent `document.name`/`.gender`/`.alignment`/
    `.campaign` par `createDocWriters({schema})` (`src/doc/writers.mjs`), PAS
    par `createDoc` : le bloc `doc` refuse de se construire sans magasin, et
    le navigateur n'en a aucun (`src/doc/store.mjs`, tête de fichier). Ces
-   écrivains n'ont besoin QUE du schéma — chargé ici, comme les couches et
-   l'exemple, jamais recopié dans `ui/`. */
-/** Le schéma `fh-char/1`, tel qu'il est sur le disque — même geste que
- *  `loadExampleDocument`. */
+   écrivains n'ont besoin QUE du schéma — chargé ici, comme les couches,
+   jamais recopié dans `ui/`. */
+/** Le schéma `fh-char/1`, tel qu'il est sur le disque, sous la version du module. */
 export async function loadDocSchema({ root = "../.." } = {}) {
   return (await fetch(`${root}/schemas/fh-char.schema.json${versionQuery(import.meta.url)}`)).json();
 }

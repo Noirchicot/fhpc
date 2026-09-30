@@ -232,20 +232,21 @@ test("8 — 🧬 la fiche nomme les DEUX dons, par le même compositeur", () => 
   const ctx = ctxDe(h, decisions);
   const detenteurs = [detenteurDuDonDArrierePlan(ctx), detenteurDuDonDEspece(ctx)].filter(Boolean);
   assert.deepEqual(donsDOrigineNommes(ctx, detenteurs), [
-    { name: "Origin feat: Magic Initiate (Cleric)", source: "Acolyte" },
-    { name: "Versatile: Magic Initiate (Wizard)", source: "Human" }
+    /* 🔄 LOT 372 — chaque ligne porte l'`id` du don : `derive` en pose le trait, la Sheet le nomme ainsi. */
+    { id: "background:srd:feat:en:magic-initiate", name: "Origin feat: Magic Initiate (Cleric)", source: "Acolyte" },
+    { id: "species:srd:feat:en:magic-initiate", name: "Versatile: Magic Initiate (Wizard)", source: "Human" }
   ]);
   const skilled = decisionsDe(h, [espece("human"), pris("species", "skilled"),
     { path: `${CHEMIN_DON_D_ESPECE}.proficiencies[0]`, ref: { kind: "skill", id: "srd:skill:en:athletics" } }]);
   const ctx2 = ctxDe(h, skilled);
   assert.deepEqual(donsDOrigineNommes(ctx2, [detenteurDuDonDEspece(ctx2)]), [
-    { name: "Versatile: Skilled (Athletics)", source: "Human" }
+    { id: "species:srd:feat:en:skilled", name: "Versatile: Skilled (Athletics)", source: "Human" }
   ]);
   const fh = PILES.FH;
   const ctx3 = ctxDe(fh, decisionsDe(fh, [espece("fh:species:en:loroka"), pris("species", "alert"), pris("background", "savage-attacker")]));
   assert.deepEqual(donsDOrigineNommes(ctx3, [detenteurDuDonDArrierePlan(ctx3), detenteurDuDonDEspece(ctx3)].filter(Boolean)), [
-    { name: "Origin feat: Savage Attacker", source: "Inheritance" },
-    { name: "Versatile: Alert", source: "Loroka" }
+    { id: "background:srd:feat:en:savage-attacker", name: "Origin feat: Savage Attacker", source: "Inheritance" },
+    { id: "species:srd:feat:en:alert", name: "Versatile: Alert", source: "Loroka" }
   ]);
 });
 

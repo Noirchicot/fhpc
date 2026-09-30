@@ -330,6 +330,47 @@
               "quand": "quand le Hoddon (Rock Folk) fabrique un appareil mécanique"
             }
           },
+          "data[lineage_effects]": {
+            "forest-folk": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:minor-illusion",
+                  "extrait": "You know the Minor Illusion cantrip."
+                }
+              ],
+              "spells": [
+                {
+                  "id": "srd:spell:en:speak-with-animals",
+                  "extrait": "You also always have the Speak with Animals spell prepared"
+                }
+              ]
+            },
+            "rock-folk": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:mending",
+                  "extrait": "You know the Mending and Prestidigitation cantrips."
+                },
+                {
+                  "id": "srd:spell:en:prestidigitation",
+                  "extrait": "You know the Mending and Prestidigitation cantrips."
+                }
+              ]
+            },
+            "mole-people": {
+              "darkvision": {
+                "range_ft": 120,
+                "extrait": "The range of your Darkvision increases to 120 feet."
+              },
+              "granted_skill_budget": {
+                "points": 1,
+                "from": [
+                  "srd:tool:en:tinker-s-tools"
+                ],
+                "extrait": "1 skill point (Novice) in tinker's tools"
+              }
+            }
+          },
           "data[lineages]": [
             {
               "id": "forest-folk",

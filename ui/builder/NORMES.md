@@ -5653,9 +5653,74 @@ plan, il en restait **deux** : `CART` est le `Tally` *(posé)*, `TO GEAR DROP` e
 mots différents pour le même organe se comptent deux fois, et un organe mort se compte comme vivant.
 ⛔ La bonne lecture n'est pas *« quels boutons disparaissent »* mais *« quelle FONCTION n'a plus de
 porte »*.
-⏳ **CE QUI RESTE DÛ, ET LES DEUX SONT DATÉS** : `NEXT` doit naître dans R *(il n'y est pas
-aujourd'hui — mesuré)*, et la **loupe** attend son lot — Eric : *« une chose que nous devons faire
+⏳ **CE QUI RESTE DÛ** : la **loupe** attend son lot — Eric : *« une chose que nous devons faire
 oui. Pas ce soir. »*
+✅ **CONSTRUIT AU LOT 363, MIS EN CONFORMITÉ AU LOT 371** : la sortie de l'étape vit sous la bourse de Gear.
+Ses lois ont chacune leur adresse (🔒 `socle-format-d-ecriture-est-sacre`) : `equipement-colonne-du-pied`,
+`equipement-question-a-8-du-bord`, `equipement-done-recap-next` — juste dessous.
+
+### 🧱 LA COLONNE DU PIED DE GEAR — la bourse, `Done`, Companions
+📍 `equipement-colonne-du-pied` · vivante · 30/09
+⚖️ **Dans le pied de Gear, la bourse, `Done` et Companions partagent UN axe, centré entre le dessin de `Send` et celui du `?`. La bourse est à 8 blg du haut de la dalle du pied — la même cote sur Gear, Pack et Wares — et chaque organe de la colonne est à 8 blg de son voisin (sacré n° 3). `Done` et Companions ont la même boîte : 77 × 40, cible 44.**
+
+> Eric, 2026-09-30, mot pour mot : **« aligne companions et next verticalment (dimension identique pour
+> les 2) tout en les centrant »** · **« bourse done et Companions alignés veritacalement, ? à 8 blg du bord
+> droit »** · puis, à *« Pour que la colonne tienne avec le ? à 8 du bord, elle glisse à gauche, la bourse
+> avec elle sur les 3 écrans. Où la poser ? »* → **« Centrée Send ↔ ? »**.
+
+📐 **AU PLAN** (`Plan-ecran-R/R_gen.py` pour Gear, `Plan-backpack/backpack_gen.py` pour Pack, Wares lit Pack) :
+l'axe à **285,5**, 21 de `Send` (226) et 21 du `?` (345) ; la bourse **260,5 × 404** (Gear), soit 8 sous le haut
+du pied ; `Done` **462** ; Companions **510**, centré dans sa rangée.
+📏 **LOT 371 — LE LOT 370 A MESURÉ 6** entre `Done` et Companions (dessins 504 → 510) : sous le 8 du sacré n° 3.
+⛔ Ni `Done` (40, sacré) ni Companions (centré, `bouton-hauteur`) ne pouvaient céder : c'est la bourse, cote
+commune aux trois écrans, qui remonte d'un blg avec ses deux sœurs (405 → 404 ; Pack 345 → 344).
+🛡️ `R_gen.py` refuse le plan si la colonne serre sous 8 ; `tests/gear-next-vit-dans-r.test.mjs` ①.
+
+### ❔ LE `?` DES PIEDS D'ÉQUIPEMENT, À 8 DU BORD
+📍 `equipement-question-a-8-du-bord` · vivante · 30/09
+⚖️ **Sur les trois pieds d'Équipement — Gear, Pack, Wares — le `?` a son DESSIN à 8 blg du bord droit, et sa cible (44) colle au bord.**
+
+> Eric, 2026-09-30 : **« pousse le ? à droite »**, puis **« ? à 8 blg du bord droit »**.
+
+📐 Dessin 345..367, cible 331..375, dans les trois plans ; le dessin se décale de 3 dans sa cible
+(`--q-decalage`, `shell.css`), ses trois couches ensemble (le cercle, le glyphe, le disque « jamais vu »).
+⏳ **CE QUI ATTEND ERIC** (audit du lot 370) : la cible sort de la marge de la rangée — `cadre-rien-dans-la-marge`
+dit « rien dans la marge, à part une dalle ou une tuile » ; la lune, à gauche, en est le précédent.
+🛡️ `tests/gear-next-vit-dans-r.test.mjs` ① bis.
+
+### ➡️ LA SORTIE D'ÉQUIPEMENT : `Done`, UN RÉCAP, PUIS `Next`
+📍 `equipement-done-recap-next` · vivante · 30/09 · borne `bouton-back-next-n-ecrivent-jamais` · borne `bouton-la-classe-et-le-verbe-font-l-organe`
+⚖️ **Sous la bourse de Gear, `Done` — vert, 16 / 600 — ouvre un récap (Gear, Pack, la bourse) qui EXIGE une réponse : `Back` (bleu), sous une phrase qui invite à retoucher, le referme sans rien écrire ; `Next` valide l'étape et va au cran suivant du belt. Tant que le récap est ouvert, `Done` est hors de vue. L'étape validée, le même organe dit `Next` (bleu) et repart sans récap. ⛔ Ce `Next` SIGNE l'étape : c'est une déviation voulue par Eric de `bouton-back-next-n-ecrivent-jamais`, bornée à cette sortie. Son `Back` est le seul qu'un écran écrive : il referme le récap, il ne recule d'aucun cran.**
+
+> Eric, 2026-09-30, mot pour mot : **« Comme dans les étapes precedentes on avait l'habitude de valider
+> l'étape par un done. un texte de recap. probablement un recap sur un popup car peu de place pour le faire
+> sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre. et validation de l'étape dans le
+> belt »**. Puis, chaque réponse à SA question : le mot du bouton, avant et après validation ? → **« Done, puis
+> Next »** · que montre le récap ? → **« Gear, Pack, bourse »** · après validation, s'il modifie son équipement,
+> le voyant du belt ? → **« Reste allumé »**. Puis, relayée par ARCHI 35 le même jour : *« ton "cancel pour
+> tweaker" referme sans rien effacer : a) Back, bleu, comme la Bible · b) Cancel, rouge, exception »* →
+> **« a) if you want to tweak some more, réécris qq chose »**.
+
+⚖️ **LE RETOUR DU RÉCAP EST `BACK`** — il ne défait rien, il recule (`bouton-deux-mots-retour-et-couleur-se-deduit-mot`) ;
+bleu, la famille `gear-porte` sans règle à lui. Au-dessus de la paire, une phrase invite à retoucher —
+✍️ *« Want to tweak some more? Back returns to your gear. »*, BROUILLON d'ARCHI 35 (`MOTS_DU_RECAP`,
+`gear-ecran.mjs`) : Eric arrête ce que le joueur lit.
+⛔ **ET C'EST UNE EXCEPTION NOMMÉE À `bouton-la-classe-et-le-verbe-font-l-organe`** (« `Back` est EXCLUSIF à la
+coquille ») : ce `Back`-là ne recule d'aucun cran — il referme une fenêtre de l'écran, et `pressBack()` reste à
+la coquille seule. Le témoin (`shell-wiring` 17) nomme ses DEUX porteurs, et aucun troisième.
+
+⚖️ **LA DÉVIATION, DÉCLARÉE** (`socle-norme-est-un-defaut` : un écran qui dévie le fait explicitement) : la Bible
+dit « un `Next` ne signe jamais » ; Eric veut « next pour poursuivre » **et** « validation de l'étape dans le
+belt » — un seul geste. `Next` passe donc par `parcoursNext` sur la racine `equipment`, qui pose la signature
+que le voyant lit (`estConfirme`), puis va au cran suivant. ⛔ La borne ne vaut que pour cette sortie.
+⭐ **CE QUE LA BIBLE TRANCHE, ET QUE LE LOT 371 A MIS EN PLACE** : `Done` vert (`bouton-trois-verbes` — l'étape
+n'a rien d'obligatoire, elle est toujours achevée, `bouton-done-gris-inacheve`), `Next` bleu, les deux au corps
+16 / 600 (`bouton-deux-largeurs`, plus le T2 de `Send`) ; le récap ne se ferme que par `Cancel` ou `Next`
+(`popup-question-exige-une-reponse`) ; `Done` n'est pas rendu tant qu'il est ouvert
+(`bouton-done-et-next-jamais-ensemble`).
+⏳ **CE QUI ATTEND ERIC** (audit du lot 370) : `Done`, `Back` et `Next` sont fabriqués par l'écran et non par la
+coquille (`socle-l-ecran-declare-la-coquille-execute`).
+🛡️ `tests/gear-next-vit-dans-r.test.mjs` ②–④.
 
 ---
 
@@ -6000,7 +6065,8 @@ souris le 29/09 : un objet de l'ancienne page 2 venait combler un trou laissé �
 ⛔ **L'OBJET SANS CASE QUI TIENT DANS SA SECTION N'EST PAS ÉCRIT** — il garde son rang de document
 (`equipement-une-place-dans-une-section`) : c'est le personnage d'exemple (huit objets sans case au dépôt), et la coquille
 compare son texte à celui de l'exemple pour dire « pas de perso en cours » (lot 350). `normaliserLeSac` rend donc le MÊME
-document quand rien ne déborde.
+document quand rien ne déborde. 🔄 Lot 366 : cette comparaison n'existe plus (`menu-r-premiere-visite-fiche-vierge`) ;
+l'invariant, lui, reste.
 ⭐ **LE PARTY BAG A SA CHAÎNE** (③, et « Party bag fait la même chose que backpack dropdown ») : plein, Send crée
 **« Party bag 2 »**, puis 3… — un vrai conteneur, **bleu** (`party`), **au nom éditable**, effaçable vide, qui **ne pèse
 pas** (la ligne `Other`, comme le premier ; `boitesDehors` le compte hors du sac). Son genre s'écrit
@@ -7124,14 +7190,14 @@ dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
 
 ### 🚧 LA CLASSE ET LE VERBE FONT L'ORGANE — mais TROIS MOTS ont leur propre régime
-📍 `bouton-la-classe-et-le-verbe-font-l-organe` · vivante · 07/09
+📍 `bouton-la-classe-et-le-verbe-font-l-organe` · vivante · 07/09 · bornée par `equipement-done-recap-next`
 ⚖️ **Un organe de la coquille se reconnaît à sa CLASSE et à son VERBE, jamais à son libellé — sauf trois mots dont le régime est écrit dans un témoin : `Back` est EXCLUSIF à la coquille, `Validate` est BANNI, `Cancel` et `Done` sont PARTAGÉS.**
 
 📏 **LES TROIS RÉGIMES, MESURÉS LE 07/09 — qui écrit le mot nu dans `ui/` :**
 
 | le mot | porteurs | le régime | son témoin |
 |---|---|---|---|
-| **`Back`** | **`shell.mjs` seul** | 🔒 **exclusif** — ⛔ un écran ne l'écrit pas | `shell-wiring.test.mjs:517` — *« écrit UNE fois et par la coquille — jamais par un écran »* |
+| **`Back`** | **`shell.mjs`** — et, depuis le 30/09, le récap de Gear (`equipement-done-recap-next`, le mot d'Eric) | 🔒 **exclusif** — ⛔ un écran ne l'écrit pas, hors l'exception nommée | `shell-wiring.test.mjs:517` — *« écrit UNE fois et par la coquille — jamais par un écran »* |
 | **`Validate`** | **aucun** | ⛔ **banni** — il ne doit exister nulle part | `shell-wiring.test.mjs:345` |
 | **`Cancel`** | `confirm` · `destiny-step` · `parcours-ecrans` · `abilities-step` · `shell` | ✅ **partagé** — 4 écrans l'écrivent aujourd'hui | ⛔ **aucun témoin sur le mot nu** |
 | **`Done`** | `destiny-step` · `species-step` · `parcours-ecrans` · `shell` | ✅ **partagé** — 3 écrans l'écrivent aujourd'hui | ⛔ **aucun témoin sur le mot nu** |
@@ -7219,6 +7285,15 @@ rougir sur cette réparation même.
 ⭐ **C'est la seule famille où la couleur ne dit PAS où on en est — elle dit ce que le bouton
 FAIT.** Les deux axes s'y confondent, et **c'est voulu** : un bouton qui **défait** ne doit jamais
 pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans le vouloir.
+✅ **LOT 371 — LE POPUP DÛ EST POSÉ** sur les cinq `Cancel` qui effaçaient sans un mot (📏 audit du lot 370) :
+celui du guide de Species, de Background, de Class, du don emboîté (`parcoursCancel`), et celui de Destiny
+(`destinyReset`). Une seule question (`questionAvantDEffacer`, `shell.mjs`) : elle NOMME ce qui part (le
+patron de `confirm.mjs`, lot 46), EXIGE une réponse, et — confirmée — rejoue le même geste : l'effaceur reste le
+seul à effacer. ⚠️ Elle ne se pose que s'il y a quelque chose à perdre (la condition de vérité du gendarme,
+A-TRANCHER §C24). ✍️ Ses mots — « This clears what you chose on this step: », `Keep` · `Clear` — sont des
+BROUILLONS : Eric arrête ce que le joueur lit. ⏳ Restent sans question, hors du relevé : le retour qui efface
+sous un don (`retourEfface`, le catalogue du don) et le `Cancel` d'Abilities (le lot de dés).
+🛡️ `tests/conformite-371.test.mjs`.
 
 ### 🔴 LES TROIS VERBES DE LA RANGÉE — la définition d'Eric, mot pour mot *(26/08)*
 📍 `bouton-back-dans-les-sous-menus-seulement` · vivante · 26/08
@@ -7494,7 +7569,7 @@ la… »*.
 **sur une intention**. ⛔ Un commentaire de code dit comment ça marche, **pas ce que ça veut dire**.
 
 ### 🔴 `BACK` ET `NEXT` NE FONT QUE NAVIGUER — c'est une définition, pas une couleur
-📍 `bouton-back-next-n-ecrivent-jamais` · vivante · 26/08
+📍 `bouton-back-next-n-ecrivent-jamais` · vivante · 26/08 · bornée par `equipement-done-recap-next`
 ⚖️ **Un `Back` ou un `Next` ne modifie jamais le document : ni valider, ni écrire, ni effacer, ni signer.**
 
 > Eric, 2026-08-26 : **« back et next = navigation uniquement »**.
@@ -7529,6 +7604,10 @@ mécaniquement, et ça vaut mieux qu'une relecture.
 
 > Eric, 2026-08-26 : **« back bleu, done vert »**.
 
+✅ **LOT 371 — PARTOUT OÙ LA COQUILLE LE POSE** : 📏 le lot 370 a mesuré un `Back` transparent sur les rangs B
+du Menu (Layers, Display, Dungeon Master) — la règle bleue ne vivait que sous `.parcours-pied`. Elle vit
+désormais sur `.sortie-bouton.sortie-back`, à la spécificité des deux autres états de la sortie.
+🛡️ `tests/conformite-371.test.mjs`.
 ⚠️ `shell.css` porte un commentaire daté : **« AUCUNE COULEUR DANS BACK ET DONE — Eric,
 2026-08-17 »**. 🔴 **Il est renversé.** La règle du 26/08 s'applique, et le commentaire du 17/08
 n'a plus autorité sur ces deux boutons.
@@ -7548,7 +7627,7 @@ tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleur
 pourquoi elle avait été écrite avant de la retirer.
 
 ### 🔴 LA TRILOGIE EST DUE À TOUT ÉCRAN — livre · bouton(s) · `?` *(Eric, 2026-09-06)*
-📍 `rangee-trilogie-due-partout` · vivante · 06/09 · bornée par `menu-r-sans-pied`
+📍 `rangee-trilogie-due-partout` · vivante · 06/09 · bornée par `menu-r-sans-pied` · bornée par `menu-rangs-b-sans-livre`
 ⚖️ **La trilogie livre · bouton(s) majeurs · `?` est DUE à tout écran : un écran sans elle est un défaut, et c'est l'exception qui s'argumente et se date.**
 
 > Eric, 2026-09-06 : *« **ils doivent tous avoir la trilogie.** Mais c'est les autres qu'on passe
@@ -8217,6 +8296,16 @@ les verrous du carnet). `rebuild()` (shell.mjs) pose désormais `refusSansFiche(
 serait gardé, et un code inconnu suit la même loi.
 ⛔ **AUCUNE RÈGLE DE JEU NE BOUGE** : sans classe, la fiche reste une « dérivation impossible » (Sheet
 montre l'écran « perso incomplet »). Ce qui change, c'est ce que les étapes DISENT pendant la création.
+✍️ **LOT 371 — LA VOIE MORTE DE LA PHRASE EST REMPLACÉE** : elle finissait par *« or change your mind and pick
+again »*, nommant `I changed my mind`, mort depuis le 05/09 (relevé du lot 369). Relayée par ARCHI 35, 30/09 :
+à *« les deux phrases fausses : a) propose des mots »* → Eric : **« a »**. Les mots, BROUILLONS d'ARCHI 35 :
+· ici (`motDesChoixNonResolus`, ecran-mort.mjs) — *« … — switch it on in Layers (Menu, the first tab), or use
+  Cancel to clear this step and pick again. Nothing you chose has been erased. »* ⚠️ Adapté : la tête
+  (*« Araag comes with Fate's Hand — switch it on in Layers »*) est citée par cette règle et par
+  `menu-layers-fate-s-hand-tout-ou-rien`, elle ne bouge pas ; seule la voie morte change ;
+· la conclusion d'une étape réglée (`MOTS_ETAPE_REGLEE`, parcours-ecrans.mjs — un seul écrivain, il y en avait
+  deux) — *« This step is settled. Move on when you are ready. Cancel clears this step so you can choose
+  again. »*, et sans `Next` : *« This step is settled. Cancel clears this step so you can choose again. »*
 
 | le lecteur | sur le silence (avant) | sur les refus sans fiche (après) |
 |---|---|---|
@@ -9724,6 +9813,57 @@ moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne
 
 📌 **CE QUI LA TIENT** : `tests/naitre-derivable.test.mjs` — A (le composeur fait naître, l'exemple passe par lui, le témoin sans niveau refuse comme v621), B1 (un seul déclarant, sur la donnée `STEPS.filter(lit)`), B5 (le garde central : sur un personnage neuf sans classe ni scores, aucun cran de la ceinture n'est mort dans les deux piles, sauf Sheet qui nomme), B6 (Skills sans fiche nomme avec le mot importé ; avec fiche, le pool), B7 (Equipment sans classe vit, My gold nomme, aucun « Take the » ; avec classe, l'or), C (jamais la phrase muette quand un choix exigé manque, sur les 128 sous-ensembles), E2 (complète ou nommée), D1 (la coquille sans liste par nom, un seul fait — garde sur la forme, et il le dit). Chacun vu ROUGE sous sa mutation le 10/09.
 
+🔄 **30/09 (lot 367) — `MOT_SANS_RAISON` A REÇU SON MOT, ET IL N'EST PLUS MUET** (loi des deux âges : la
+phrase de C ci-dessus est l'âge d'avant). Un seul écrivain de la cause, `causeDeLaFicheAbsente`
+(ecran-mort.mjs), pour l'écran mort ET pour Skills : ce que le document ne porte pas (`motDuManque`),
+puis la classe que la pile ne porte plus, puis ce qui ne suit pas les règles — voir
+`socle-perso-sauve-s-ouvre-toujours`.
+
+---
+
+### 🔓 UN PERSO SAUVÉ S'OUVRE TOUJOURS, MÊME APRÈS UNE MISE À JOUR DES RÈGLES *(Eric, 2026-09-30)*
+📍 `socle-perso-sauve-s-ouvre-toujours` · vivante · 30/09
+⚖️ **Un document dont une empreinte de couche ne correspond plus à la pile montée s'ouvre TOUT SEUL sur les couches d'aujourd'hui, et la copie du navigateur est réécrite aussitôt. Ses choix restent tels quels ; ce qui ne se résout plus se nomme sur son étape (`voyant-un-choix-mort-se-nomme-meme-sans-classe`). Le recalage se fait à l'ouverture — démarrage, fichier ouvert —, APRÈS l'alignement des livres et AVANT la dérivation. ⛔ Un livre du joueur absent de cet appareil ne se recale pas (`A-TRANCHER §C34`). ⛔ Aucun chemin ne mène plus à un écran mort sans cause ni sortie.**
+
+> Eric, 2026-09-30, trois réponses relayées par ARCHI 35, chacune avec sa question :
+> · « Comment le perso s'ouvre-t-il ? (a) tout seul, en mémoire, la copie ne change qu'au premier geste
+>   · (b) un écran qui nomme la cause, avec un bouton · (c) tout seul, et écrit tout de suite » →
+>   **« Tout seul, et sauvé aussitôt »** (c).
+> · « Prévenir le joueur ? » → **une ligne au Menu** (`menu-r-ligne-des-regles-mises-a-jour`).
+> · « Deux chemins mènent encore au mot muet : une classe disparue, un refus d'invariant — leurs mots ? »
+>   → **les deux brouillons proposés**. ⚠️ Le premier disait `I changed my mind` sur Class : libellé MORT
+>   depuis le 05/09 (« DEUX MOTS, PAS TROIS » — *« remplace par cancel partout »*). ARCHI 35 l'a relevé
+>   le même jour : la sortie est **`Cancel`**, et c'est sa correction, pas une décision d'Eric.
+> ⚖️ La réponse (c) écarte, pour l'ouverture, la clause du mandat « rien ne s'écrit au document sans un
+> geste du joueur » : la décision est d'Eric (ARCHI 35 : *« grave-le dans NORMES comme décision d'Eric »*).
+
+📏 **LA CHAÎNE, MESURÉE** (l'Ilyra commitée à v914, ouverte à v917) : chaque couche déclarée porte
+l'empreinte de ses octets (`$defs/layerRef`). Cinq couches avaient changé d'octets — la version, elle,
+restait `0.1.0`, seul le hash le disait. `rebuild` refusait (« la pile montée ne correspond pas à
+`build.layers` » : contracts/build.md, invariant 4 — le moteur a raison, c'est à l'appelant de décider).
+La coquille rangeait le refus dans `derivationImpossible`, et l'écran demandait la cause à `motDuManque`,
+qui ne lit que le document : niveau, classe et scores posés, il ne trouvait rien — d'où le mot muet,
+*« it cannot be derived yet »*. Recalés, huit états de l'exemple, de v916 aux plus anciens, dérivent
+tous ; un ref disparu sort en `choice.ref-missing`, déjà nommé par les lots 191 et 359.
+⭐ **LES TROIS ORGANES** (`recalage.mjs`, PURS) : `recalageDeLaPile` (la pile à adopter et les ids qui ont
+changé, ou `null`), `marqueDuRecalage`, `marqueVivante`. La coquille les câble (`recalerSurLaPileMontee`,
+`poserLaMarque`) ; `memoriser` écrit le document recalé au rendu qui suit, et fait tomber la marque au
+premier geste.
+⭐ **LES DEUX MOTS QUI ÉTAIENT MUETS** (`causeDeLaFicheAbsente`, un seul écrivain pour l'écran mort et
+Skills) :
+· la classe que la pile ne porte plus : la tête, puis le mot du lot 191 (`motDesChoixNonResolus` — « Wizard
+  is not in this ruleset — … »), puis *« On Class, Cancel lets you pick another class. »* ;
+· ce qui ne suit pas les règles (un fichier abîmé, un refus d'invariant) : *« …something in this character
+  does not follow the rules the builder knows. Save character keeps it safe; New character starts
+  over. »* — les deux portes qui existent.
+⏳ Ces mots sont des brouillons, comme tous ceux d'`ecran-mort.mjs` : Eric arrête la lettre.
+⭐ **ET DANS LE MÊME GESTE D'OUVRIR, L'IDENTIFIANT** (décision d'ARCHI 35, 30/09) : un personnage neuf tire
+son UUID v4 de `crypto.getRandomValues` (`uuidDuNavigateur`, identifiant.mjs), présent partout —
+`crypto.randomUUID` n'existe qu'en contexte sécurisé, et une page en `http://` sur l'IP du Mac échouait à
+la première visite. Même hasard cryptographique ; sans générateur, le refus reste nommé.
+🛡️ `tests/perso-s-ouvre-367.test.mjs` (R1–R6, M1, U1–U3), 15 mutations vues rouges ;
+`tests/ecran-mort-qui-nomme.test.mjs`, `tests/naitre-derivable.test.mjs` suivent la nouvelle vérité.
+
 ---
 
 ### 7.14 🆓 `FREE` EST 100 % LIBRE — aucune condition sur le choix des caracs *(Eric, 2026-09-06)*
@@ -9782,6 +9922,10 @@ fichier serait vert pour rien)*.
 ⚖️ **Une capacité de classe qui fait choisir au niveau 1 se DÉCLARE dans la couche (`data[feature_choices]` : id, nom, niveau, compte, et ses options — ou `options_from`, un genre de record) ; le carnet publie `class.<id>`, l'étape Class ouvre la porte avec l'organe du glisser, et la capacité quitte « Granted automatically ». L'écran ne connaît aucune capacité par son nom : une capacité déclarée demain obtient sa porte sans une ligne d'écran. La fiche nomme la réponse (« Primal Order: Warden »).**
 
 > ARCHI 35, 29/09, Q1 → a) : *« Divine Order, Primal Order et Fighting Style s'écrivent et se montrent. Leurs effets (armures, armes, bonus, et le cantrip en plus de Thaumaturge / Magician, qui est lui-même un choix) feront un lot sur `derive`. »* ⛔ Jusque-là, aucune règle ne lit la réponse : la Sheet le dit sous « Recorded, but no rule reads them », et c'est la vérité.
+> ✅ **RATIFIÉE PAR ERIC LE 30/09** — relayée par ARCHI 35 après l'audit du lot 370, qui relevait que cette décision
+> ne tenait que de la parole de l'architecte : à *« Les effets en attente (Orders, Fighting Style, Skilled) »* →
+> **« a »** — leurs effets feront un lot à la suite.
+> 🔄 **30/09 (lot 372)** — ce lot est fait : les réponses sont LUES (`class-un-choix-de-capacite-a-ses-effets`), et la Sheet ne les liste plus sous « Recorded, but no rule reads them ».
 
 📌 **CE QUI LES TIENT** : `tests/choix-du-niveau-1.test.mjs` (la couverture, la forme, la création relue à l'écrivain, la dette, les clefs, trois témoins) et `tests/portes-360.test.mjs` (les plans, la porte, les acquis, la fiche, le palier 2 et la Sheet) — dix-neuf mutations vues rouges.
 
@@ -9793,6 +9937,67 @@ fichier serait vert pour rien)*.
 📏 **CE QUI SE PASSAIT** — relevé du lot 360 sur v913 : Weapon Mastery (Barbarian, Fighter, Paladin, Ranger, Rogue) et Eldritch Invocations (Warlock) se lisaient à la fois comme porte et dans « Granted automatically ». Le rapprochement lisait le nom des `feature_choices`, et leurs portes n'en sont pas.
 ⭐ **LE LIEN EST DANS LA DONNÉE** : la capacité est celle dont le texte porte l'extrait de la déclaration `creation`, et le chemin de la déclaration nomme la porte. Classées le 29/09 dans `srfh-mecaniques-en`, qui monte dans les deux piles : **9 capacités entières** (Weapon Mastery ×5, Eldritch Invocations, Divine Order, Primal Order, Fighting Style — une déclaration chacune) et **8 partielles** (Spellcasting ×7, Pact Magic — 23 déclarations). Aucune couche Fate's Hand ne déclare de capacité de classe.
 🛡️ `tests/porte-entiere-jamais-acquise.test.mjs` : ① la portée exigée, une seule par capacité ; ② l'écran lu — entière absente, partielle présente ; ③ une porte au libellé égal au nom de sa capacité ne peut pas se déclarer partielle.
+
+📍 `class-un-choix-de-capacite-a-ses-effets` · vivante · 30/09
+⚖️ **Un choix de capacité applique ses effets par la DONNÉE de sa déclaration, jamais par un nom : l'option-valeur porte ce que son texte donne (`armor_training`, `weapon_proficiencies` — un extrait exact du texte —, `check_bonus`, `extra_cantrips`), le don désigné porte le sien (`armor_class_bonus`), et `derive` les applique. Un effet qui est lui-même un choix (le cantrip en plus de Thaumaturge et de Magician) a SA porte, publiée SOUS la réponse (`class.<id>[n].cantrips`) et ouverte DANS la porte de la capacité, avec l'organe des cantrips ; elle retient le `Done`.**
+
+> Eric, 30/09, à la question d'ARCHI 35 sur ces effets : *« tu parles de quoi là, FH ou SRD, FH tout a été décidé ! »* — en Fate's Hand la règle est ÉCRITE dans ses chapitres, en SRD c'est le texte.
+> 📜 **Ce que disent les chapitres FH** (`5.RPG/Fate's Hand/0. D&D 5+ Rules/`) : *Class Modifications* rend le Cleric, le Druid et le Fighter par `{{srd:class-full:…}}` — le SRD tel quel ; leur encadré « What Fate's Hand changes » ne touche que les compétences. *Equipment* et *Trainings* sont MUETS sur les maîtrises d'armes et d'armures : le SRD s'applique. *Skills & Tools* garde Arcana, Nature et Religion en INT.
+> ARCHI 35, 30/09 : Q1 → a) la ligne des maîtrises (`class-les-maitrises-d-armes-et-d-armures-se-lisent`) ; Q2 → a) les lignées au lot 373 ; Q3 → a) un effet de table se lit en trait (`socle-un-choix-sans-chiffre-se-lit-en-trait`). La porte du cantrip, sous la capacité : approuvée.
+
+📏 **CE QUI SE PASSAIT** (mesuré au moteur, v920) : `class.divine-order[0]`, `class.primal-order[0]`, `class.fighting-style[0]` sortaient `unconsumed` — aucun training, aucun bonus, aucun cantrip. Un Protector sans armure lourde, un Thaumaturge sans son cantrip, un Défenseur sans son +1.
+⭐ **CE QUI EST LU** : le training (la ligne des maîtrises) ; le bonus de compétence — la caractéristique, et son plancher (« minimum of +1 ») — APRÈS les paliers, noté dans la provenance (« +1 Divine Order: Thaumaturge » sous le chiffre) ; le +1 de CA de Defense, en armure seulement, noté lui aussi (`effects.applied` admet l'effet d'une RÈGLE : sans `line`, `object` nomme le don) ; le cantrip, qui entre dans l'incantation comme tout sort choisi.
+⛔ **Aucune règle recopiée d'une autre source** : chaque extrait est relu dans son texte (garde E1). L'inventaire du lot 289 (`sources-effets/regles-personnage.effets.json`) porte les mêmes citations ; il reste un précurseur non lu par le moteur.
+🛡️ `tests/effets-des-choix-372.test.mjs` (E1–E8, qui bouclent sur les déclarations), 17 mutations vues rouges.
+
+📍 `class-les-maitrises-d-armes-et-d-armures-se-lisent` · vivante · 30/09
+⚖️ **Les maîtrises d'armes et d'armures sont une rubrique de la fiche (`resolved.training { armor[], weapons[] }`) : d'abord celles de la CLASSE, puis celles qu'un choix y ajoute, chacune avec son `id`, sa source et son texte TEL QUE LA SOURCE L'ÉCRIT — jamais décomposé en catégories. La fiche les montre sous « Armor · Weapons ».**
+
+> ARCHI 35, 30/09, Q1 → a) : *« `resolved.training { armor[], weapons[] }`, champ facultatif au schéma (même forme que `effects` au lot 289 : un document d'avant reste valide). Dérivé du record de classe d'abord (le training de base, qui manquait), puis des Orders ; montré par une ligne « Armor · Weapons » sur la fiche. »*
+
+📏 **LE TROU ÉTAIT PLUS LARGE QUE LES ORDERS** : aucune rubrique n'existait — même `armor_training` et `weapon_proficiencies` de la classe n'étaient dérivés nulle part, et aucune des deux fiches ne les montrait.
+⭐ **LA PROSE DU SRD RESTE UNE LIGNE** : « Light and Medium armor and Shields » n'est pas découpé en trois catégories — ce serait une règle de lecture inventée dans le moteur. « None » (le Magicien) s'écrit tel quel : c'est le mot du livre.
+⭐ **CHAQUE ENTRÉE A SON `id`** (`class`, ou l'id du choix) : la parole du MJ bat le JSON, et un override vise une entrée par son identité.
+
+📍 `socle-un-choix-sans-chiffre-se-lit-en-trait` · vivante · 30/09
+⚖️ **Un choix dont l'effet n'a pas de chiffre sur la fiche — un effet de table (Great Weapon Fighting, Two-Weapon Fighting), un chiffre que le moteur ne dérive pas encore (Archery : aucune attaque n'est dérivée), ou un don d'origine — est LU en posant un trait : son nom, sa catégorie (`feat`, `class-feature`), son texte recopié, et le nom du record qui le détient. ⛔ Jamais un chiffre inventé, jamais une prose analysée.**
+
+> ARCHI 35, 30/09, Q3 → a) : *« L'effet de table est LU en posant le don ou la capacité dans `traits`, nommé et avec son texte. Il quitte « Recorded, but no rule reads them » sans chiffre inventé. »*
+
+⭐ **UN SEUL ÉCRIVAIN PAR ENTRÉE, MESURÉ AU BANC** : la Sheet ajoutait déjà ses propres lignes pour ces choix (`capacitesChoisies`, lot 360 ; `donsDOrigineNommes`, lot 364), parce que le moteur ne les portait pas — « Primal Order: Magician » est sorti DEUX fois. Le moteur porte désormais le trait (la donnée), l'interface compose ses MOTS (§0.13 interdit au moteur de composer un affichable) : un choix composé dont l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place. L'appariement se fait par l'`id`, jamais par le nom. Et l'`id` d'un don d'origine dit QUI le détient (`background:<don>`, `species:<don>`) : un Humain Acolyte porte deux Magic Initiate, deux traits.
+⭐ **ET UN CRÉNEAU EST UN ENFANT DIRECT** (`planSlots`, carnet.mjs) : `base[n]`, rien dessous. Mesuré au banc : Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait les plans publiés SOUS la réponse. Le don d'origine portait le même défaut depuis ses branches.
+📏 **CE QUE ÇA CHANGE AILLEURS** : le don d'origine (Skilled, Magic Initiate, Auspicious…) sortait `unconsumed` en SRD ; il est désormais un trait. Les maîtrises que Skilled fait choisir sont appliquées (la compétence maîtrisée, l'outil possédé). La raison `no-trait-field-for-class-feat-background` est resserrée : les aptitudes de CLASSE en général restent non dérivées.
+
+📍 `species-une-lignee-a-ses-effets` · vivante · 30/09
+⚖️ **Une lignée applique ses effets par la DONNÉE de sa déclaration, jamais par un nom : `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin de patch par le mot), ce que son texte de niveau 1 donne — `cantrips`, `spells`, `darkvision`, `speed`, `granted_skill_budget`, chacun avec son extrait exact —, `lineage_trait` nomme le trait que la lignée réalise, `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme, `species_cantrips` le sort qu'un trait de l'espèce lance avec la même caractéristique ; `derive` les applique. Le trait de lignée devient SPÉCIFIQUE (« Elven Lineage: Drow », le bénéfice de niveau 1 pour texte) ; un effet sans chiffre — une résistance, un souffle, le don d'un Goliath — se lit dans ce trait.**
+
+> ARCHI 35, 30/09 (mandat du lot 373) : *« L'extraction typée des lignées, dans les déclarations […] Chaque champ est un extrait exact de son texte. Les effets appliqués dans `derive`, par la donnée, jamais par une liste de noms. Un effet sans chiffre de fiche devient un trait nommé avec son texte. »* Puis, sur les deux décisions posées : *« Tes cinq décisions sont approuvées, sans veto »* (porte ouverte par la donnée, résistances et souffle en traits nommés).
+> 📜 **Le chapitre FH** (`5.RPG/Fate's Hand/0. D&D 5+ Rules/1. Build a Character/D&D 5+ Races & Species.md`) : Dragonborn, Elf, Goliath et Tiefling gardent leurs lignées SRD ; le Hoddon est le Gnome, et sa troisième lignée, *The Mole People (FH)*, dit : *« Your Darkvision increases to 120 feet; you gain Meticulous — Advantage on Investigation checks — and 1 skill point (Novice) in tinker's tools »*. ARCHI 35, Q2 → a) : ce point est une bourse CAPTIVE, la forme de Keen Senses.
+
+📏 **CE QUI SE PASSAIT** (mesuré au moteur, v923) : `species.lineage[0]` sortait `unconsumed` — un Drow voyait à 60 pieds, un Wood Elf courait à 30, un Tiefling abyssal n'avait ni sa résistance ni son Poison Spray, un Dragonborn noir soufflait « the type determined by your Draconic Ancestry », sans le type.
+⭐ **CE QUI EST LU** : la vitesse de BASE que pose la lignée (avant les objets), la portée de la vision (en place, avec sa provenance), les sorts (`socle-une-source-d-incantation-a-sa-caracteristique`), la bourse d'un OUTIL (le palier posé, la moitié de la maîtrise pour Novice), et les traits « Breath Weapon (Acid) », « Damage Resistance (Acid) ».
+⛔ **UNE PILE QUI NE DÉCLARE RIEN NE CONSOMME RIEN** : la couche FR n'a pas d'effets de lignée — sa réponse reste `unconsumed`, et `validate` dit qu'elle ne change rien à la fiche. Jamais un effet tu.
+🛡️ `tests/lignees-373.test.mjs` (L1, L3, L6, L8), qui bouclent sur les espèces montées des deux piles.
+
+📍 `socle-une-valeur-parmi-n-a-sa-porte` · vivante · 30/09
+⚖️ **Un choix « une valeur parmi N » que le texte fait faire en passant — la caractéristique d'incantation (« choose the ability when you select the lineage », « choose when you select this feat »), la taille (« chosen when you select this species ») — a sa porte : la couche le DÉCLARE (`spellcasting_ability_choice`, `size_choice`, ses options et leurs noms extraits du texte), le carnet publie le plan LÀ OÙ VIT ce qu'il règle — sous la réponse de lignée (`species.lineage[0].ability`), en branche du B emboîté du don (`<racine>.originFeat[0].ability`), ou item de l'étape (`species.size`) —, et elle retient le `Done` de ce qui la porte. ⛔ Une question qui ne porte sur rien ne se pose pas : la porte de la caractéristique ne s'ouvre que sous une lignée qui fait lancer un sort.**
+
+> ARCHI 35, 30/09 : *« la porte de caractéristique ouverte par la DONNÉE (sort donné ou non), la porte de taille pour Human et Tiefling dans les deux piles, les chemins `…lineage[0].ability` et `…originFeat[0].ability` »* — approuvés sans veto.
+
+📏 **LE RELEVÉ DU LOT 360, LIGNES #4, #5 ET #15** : ces trois choix n'avaient ni déclaration ni porte, et dix lignes les tenaient en dette dans `tests/choix-du-niveau-1.test.mjs`. Elles en sortent (dette : 16 → 6).
+⭐ **UN SEUL ORGANE, DEUX LIEUX** : `caracteristique-glisse.mjs` rend la porte dans la lignée ET dans le don — les jetons sont les options DU PLAN, les noms ceux d'Abilities (`NOMS_DE_CARAC`, écrits une fois), le titre le terme du texte : « Spellcasting ability ».
+⭐ **The Mole People n'a pas de sort** (« le seul des trois lignages hoddon sans sort ; assumé », chapitre FH) : pas de porte. Une réponse qui traîne après un changement de lignée publie son plan sans options, et le verrou le dit.
+🛡️ `tests/lignees-373.test.mjs` (L2, L4, L5, L7), `tests/choix-du-niveau-1.test.mjs` (la dette).
+
+📍 `socle-une-source-d-incantation-a-sa-caracteristique` · vivante · 30/09
+⚖️ **Un sort qui ne vient pas de la classe — celui d'une lignée, celui d'un don — se lance avec la caractéristique de SA source : il vit dans `resolved.spellSources[]` (une entrée par source : `id`, `name`, `source`, `ability`, `dc` = 8 + maîtrise + modificateur, `attackBonus` = maîtrise + modificateur, `spells`), jamais dans le bloc de la classe. Sans caractéristique choisie, pas de chiffre : la source est déclarée. La fiche montre chaque source sous « Other spellcasting ».**
+
+> ARCHI 35, 30/09, Q1 → a) : *« `resolved.spellSources[]`, clef neuve et facultative, une entrée par source hors classe (lignée, chaque don) : {id, name, source, ability, dc, attackBonus, spells[]}. Les cantrips de Magic Initiate y déménagent : c'est la règle, le don fixe sa propre caractéristique. »*
+
+📏 **CE QUI SE PASSAIT** : tout ref de sort hors équipement entrait dans `resolved.spellcasting` — un Clerc Magic Initiate lançait ses cantrips de Magicien en Sagesse, un Fighter Magic Initiate n'avait AUCUN bloc (sa classe n'a pas de caractéristique), et un sort de lignée n'avait nulle part où vivre.
+⭐ **LE SORT SUR LA FICHE EST ÉCRIT UNE FOIS** : `$defs.spell` au schéma, `composerLeSort` au moteur — les deux rubriques les lisent.
+⛔ **POURQUOI PAS LE TABLEAU PROMIS PAR `spellcasting`** : cette porte est écrite pour le MULTICLASSAGE (des emplacements partagés) ; une lignée ou un don n'a pas d'emplacements.
+🛡️ `tests/lignees-373.test.mjs` (L3, L5, L7), `tests/naitre-derivable.test.mjs` (E3 : le Barbare-Acolyte a désormais `spellcasting: null` et sa source déclarée).
 
 ---
 
@@ -9813,10 +10018,16 @@ fichier serait vert pour rien)*.
 📍 `species-le-trait-d-un-don-a-sa-porte` · vivante · 29/09
 ⚖️ **L'espèce nomme le trait que son don réalise (`feat_choice.trait`), comme `skill_points.trait` et `destiny.base_bonus_trait` : le trait quitte « Granted automatically » pour la porte, par la donnée. Une ligne verte « → chosen at step N » ne vaut que si cette étape FAIT ce choix.**
 
-📍 `sheet-la-fiche-nomme-les-dons-d-origine` · vivante · 29/09
-⚖️ **La fiche nomme chaque don d'origine, celui de l'arrière-plan comme celui de Versatile, par UN compositeur : « <ce qui l'accorde>: <le don> (<sa configuration>) », la source étant le record qui l'accorde — « Origin feat: Magic Initiate (Cleric) » · Acolyte, « Versatile: Magic Initiate (Wizard) » · Human. Les libellés sont une proposition ; Eric les ajuste.**
+📍 `sheet-la-fiche-nomme-les-dons-d-origine` · vivante · 29/09 · **amendée 30/09 — libellés ratifiés par Eric**
+⚖️ **La fiche nomme chaque don d'origine, celui de l'arrière-plan comme celui de Versatile, par UN compositeur : « <ce qui l'accorde>: <le don> (<sa configuration>) », la source étant le record qui l'accorde — « Origin feat: Magic Initiate (Cleric) » · Acolyte, « Versatile: Magic Initiate (Wizard) » · Human. Ces libellés sont ceux d'Eric (30/09 : « a) gardés »).**
 
 > ARCHI 35, 29/09, Q3 : *« Le don de l'arrière-plan est nommé aussi, par le MÊME compositeur, sinon la fiche nomme le second don et pas le premier. »* ⛔ Q4 : les maîtrises de Skilled s'écrivent et se montrent ; leur effet attend le lot sur `derive`, avec les capacités du lot 360.
+> ✅ **RATIFIÉES PAR ERIC LE 30/09** (relayées par ARCHI 35, audit du lot 370) : les effets en attente — Orders,
+> Fighting Style, Skilled → **« a »**, un lot à la suite ; et les libellés de la fiche (« Origin feat: … »,
+> « Versatile: … ») → **« a) gardés »**.
+> ✅ Eric, **30/09**, à *« Sur la fiche, le Human porte deux lignes voisines : "Versatile — Human" (le trait d'espèce,
+> tel que le moteur le publie pour chaque trait) et "Versatile: Magic Initiate (Wizard)" (ce qu'il a choisi). a) garder
+> les deux (le trait et le choix) · b) une seule ligne, celle du choix ? »* → **« a »** : le trait ET le choix restent.
 
 📌 **CE QUI LES TIENT** : `tests/versatile-364.test.mjs` (la porte par la donnée, la reprise lue dans le texte, les deux sens, la liste distincte, Skilled, la fiche, la Sheet, le routage de la coquille), `tests/choix-du-niveau-1.test.mjs` (la dette a perdu #6 et #16), `tests/lot194-don-accorde.test.mjs` (une seule fabrique du cfg du don) — seize mutations vues rouges.
 
@@ -10142,7 +10353,9 @@ bourse est un réglage, pas une transaction. ⛔ Une décision imbriquée ne s'a
 dernières gouttières valent 4 pour que le pied de Pack (159) tienne dans 560 ; corps 60..388, césure
 8, pied 396..555 ; collecteur +12, bourse +9, Tally et `Send to` +68, lune +19, rangée +112 (les
 écarts du pied de Wares/Pack à son haut). Rangée du bas : les trois carrés, Send (centré), Companions
-centré entre les DESSINS de Send et du `?`, le `?` au bord droit. Les deux dalles sont peintes par
+centré entre les DESSINS de Send et du `?`, le `?` au bord droit *(🔄 lot 363, 30/09 : Companions
+passe dans l'axe de la colonne bourse · `Done`, le `?` à 8 du bord — voir `equipement-colonne-du-pied` et
+`equipement-question-a-8-du-bord`)*. Les deux dalles sont peintes par
 `.gear-dalle` (DALLES, exportées par le générateur) ; l'écran ne peint plus de fond d'un tenant.
 
 ⚖️ **LE DROPDOWN DES TROIS ÉCRANS** — Eric : **« Oui harmonise les étiquettes de destination · Pour
@@ -10612,7 +10825,7 @@ l'atterrissage sur l'étape 1.
 🛡️ R2 ; `tests/premier-pas.test.mjs` E6.
 
 ### 🆕 `NEW CHARACTER` : UNE FENÊTRE, PUIS L'ÉTAPE 1 AVEC LES LAYERS EN PLACE
-📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde`
+📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde` · bornée par `menu-r-premiere-visite-fiche-vierge` · **amendée 30/09 (lot 371) — la fenêtre exige sa réponse**
 ⚖️ **`New character` ouvre une fenêtre qui prévient de trois choses — régler ses Layers avant · choisir son stockage dans Vault · le perso en cours sera effacé — et offre `Cancel · Delete · Save` quand un perso est en cours, `Cancel · Start` sinon (le troisième avertissement se tait alors). `Save` écrit par le MÊME écrivain que Sheet et, s'il est refusé, rien ne bouge ; `Delete` efface la copie du navigateur ; puis un personnage vierge naît avec la pile MONTÉE, et l'étape 1 s'ouvre. ⛔ Plus aucune question « SRD or Fate's Hand? ».**
 
 > Eric, 2026-09-29, mot pour mot : **« tout reste dans le navigateur tant que tu n'as pas fait New
@@ -10635,17 +10848,61 @@ portes ne PROMET un personnage neuf »*, parce que le builder n'avait aucun pers
 (`tests/universe-step.test.mjs`) change d'objet sans se relâcher : il nomme toujours la promesse
 (new · start over · restart · reset · fresh · blank), et il exige qu'UNE seule porte la porte, sous ce
 mot, et qu'elle mène à la fenêtre — jamais à une naissance sans avertissement.
-⭐ **« PAS DE PERSO EN COURS »** = le document est encore l'exemple commité — comparé sur ce qui fait le
+~~⭐ **« PAS DE PERSO EN COURS »** = le document est encore l'exemple commité — comparé sur ce qui fait le
 personnage (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`, que la dérivation estampille à
 chaque démarrage). 📏 Mesuré au banc le 29/09 : comparé en entier, l'exemple intact passait pour un perso
-en cours. Le navigateur n'est jamais vide après le démarrage : la mémoire ne dit donc rien.
-⭐ **LA FENÊTRE N'EXIGE PAS DE RÉPONSE** : rien ne bouge avant le choix, un tap dehors vaut `Cancel`.
-Elle est un `guide` (§ 7) ; `Delete` porte le rouge de ce qui défait.
+en cours. Le navigateur n'est jamais vide après le démarrage : la mémoire ne dit donc rien.~~
+🔄 **REMPLACÉE LE 30/09** (lot 366) — la page ne charge plus l'exemple : « pas de perso en cours » se lit
+dans la donnée du document, voir `menu-r-premiere-visite-fiche-vierge` juste dessous. Le piège mesuré le
+29/09 (la dérivation estampille `modified` et `resolved`) tient toujours, et la comparaison l'écarte encore.
+~~⭐ **LA FENÊTRE N'EXIGE PAS DE RÉPONSE** : rien ne bouge avant le choix, un tap dehors vaut `Cancel`.
+Elle est un `guide` (§ 7)~~ — ⚖️ **LOT 371 : ELLE EXIGE SA RÉPONSE** (`popup-question-exige-une-reponse`). La
+phrase barrée était une lecture du lot 350, pas un mot d'Eric : sa citation dit « Cancel aussi », jamais le
+tap dehors. Elle ne se ferme donc plus que par ses voies, et, parce qu'on ne peut pas la refuser, elle est un
+AIGUILLEUR (`popup-aiguilleur-nom-et-critere`). `Delete` porte le rouge de ce qui défait.
 ⭐ **LA RÈGLE DU 192 TIENT, MOT POUR MOT** : un `Save` refusé — ou qui ne rend pas `true` — n'efface
 rien. Et `Delete` oublie PUIS fait naître, jamais l'inverse : l'ordre est la règle, et il vit dans une
 séquence pure (`nouveauPersonnageSelonLaVoie`).
 🛡️ `tests/premier-pas.test.mjs` (28 : A la séquence, B la fenêtre, E le câblage, G la naissance qui
 dérive) ; `universe-step` D4, D6, D7.
+
+### 🌱 LA PREMIÈRE VISITE OUVRE UNE FICHE VIERGE — PLUS D'ILYRA POUR UN JOUEUR
+📍 `menu-r-premiere-visite-fiche-vierge` · vivante · 30/09 · borne `menu-r-new-character-fenetre`
+⚖️ **Un navigateur sans personnage (stockage vide, ou illisible) ouvre une fiche VIERGE — celle que `New character` fait naître (`personnageNeuf`, pile MONTÉE), en anglais, pieds et livres — jamais l'exemple commité, que la page ne charge plus. « Pas de perso en cours » se lit dans la DONNÉE du document : aucun choix fait, c'est-à-dire un document qui n'a rien de plus que sa naissance. Seul un stockage VIDE change de sens : un personnage gardé est repris tel quel.**
+
+> Eric, 2026-09-28, dans son message sur le parcours : *« un sauvegarde à la fin du process de création.
+> puis le cache est totalement vidé, plus de Ilyra Duskleaf »*.
+> Puis, chaque réponse avec sa question (relayées par ARCHI 35) :
+> · 30/09 : « Première visite du builder : aujourd'hui, l'exemple Ilyra est chargé en silence et traité
+>   comme ton perso (« Your current character will be erased », la question de Layers). Que doit voir un
+>   joueur neuf ? » → **« Fiche vierge »** — *« Plus d'Ilyra nulle part : New character → Cancel · Start,
+>   rien à effacer. »* ;
+> · 30/09 : « Dans quelle langue et quelles unités naît la fiche vierge d'une première visite ? » →
+>   **« Anglais + pieds/livres »**.
+> ⛔ La réponse ne vaut que pour SA question, la première visite : vider le cache après le `Save` de fin de
+> création est un autre geste, qui attend son propre arbitrage.
+
+⭐ **LA RÉFÉRENCE EST LA NAISSANCE DU DOCUMENT, PAS UN AUTRE DOCUMENT** (`personnageEnCours`,
+universe-step.mjs) : `composer` refait ce que ses propres faits de naissance auraient donné — même `id`,
+même `created`, même langue, mêmes unités, même manifeste, le nom d'avant le premier geste (`Name
+character`). Ce qui diffère est un geste du joueur : un choix au-delà du niveau de naissance, un nom, une
+description… ⛔ Pas une liste par nom de ce qui compte : le champ ajouté demain compte tout seul, et dans le
+sens qui n'efface rien. Comparé sans `modified` ni `resolved` (la dérivation les estampille), et sans l'ordre
+des clefs. Un document que `composer` ne sait pas refaire est tenu pour « en cours ».
+📏 **CE QUE CHAQUE LECTEUR DE L'ANCIENNE DÉFINITION DEVIENT** :
+· le démarrage (`shell.mjs`) retombait sur l'exemple → une fiche vierge, par `personnageNeuf(null)` ;
+· la fenêtre `New character` comparait au texte de l'exemple → elle lit la donnée : `Cancel · Start` sur une
+  fiche vierge, sans le troisième avertissement ;
+· la question de Fate's Hand dans Layers se lisait déjà dans la donnée (un choix `fh:`) : elle ne se posait à
+  la première visite que parce qu'Ilyra en porte ; une fiche vierge n'en porte aucun, elle ne demande rien ;
+· le stockage (`fhpc.personnage`) recevait Ilyra au premier rendu → il reçoit la fiche vierge (même `id` à
+  chaque rechargement) ;
+· `loadExampleDocument` (engine.mjs) est retiré. L'exemple reste au dépôt pour les bancs, les tests et les
+  captures : un banc qui part de l'exemple le POSE lui-même (`banc-parcours`, `banc-listes`).
+⛔ **UN NAVIGATEUR QUI PORTE ENCORE L'EXEMPLE INTACT** (d'avant ce lot) est un personnage comme un autre :
+rien ne s'y écrit sans le geste du joueur, et `New character` lui offre `Cancel · Delete · Save`.
+🛡️ `tests/premiere-visite-366.test.mjs` (6 gardes, 10 mutations vues rouges) ; `tests/premier-pas.test.mjs`
+B5, E1, E5.
 
 ### 💾 `SAVE CHARACTER` VIT DANS SHEET
 📍 `menu-r-save-character-dans-sheet` · vivante · 29/09
@@ -10672,6 +10929,153 @@ publient la fiche, qui n'existe pas encore (B9.5, pas de porte vers une pièce n
 en décide seul ; la coquille ne choisit que l'organe qui MONTRE l'écran mort de Sheet.
 🛡️ `tests/review-export.test.mjs` (les trois portes ; l'écran incomplet : même porte, même verbe, même
 dalle ; la coquille le pose) — 4 mutations vues rouges ; `premier-pas` E1.
+
+### 🗂️ MY CHARACTERS — UNE LIGNE PAR PERSONNAGE (lot 374)
+📍 `menu-my-characters-une-ligne-par-perso` · remplacée · 30/09 · remplacée par `menu-my-characters-la-liste-sans-le-lieu`
+⚖️ **My characters (le rang B1 du Menu) porte une ligne par personnage rangé dans l'app — sa version la plus récente : l'image de la fiche de son espèce · son nom · « espèce classe lvl N » · sa campagne (`none` sans elle) · `Open` (gabarit large, 105 × 40, bleu : il navigue) · la poubelle (40 × 40) tout à droite ; ses versions datées restent derrière la ligne ; la liste PAGINE (5 lignes par page, la rangée des pages sous elle), elle ne défile jamais ; `Open a file…` et `Save location` restent au pied.**
+
+> La dictée d'Eric, 29/09 : *« B1 — other page - Your Characters (page de liste) · image / Ratchapapoulos
+> / Humain Guerrier lvl4 / Les chevaliers Noirs / bouton pour ouvrir fiche de perso »*. Puis, chaque réponse
+> avec sa question : la page s'appelle **My characters** ; `Open` **105 × 40** (*« pardon »*) ; **la
+> poubelle tout à droite**, 40 × 40 ; **une question avant d'effacer un perso** (voir la règle suivante).
+> Et le 28/09 : *« une gestion à l'intérieur […] ne jamais avoir à aller dans windows, Mac os ou ios pour
+> aller chercher une fiche »*.
+
+⚖️ **LES DEUX DÉCISIONS D'ERIC TIENNENT ENSEMBLE** — Q1, tranchée par ARCHI 35 le 30/09 sur ses propres
+mots — ✅ **RATIFIÉE par Eric le 30/09 à 12:50**, au bilan qui listait les trois décisions de la sauvegarde (*« dis-moi si l'une ne te va pas »*) → **« Ok go »** : le **10/09**, *« une entrée datée à chaque Save — rien n'est
+écrasé, la page montre les versions par personnage »* (`menu-magasin-de-sauvegardes`) ; le **29/09**,
+*« une ligne par perso »*, et *« l'app vérifie avant d'écrire »* (§ 10). ⇒ Une LIGNE par perso, qui montre sa
+version la plus récente ; ses VERSIONS DATÉES restent derrière elle (une à chaque Save, jamais écrasées ; la
+vue qui les montre viendra) ; la vérification de révision vaut pour l'écriture dans le stockage choisi.
+Cette règle BORNE celle du 10/09 — la page ne groupe plus les versions sous le nom —, elle ne la barre pas.
+⚖️ **`SAVE LOCATION` RESTE ICI** (Eric, 10/09 : *« un bouton reste présent : save location »* ; Q2 → a,
+ARCHI 35, 30/09 ; ✅ ratifiée par Eric le 30/09 à 12:50, « Ok go ») : le dossier de Chrome et d'Edge (lots 195, 202) est un lieu de l'organe, choisi ici,
+discrètement, jusqu'au lot Vault ; le mot du lieu se lit sous le bouton. Là où le navigateur ne sait pas
+choisir (Safari, l'iPad), le bouton est présent, éteint, et dit pourquoi. 🗄️ Le popup « la première fois »
+du 10/09 n'est pas reposé : le choix du lieu part dans Vault (29/09).
+⚖️ **QUI ENTRE DANS LA LISTE** (Q3 → a, ARCHI 35, 30/09 ; ✅ ratifiée par Eric le 30/09 à 12:50, « Ok go ») : les persos SAUVÉS au moins une fois (Save
+character, le Save de New character, la version FH) ou OUVERTS (un fichier, la liste) — *« une sauvegarde à
+la fin du process de création »* (Eric, 28/09).
+📐 **LES CINQ LIGNES SE DÉDUISENT** de la scène de 500 blg : 8 d'air + 32 de titre + 52 de rangée des
+pages + 66 de pied (`Save location` porte son mot dessous) + 60 de la paire de la coquille → 282 ; une ligne
+vaut 44 + 8 → ⌊282 / 52⌋ = 5
+(`LIGNES_PAR_PAGE`, une déviation DÉCLARÉE de `liste-quinze-est-un-defaut`). Les chevrons de page sont
+ceux de Wares et de X5 (`wares-chevron`, `chevron-lateral-de-pack`) : sous la liste, pas sur ses côtés —
+deux gouttières latérales prendraient 88 blg à une ligne qui porte déjà image, `Open` et poubelle.
+⭐ **L'IMAGE EST CELLE DE LA FICHE DE L'ESPÈCE** (`imageDeFiche`) : aucun écran ne remplit le `portrait`
+du schéma aujourd'hui ; sans espèce, le dos de carte. Une ligne se lit dans les CHOIX du document, sans
+dérivation : un perso qui ne dérive plus se liste quand même. Un perso illisible se dit à part, sans
+`Open`, avec sa poubelle — sa seule sortie.
+🛡️ `tests/sauvegarde-374.test.mjs` (P1 à P4, C6).
+
+### 🗂️ MY CHARACTERS — LA LISTE, SANS LE LIEU (lot 376)
+📍 `menu-my-characters-la-liste-sans-le-lieu` · vivante · 30/09 · remplace `menu-my-characters-une-ligne-par-perso` · borne `menu-magasin-de-sauvegardes`
+⚖️ **My characters (le rang B1 du Menu) porte une ligne par personnage rangé dans l'app — sa version la plus récente : l'image de la fiche de son espèce · son nom · « espèce classe lvl N » · sa campagne (`none` sans elle) · `Open` (gabarit large, 105 × 40, bleu : il navigue) · la poubelle (40 × 40) tout à droite ; ses versions datées restent derrière la ligne ; la liste PAGINE (5 lignes par page, la rangée des pages sous elle), elle ne défile jamais ; `Open a file…` reste seul au pied. `Save location` n'est plus ici : il vit dans Vault (`menu-vault-un-bouton-par-lieu`).**
+
+> ARCHI 35, mandat du lot 376 (30/09) : *« `Save location` quitte My characters et vit désormais dans
+> Vault »* — la règle du 30/09 le gardait ici *« jusqu'au lot Vault »* (✅ ratifiée par Eric le 30/09 à
+> 12:50, « Ok go »). Tout le reste de la règle remplacée tient, mot pour mot : la dictée du 29/09, les
+> deux décisions d'Eric qui tiennent ensemble (Q1 → b), qui entre dans la liste (Q3 → a), l'image de la
+> fiche de l'espèce.
+
+📐 **LES CINQ LIGNES SE DÉDUISENT TOUJOURS** — le pied a perdu le mot du lieu : 8 d'air + 32 de titre + 52
+de rangée des pages + 52 de pied (`Open a file…` et son écart) + 60 de la paire de la coquille → 296 ; une
+ligne vaut 44 + 8 → ⌊296 / 52⌋ = 5 (`LIGNES_PAR_PAGE`, la déviation DÉCLARÉE de
+`liste-quinze-est-un-defaut`). Le pied se centre sous la liste. 🗄️ Lot 374 : 66 de pied (`Save location`
+portait son mot dessous) → 282 → 5.
+🛡️ `tests/sauvegarde-374.test.mjs` (P1 à P4, C6, D4 — plus de `Save location` ici).
+
+### 🗑️ LA POUBELLE D'UN PERSONNAGE SUIT LE LIEU CHOISI (lot 374)
+📍 `menu-my-characters-poubelle-selon-le-lieu` · vivante · 30/09
+⚖️ **La poubelle d'une ligne demande d'abord — un aiguilleur qui exige sa réponse, `Cancel` et `Delete` en rouge — et elle retire le personnage ENTIER de l'app : sa copie et toutes ses versions. Si le lieu choisi ne sait pas effacer (le fichier), la question dit que les fichiers restent où le joueur les a rangés ; s'il sait effacer (le dossier, Dropbox demain), « Delete this character for good? » l'efface du lieu, PUIS de l'app. Un lieu qui refuse : l'app garde tout.**
+
+> Eric, 30/09, à *« My characters, stockage "le fichier" : une page web ne peut pas effacer un fichier
+> rangé sur l'appareil ; la poubelle d'une ligne ? »* → **« Efface la copie de l'app »**. Et le 29/09,
+> pour un lieu qui sait effacer : *« le Delete de My characters efface le fichier dans le stockage, pour
+> de bon, après confirmation »*.
+
+⭐ **LA QUESTION LIT UNE DONNÉE DU LIEU** (`capacites.efface`), jamais son nom : Dropbox entrera par
+l'adaptateur, sans une ligne de page. L'ordre vit dans une séquence pure (`effacerSelonLeStockage`,
+magasin.mjs). ⭐ Les versions se reconnaissent par l'`id` du personnage, jamais par son nom : un perso renommé les garde,
+un homonyme ne perd pas les siennes. ✍️ Les mots sont des brouillons : *« Delete this character? »* · *« This
+removes Kara and every saved version from My characters. Your files stay where you saved them. »* · *« Delete
+this character for good? »*.
+🛡️ `tests/sauvegarde-374.test.mjs` (S2, V2, D1, P5, C4).
+
+### 🗄️ LE STOCKAGE — UN ORGANE, DES LIEUX (lot 374)
+📍 `socle-le-stockage-un-organe-des-lieux` · vivante · 30/09
+⚖️ **Un seul organe du stockage parle quatre verbes — lister · lire · écrire · effacer —, et l'écriture EXIGE la révision qu'elle croit remplacer. Chaque lieu est un adaptateur qui dit ce qu'il sait faire par ses CAPACITÉS (lister, remplacer, effacer, écrire sans un geste, donner la propriété), jamais par son nom ; un lieu qui remplace refuse une révision périmée, et rien n'est écrasé. Une révision ne naît que si ce qui fait le personnage change (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`) — jamais d'une estampille. Ce qui s'écrit est le document `fh-char/1` lui-même, aux octets du moteur.**
+
+> Eric, 30/09 : **« la sauvegarde c'est la suite »**, **« il faut que tout puisse être lisible par la nouvelle
+> fiche »**, et, à *« Dropbox exige d'enregistrer l'application : quand ? »* → **« Plus tard »**. La carte
+> produit (§ 10, 29/09) : *« l'app VÉRIFIE AVANT D'ÉCRIRE »*.
+
+⭐ **TROIS LIEUX AUJOURD'HUI** : l'APPAREIL (la copie de l'app, IndexedDB — une copie courante par `id`,
+sur une révision `r1`, `r2`… avancée dans la transaction qui la compare, et ses VERSIONS DATÉES, une par
+Save, jamais écrasées : Q1 → b) ; le FICHIER (un téléchargement : il ne liste pas, ne relit pas, n'efface
+pas, ne remplace jamais) ; le DOSSIER de Chrome et d'Edge (lots 195, 202 ; Q2 → a : un fichier daté par
+Save, il sait effacer, sa permission se DEMANDE dans le clic). Dropbox, Google Drive, OneDrive seront des
+adaptateurs de plus. ⛔ **LA RÉVISION EST EXIGÉE PAR
+L'ORGANE**, pas par l'adaptateur : une écriture qui ne la dit pas n'atteint aucun lieu. ⭐ Sauver passe
+par une séquence pure (`sauverDansLesDeux`) : la copie de l'app d'abord, le lieu choisi ensuite — un
+refus de l'app n'envoie aucun fichier. `memoire.mjs` reste la COPIE DE TRAVAIL
+(`socle-chacun-est-proprietaire-de-ses-donnees` : le navigateur est un cache de reprise, le fichier
+appartient au joueur).
+⚖️ **AUCUNE RÉVISION NE NAÎT D'UNE ESTAMPILLE** (ARCHI 35, 30/09) : la dérivation réécrit `modified` et
+`resolved.derivation.at` à chaque ouverture ; comparée sur le texte entier, chaque ouverture ajoutait une
+révision fantôme (📏 mesuré au banc : Ilyra montait d'un cran à chaque rechargement). L'appareil compare
+donc ce qui fait le personnage — l'organe du lot 350 — et la réouverture compare le même repère. Un même
+personnage n'est pas un conflit. ⭐ Un Save explicite garde tout de même sa version datée (10/09 : *« à
+chaque Save »*). C'est la règle qu'il faudra pour Dropbox.
+📏 **L'ALLER-RETOUR EST GARDÉ SUR UN VRAI PERSONNAGE** (l'Ilyra de v914, recalée et dérivée) : écrit dans
+les deux lieux, relu, octets identiques, validé par le schéma, redérivé par le moteur sans perte — la
+seule différence admise est nommée : l'heure du calcul (`resolved.derivation.at`).
+🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, E1, E2, A1, C1).
+
+### 🔁 LA SAUVEGARDE AUTOMATIQUE ET LA RÉOUVERTURE (lot 374)
+📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09 · **amendée 30/09 (lot 375) — rien ne part quand seule une estampille change**
+⚖️ **La copie de travail s'écrit à chaque geste ; la copie de l'app d'un personnage de My characters suit chaque modification et part au passage en arrière-plan — mais seulement si ce qui fait le personnage a changé (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`) : une estampille seule ne fait ni écriture, ni révision, ni envoi. Un envoi raté repart à la réouverture, et le Menu le dit ; une copie changée ailleurs entre-temps n'est jamais écrasée : la question « quelle version garder ? » se pose à la réouverture.**
+
+> ARCHI 35, 30/09 (lot 375) : *« un perso ne se réécrit plus quand seule une estampille a changé »* — la
+> dérivation réestampille `resolved.derivation.at` à chaque ouverture ; *« entre deux onglets, c'est un
+> faux conflit en germe ; pour Dropbox, ce serait un envoi à chaque ouverture »*.
+
+⭐ **DEUX ÉTAGES, UNE RÈGLE** : l'appareil ne fait naître aucune révision d'une estampille (lot 374,
+`socle-le-stockage-un-organe-des-lieux`) ; la coquille, elle, n'APPELLE plus le lieu — elle retient le
+repère que la copie de l'app tient (`{id, repere}`) et n'envoie rien quand il n'a pas bougé
+(`rienNaChange`, magasin.mjs). 📏 Mesuré au banc (lot 374, v925) : Ilyra reste à r4 d'un rechargement à
+l'autre. ⭐ Un `Save` explicite, lui, écrit toujours : il garde sa version datée (10/09).
+
+> La carte produit, § 10 (29/09) : *« Quand part la sauvegarde ? »* → **« Automatiquement »** — le dernier
+> moment fiable est le passage en arrière-plan ; *« un envoi raté repart à la réouverture, et le dit »* ; et
+> à *« deux appareils, le même perso modifié : lequel gagne ? »* → **(a) l'app vérifie avant d'écrire** —
+> *« la question est posée à la réouverture »*.
+
+⭐ **LA RÉOUVERTURE LIT TROIS FAITS** (`aLaReouverture`, pure) : le texte de la copie de travail GARDÉ au
+démarrage, la révision sur laquelle il repose (`fhpc.base`, une seconde clef, jamais un champ du
+personnage) et la copie de l'app. Même révision et texte différent → renvoyer, et le dire ; révision
+différente → la question. ⭐ Les écritures de la copie de l'app passent par UNE file de la coquille :
+la sauvegarde automatique en vol et un `Save character` ne se croient jamais en conflit l'un avec
+l'autre. ⚖️ **Q3 → a** (ARCHI 35, 30/09) : un perso jamais sauvé n'entre pas tout seul dans My
+characters — la copie de travail le garde déjà sur l'appareil, et la fenêtre New character le dit (*« le
+perso en cours sera effacé »*) ; il entre au premier Save, ou quand on l'ouvre (un fichier, la liste).
+✍️ Brouillons : *« My characters did not get your last changes: … They are safe in this browser, and
+will be sent again when the app reopens. »* · *« Your last changes reached My characters when the app
+reopened. »* · *« Which version do you keep? »* (`This one` · `The other one` — ⚠️ aucune en rouge :
+`A-TRANCHER §C40`).
+🛡️ `tests/sauvegarde-374.test.mjs` (R1 à R4, P6, P7, C2, C5, E1, E2), `tests/estampille-375.test.mjs`.
+
+### 💾 `SAVE CHARACTER` RANGE, PUIS VIDE LE CACHE (lot 374)
+📍 `menu-r-save-character-vide-le-cache` · vivante · 30/09
+⚖️ **`Save character` (Sheet) range le personnage dans l'app ET dans le lieu choisi, puis vide la copie de travail — le navigateur rouvre la fiche vierge, et le personnage se rouvre depuis My characters. Un Save refusé ne vide rien. Le `Save` de New character et la version FH (lot 192) rangent sans vider.**
+
+> Eric, 28/09 : *« un sauvegarde à la fin du process de création. puis le cache est totalement vidé,
+> plus de Ilyra Duskleaf. »*
+
+⭐ La copie de travail part avec sa base (`fhpc.base`) et sa marque de recalage (lot 367), qui lui
+appartiennent ; la page redémarre, et un navigateur SANS personnage ouvre la fiche vierge
+(`menu-r-premiere-visite-fiche-vierge`).
+🛡️ `tests/sauvegarde-374.test.mjs` (C3), `tests/shell-wiring.test.mjs` (10 bis).
 
 ### 💤 `VAULT` ET `DUNGEON MASTER` SONT RÉSERVÉS ; `TOOLS` QUITTE R
 📍 `menu-r-portes-reservees` · remplacée · 29/09 · remplacée par `menu-r-portes-en-deux-rangees`
@@ -10700,6 +11104,18 @@ depuis le 27/09.
 ⭐ Dit au seul lecteur de `GUIDES` (`guideDeLEtape`) : le `?` posé et le `?` qui répond ne peuvent
 pas diverger. Le guide du Menu demeure, lu depuis ses rangs B.
 🛡️ `tests/guide-point.test.mjs` A6 ; `universe-step` R5.
+
+### 📕 LES RANGS B DU MENU N'ONT PAS DE LIVRE
+📍 `menu-rangs-b-sans-livre` · vivante · 30/09 · borne `rangee-trilogie-due-partout`
+⚖️ **Les rangs B du Menu — Layers, Display, Dungeon Master — portent leur rangée sans le livre : leurs boutons et le `?`. La trilogie reste due partout ailleurs.**
+
+> Relayée par ARCHI 35, 30/09, après l'audit du lot 370 : *« Rangée livre · majeurs · ? sur les pages du Menu
+> (Layers, Display, Dungeon Master) : a) on l'ajoute · b) exemptées »* → Eric : **« b »**.
+
+⭐ **UNE EXCEPTION NOMMÉE, DATÉE, PAS UNE RÈGLE QUI TOMBE** (la loi des deux âges : la plus récente fait foi
+sur son périmètre, et seulement sur lui). Elle rejoint celle de R (`menu-r-sans-pied`) : R n'a ni livre ni `?`,
+ses rangs B gardent le `?` sans livre.
+📌 Elle clôt le ⛔ du lot 357 (la page Dungeon Master sans livre) et l'écart antérieur A3 de l'audit du lot 370.
 
 ### 🔕 LA LIGNE D'ÉTAT EST RETIRÉE — UNE PERTE SE DIT TOUJOURS
 📍 `menu-r-ligne-d-etat-retiree` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde`
@@ -10754,6 +11170,8 @@ ailleurs). Que fait la page ? »* → **« Montré éteint »** (la ligne reste,
 n'a QUE des catalogues »*, la pile par source du 29/09).
 ✍️ **`base book` ET `your copy`** — les étiquettes du plan v10 — sont des brouillons : c'est Eric qui
 arrête les mots, et ils vivent une seule fois (`MOTS_DE_LAYERS`, `layers-ecran.mjs`).
+⚖️ **LOT 371 — L'ÉTIQUETTE EST EN T1** (`ecriture-aucun-texte-sous-t1`, `panneau-plancher`) ; elle était en T0.
+⛔ Seules les FAMILLES restent en T0 : c'est la dictée d'Eric (*« en italique t0 »*), une cote donnée.
 🗄️ **`+ TABLE ITEMS` A QUITTÉ `LAYERS`** — Eric l'a renommé `Campaign items` et l'envoie dans la page
 Dungeon Master (lot 357). ✅ La ligne « l'écran `Layers`, place réservée » du tableau
 d'`equipement-table-items` ne tenait donc plus : le lot 357 l'a annotée, et `equipement-campaign-items`
@@ -10797,8 +11215,8 @@ sa copie en ligne.
 mot « World ».
 
 ### 🗑️ UNE POUBELLE PAR LIVRE — plus de `Delete a book`
-📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09
-⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete`, un tap dehors vaut `Cancel`). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
+📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09 · **amendée 30/09 (lot 371) — la question exige sa réponse**
+⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete` — ~~un tap dehors vaut `Cancel`~~ : elle exige sa réponse). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
 
 > Eric, 2026-09-29, dans ses corrections du jour (arborescence d'entrée, au vault) : un bouton
 > **`Delete a book`** à côté d'`Import a book`, qui **demande aussi une confirmation** · puis, relayée
@@ -10818,6 +11236,11 @@ dans le patron par la LISTE (les trois listes de `shell.css`, l'inventaire
 dessin retiré sur ses quatre côtés) ; son teint est `--critical` (`bouton-definition-du-bleu` : ça
 efface → rouge avec popup). Elle se nomme (`aria-label` et `title` : « Delete <le livre> ») : un
 dessin sans mot ne dit rien à un lecteur d'écran.
+⚖️ **LOT 371 — ELLE EXIGE SA RÉPONSE** (`popup-question-exige-une-reponse`) : ni tap dehors, ni Échap. « Un tap
+dehors vaut `Cancel` » n'était pas dans la citation d'Eric : c'était une lecture du lot 351, retirée. Ce qu'on ne
+peut pas refuser est un AIGUILLEUR (`popup-aiguilleur-nom-et-critere`), et `Cancel` porte le rouge de son mot
+(`bouton-deux-mots-retour-et-couleur-se-deduit-mot` — sans `defait`, une action de popup retombait sur le vert,
+§C40). 🛡️ `tests/conformite-371.test.mjs`.
 ⭐ **LA QUESTION EST UNE DESCRIPTION** (`popupEffacerUnLivre`), peinte par `paintPopup` — ⛔ aucun
 composant neuf ; `Delete` porte `defait` ; les mots (`MOTS_EFFACER_UN_LIVRE`) sont des brouillons.
 ⚖️ **LA LOI, TELLE QU'ERIC L'A DITE** : un livre vit dans le stockage choisi au `Vault` — la copie du
@@ -10859,7 +11282,7 @@ note). ⚠️ Aucun garde de la suite ne mesure un défilement : le DOM des test
 ---
 
 ### 🧭 LOT 357 — R REDICTÉ, ET LA PAGE DUNGEON MASTER *(Eric, 2026-09-29, après la v906)*
-📍 `menu-r-la-page-redictee` · vivante · 29/09 · remplace `menu-r-la-page-dictee`
+📍 `menu-r-la-page-redictee` · vivante · 29/09 · remplace `menu-r-la-page-dictee` · bornée par `menu-r-ligne-des-regles-mises-a-jour`
 ⚖️ **Le Menu R porte, de haut en bas : `SOWLREACH` et son sous-titre · le code de campagne (réservé) · `New character` (le grand bouton) · `Campaign` (lu) · `Rules` · `Books` · l'aiguilleur · cinq portes en deux rangées centrées — `My characters` · `Dungeon Master` ; `Vault` · `Layers` · `Display`. Rien d'autre ; les repères `R` / `B…` ne s'affichent jamais.**
 
 > Eric, 2026-09-29, après avoir relu le Menu en ligne (v906), mot pour mot : **« je te refais un overview
@@ -10879,6 +11302,26 @@ note). ⚠️ Aucun garde de la suite ne mesure un défilement : le DOM des test
 🗄️ **CE QUI QUITTE R** : `Create character` (il devient `New character`), la porte `New character` du
 bas (*« celui doit dégager »* — un seul organe par geste), le champ `Campaign` (une ligne lue).
 🛡️ `tests/universe-step.test.mjs` R1, R3 (l'ensemble des verbes), R5 (les deux rangées), R8.
+
+#### 🔔 SOUS `Books`, UNE LIGNE QUAND LES RÈGLES ONT BOUGÉ SOUS LE PERSONNAGE
+📍 `menu-r-ligne-des-regles-mises-a-jour` · vivante · 30/09 · borne `menu-r-la-page-redictee`
+⚖️ **Quand un personnage vient d'être recalé sur les règles d'aujourd'hui (`socle-perso-sauve-s-ouvre-toujours`), R porte, sous `Books`, une ligne de note — « The rules were updated since this character was saved. Your choices are kept; anything that no longer exists is named on its step. » — jusqu'au premier geste du joueur. Elle se lit dans une MARQUE posée par le recalage (ce qui a changé, et quand), jamais dans le personnage. ⛔ Aucun nom de sous-couche ; ⛔ pas un second aiguilleur.**
+
+> Eric, 2026-09-30, relayé par ARCHI 35, à « Prévenir le joueur ? (a) une ligne au Menu, sous Rules/Books,
+> jusqu'au premier geste · (b) un popup à l'ouverture · (c) rien » : **(a)**, le brouillon proposé.
+> ARCHI 35, même jour : la copie étant réécrite aussitôt, la ligne ne peut plus se fonder sur « la copie
+> déclare les anciennes règles » — *« Fonde-la sur une marque posée par le recalage (ce qui a changé, et
+> quand), et fais-la vivre jusqu'au premier geste du joueur »*.
+
+⭐ **C'EST L'EXCEPTION NOMMÉE AU « RIEN D'AUTRE » DE R** : la page redictée reste la liste de R ; cette
+ligne n'y paraît que sous sa condition. Elle est une note (`universe-note`), pas l'aiguilleur — un écran
+n'en a qu'un (`aiguilleur-un-seul-par-ecran-le-premier-s-eteint`) — et pas le rouge de la tête, qui dit
+une panne de mémoire (`menu-r-ligne-d-etat-retiree`) : rien ici n'est en panne.
+⭐ **LA MARQUE** (`fhpc.recalage`, `memoire.mjs`) garde les couches changées, l'heure, et le REPÈRE —
+ce qui fait le personnage à ce moment. Recharger la page ne change que ce que la dérivation estampille :
+la ligne reste. Un geste (un choix, un nom, un livre allumé…) fait diverger le personnage de son repère :
+la marque tombe, et la ligne avec elle. ⛔ Pas une liste des gestes qui comptent.
+🛡️ `tests/perso-s-ouvre-367.test.mjs` R4, R5, R6.
 
 #### 🟢 `NEW CHARACTER` EST LE GRAND BOUTON — la fenêtre, puis l'étape 1
 📍 `menu-r-new-character-grand-bouton` · vivante · 29/09 · remplace `menu-r-create-character-ouvre-l-etape-1`
@@ -10907,9 +11350,9 @@ verbe `describe/campaign` ne part plus de R. ⏳ Le titre viendra du PC du MJ, p
 campaign` ni le transport de table ne sont construits — la ligne dit donc « none ».
 🛡️ `universe-step` B3, R4.
 
-#### 🚪 CINQ PORTES EN DEUX RANGÉES CENTRÉES — `Dungeon Master` vit, `Vault` attend
-📍 `menu-r-portes-en-deux-rangees` · vivante · 29/09 · remplace `menu-r-portes-reservees`
-⚖️ **Rangée 1 : `My characters` · `Dungeon Master` ; rangée 2 : `Vault` · `Layers` · `Display` — les deux rangées centrées, avec l'écart que le trio laisse entre ses portes quand il remplit la largeur. `Dungeon Master` ouvre sa page ; `Vault` reste une place réservée (son lot : 353) ; `Tools` n'est pas sur R.**
+#### 🚪 CINQ PORTES EN DEUX RANGÉES CENTRÉES — `Dungeon Master` et `Vault` vivent
+📍 `menu-r-portes-en-deux-rangees` · vivante · 29/09 · remplace `menu-r-portes-reservees` · **amendée 30/09 (lot 376) — `Vault` ouvre sa page**
+⚖️ **Rangée 1 : `My characters` · `Dungeon Master` ; rangée 2 : `Vault` · `Layers` · `Display` — les deux rangées centrées, avec l'écart que le trio laisse entre ses portes quand il remplit la largeur. `Dungeon Master` et `Vault` ouvrent leur page (`menu-dm-la-page`, `menu-vault-un-bouton-par-lieu`) ; `Tools` n'est pas sur R.**
 
 > Eric, 29/09 : **« centre les 2 par en 2 rangées »** · **« 1ere rangée : My characters / Dungeon
 > Master · 2e rangée : Vault / Layers / Display »** ; et `Tools`, plus tôt le même jour : **« on mettra
@@ -10919,9 +11362,36 @@ campaign` ni le transport de table ne sont construits — la ligne dit donc « n
 deux intervalles égaux (`1fr`) — le trio remplit la largeur, une porte par piste ; chaque porte de la
 paire couvre deux pistes et l'intervalle qui les sépare, centrée dedans : elle tombe sur l'intervalle du
 trio. ⛔ Aucun calcul : un chiffre dans un `gap` rougit le garde des jetons (`ui-jetons` garde 2).
-🗄️ Lot 350 : `space-between` — la paire plaquée aux bords — et `Dungeon Master` réservée.
+🗄️ Lot 350 : `space-between` — la paire plaquée aux bords — et `Dungeon Master` réservée. 🗄️ Jusqu'au lot
+376 : `Vault` restait une place réservée (son lot, annoncé 353, fut le 376).
 🛡️ `universe-step` R4, R5, R11 (la feuille : la grille et les aires) ; la géométrie rendue se mesure au
 navigateur (le DOM des tests n'a pas de mise en page).
+
+#### 🗄️ LA PAGE VAULT — UN BOUTON PAR LIEU, CHOISI UNE FOIS
+📍 `menu-vault-un-bouton-par-lieu` · vivante · 30/09
+⚖️ **`Vault` ouvre un rang B du Menu (B2) : son titre, puis un bouton par stockage, dans l'ordre dicté — `Dropbox` · `Google Drive` · `OneDrive` · `File` · `GitHub` · `Other` —, en deux rangées de trois. Le lieu choisi porte le halo de l'actif et son mot dessous ; le choisir, c'est le lieu où `Save character` et la sauvegarde automatique écrivent. Seul le fichier est câblé ; les cinq autres sont des places réservées — présentes, éteintes, « soon » sous elles. `Save location` vit au pied de la page : il choisit le dossier de Chrome et d'Edge, la voie « dossier » du fichier. ⛔ Jamais d'adresse à recopier ; la page ne défile pas.**
+
+> Eric, 29/09 : **« Vault (droite -> B2) »** ; **« exact, un bouton par stockage, + un choix libre "Other" »** ;
+> le mandat du Menu R, ligne B2 : *« Dropbox (en tête) · Google Drive · OneDrive · un fichier (la voie
+> iCloud) · GitHub (catalogues de table publics) · Other (choix libre) »*. La carte produit, § 10 : le
+> joueur choisit son emplacement, la même sélection sur tous les appareils. Et le 30/09 à 12:50, « Ok go »
+> sur `Save location` *« jusqu'au lot Vault »* (`menu-my-characters-la-liste-sans-le-lieu`).
+
+⭐ **LA TABLE DES LIEUX EST UNE DONNÉE DE L'ORGANE** (`LIEUX`, magasin.mjs : un `id`, un mot, `cable`) ;
+l'écran la REÇOIT de la coquille (⛔ magasin.mjs lit déjà universe-step : aucun cycle). Le choix s'écrit
+dans les réglages de l'app (`lieuRetenu`, `choisirUnLieu`) ; ⛔ un lieu non câblé se REFUSE à l'organe,
+pas seulement au bouton éteint, et un réglage qui désignerait un lieu débranché se relit « rien n'a été
+réglé » : le fichier. La coquille remonte l'adaptateur par une table (`ADAPTATEURS_DES_LIEUX`, une entrée
+par lieu câblé) : Dropbox entrera par une ligne de table et un adaptateur, sans une ligne de page.
+⭐ **UNE SEULE FORME DE « PAS ENCORE »** (`menu-reglage-impossible-reste-visible`) : la place réservée de
+la page Dungeon Master. Là où le navigateur ne sait pas choisir un dossier (Safari, l'iPad), `Save
+location` est présent, éteint, et dit pourquoi ; le fichier reste le lieu.
+⚠️ **Deux rangées de trois est une lecture du lot 376** — la dictée dit l'ordre, pas la disposition : ce
+sont les rangées de R. ✍️ `File` est un brouillon (« un fichier »), comme `soon`.
+⏳ Dropbox attend l'App key d'Eric (`FH-WEB/FHPC/FHPC Dropbox marche a suivre.md`) ; ⛔ aucun connecteur
+en ligne dans ce lot.
+🛡️ `tests/vault-376.test.mjs` (L1, L2, P1 à P4, C1 à C3) — 14 mutations vues rouges ; `universe-step` R3,
+R4.
 
 #### 🎲 LA PAGE DUNGEON MASTER — quatre places réservées, sans câblage
 📍 `menu-dm-la-page` · vivante · 29/09
@@ -10933,7 +11403,7 @@ navigateur (le DOM des tests n'a pas de mise en page).
 > connect to VTT sera dedans aussi »**.
 
 ⭐ **UNE SEULE FORME DE « PAS ENCORE »** (`menu-reglage-impossible-reste-visible`) : la même place que
-`Vault` sur R. ⛔ Aucune prose inventée sur la page : Eric arrête les mots que le joueur lit.
+les lieux non câblés de Vault. ⛔ Aucune prose inventée sur la page : Eric arrête les mots que le joueur lit.
 ⏳ `Tools` y viendra *« si on l'utilise »*.
 ⚠️ **Deux rangées de deux est une lecture du lot 357** — la dictée ne dit pas la disposition : ce sont
 les rangées des portes de R, centrées.
@@ -11045,6 +11515,12 @@ champ de texte s'enregistre en perdant le focus (`change`, `blur`) — c'est-à-
     (`MutationObserver`) et son JUMEAU — le seul nœud vivant armé sous la même clé — reprend le liseré et les
     destinations, ⛔ sans flash (le joueur n'a rien fait) ; l'appui suivant fait la même reprise, et un clic dont le nœud
     pressé a été remplacé arme le jumeau. ⛔ Deux jumeaux, ou aucun : on désarme. ⛔ Sans `cle`, rien ne change ;
+  · ⚖️ la sauvegarde automatique (lot 374, `socle-sauvegarde-automatique-et-reouverture`) — relevé au code le 30/09 à la
+    demande d'ARCHI 35 : taper n'écrit rien avant le `change`, et un envoi réussi ne repeint pas ; mais quand l'ÉTAT de
+    l'envoi change (refus, conflit, reprise), `envoyerEtDire()` repeignait 800 ms après, sous la frappe, et le clavier
+    se fermait. ⭐ Ce repeint-là ne vient d'aucun geste : si un champ de texte est actif (`champDeTexteActif`), il
+    attend que ce champ perde le focus. L'envoi, lui, part ; et la copie de travail s'écrit toujours à chaque geste
+    (`memoriser()` reste la première ligne de `refresh()`) ;
   · les clés : la valeur et son vivier (`renderChoixGlisses`), le créneau rempli, la ligne du sac, de Gear (case et
     collecteur), l'objet de Wares et son collecteur, le sort et le parchemin de X5, le jeton de X5 en double écran.
     ⛔ Exception nommée : le dé d'Abilities (fichier du lot 362 ; aucun champ de texte sur sa page).
@@ -11063,6 +11539,6 @@ colonne dit COMMENT je le sais : « mesuré » = vu au navigateur par la sonde d
 | la bourse de B3 | `change` → la valeur | ⛔ non : la scène B3 n'est plus montée (aucun module vivant ne l'importe) | lu |
 | Campaign code | — | ⛔ non : place réservée, désactivée (`soon`) | lu |
 
-🛡️ `tests/repeint-ne-casse-rien.test.mjs` (11 gardes : les quatre chaînes rejouées dans l'ordre du navigateur, les
-jumeaux, le câblage). Vues rouges par mutation, 19 mutations, sources restaurées à l'empreinte ; et sur le code v912
+🛡️ `tests/repeint-ne-casse-rien.test.mjs` (12 gardes : les quatre chaînes rejouées dans l'ordre du navigateur, les
+jumeaux, le câblage, la sauvegarde automatique). Vues rouges par mutation, 20 mutations, sources restaurées à l'empreinte ; et sur le code v912
 (l'organe de `main`, sans retenue), les gardes 1 (le mandat), 2 (l'appui long) et 3 (le bouton) rougissent.

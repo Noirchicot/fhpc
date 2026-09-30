@@ -34,13 +34,13 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=916";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=916";
-import { swapContent } from "./socle.mjs?v=916";
-import { renderChoixGlisses } from "./glisser.mjs?v=916";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=929";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=929";
+import { swapContent } from "./socle.mjs?v=929";
+import { renderChoixGlisses } from "./glisser.mjs?v=929";
 /* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
    dont la couche est éteinte (Trainings coupé depuis `Layers`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=916";
+import { motDuChoix } from "./mot-du-choix.mjs?v=929";
 /* 🌱 LOT 198 — SKILLS VIT SANS FICHE, ET IL NOMME. ⚖️ Eric, 10/09 : *« Ce que
    tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi ne pas
    dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -52,7 +52,7 @@ import { motDuChoix } from "./mot-du-choix.mjs?v=916";
    la place dit ce qui manque et où aller, avec LES MOTS DE L'ÉCRAN MORT —
    `motDuManque` en est le seul écrivain, cet écran ne recopie aucune phrase.
    Dès que la fiche existe, le pool s'affiche et le mot disparaît. */
-import { motDuManque, CAUSE_SANS_RAISON } from "./ecran-mort.mjs?v=916";
+import { causeDeLaFicheAbsente } from "./ecran-mort.mjs?v=929";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
@@ -280,10 +280,11 @@ function contexte(ctx, act) {
   const resolved = ctx.resolved || {};
   const decisions = ctx.decisions || [];
   /* 🌱 LOT 198 — LA FICHE MANQUE : le mot du manque, lu sur le document par
-     l'organe de l'écran mort ; `null` dès que la fiche existe. Quand le
-     document ne sait pas nommer la cause (tout est posé, le moteur refuse
-     ailleurs), la phrase muette du même organe — jamais le mensonge SRD. */
-  const manque = ctx.resolved ? null : (motDuManque(ctx.document || null) ?? CAUSE_SANS_RAISON);
+     l'organe de l'écran mort ; `null` dès que la fiche existe. ⚖️ LOT 367 — et
+     quand le document ne sait pas nommer la cause, ce n'est plus la phrase muette :
+     la classe disparue, ou ce qui ne suit pas les règles (`causeDeLaFicheAbsente`,
+     le même écrivain que l'écran mort) — jamais le mensonge SRD. */
+  const manque = ctx.resolved ? null : causeDeLaFicheAbsente(ctx.document || null, ctx.violations);
   const query = typeof ctx.query === "function" ? ctx.query : () => [];
   const poolStat = findPoolStat(resolved);
   let pool = null;

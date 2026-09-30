@@ -10,8 +10,12 @@
      **B2** — le catalogue des 22, rail à gauche : *« c'est F pas FS, il y a
               un scrollspy avec les cartes de tarot »* (Eric, 2026-08-30).
      **④**  — l'écran final, LE MÊME pour les deux branches : la carte, son
-              texte détaillé, le Score, et la paire `I changed my mind` /
-              `Next`.
+              texte détaillé, le Score, et la paire `Cancel` · `Done`, puis
+              `Cancel` · `Next` une fois signé.
+              ✍️ 2026-09-30, lot 369 : ce plan disait « la paire `I changed my
+              mind` / `Next` » — le mot a été retiré le 05/09 (NORMES « DEUX
+              MOTS, PAS TROIS »), et le `Done` est revenu le 06/09 (voir le
+              pied, plus bas).
 
    ⭐ UN SEUL ÉCRAN FINAL POUR DEUX BRANCHES, et c'est ce que les deux
    planches d'Eric dessinent à l'identique. Deux rendus jumeaux auraient
@@ -25,15 +29,15 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=916";
-import { renderCardRows } from "./catalogue.mjs?v=916";
+import { drawArcana } from "./dice.mjs?v=929";
+import { renderCardRows } from "./catalogue.mjs?v=929";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=916";
+import { versionQuery } from "./version.mjs?v=929";
 /* ⭐ LOT 213 — la jauge de défilement est descendue dans une feuille sans import, pour
    que la fiche X1 la prenne sans traîner Destiny derrière elle. Même dessin, nom neutre. */
-import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=916";
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=929";
 
 export { drawArcana };
 
@@ -92,7 +96,9 @@ function bouton(libelle, className, onClick) {
 
 /* 🔴 LE PIED EST L'ORGANE DES AUTRES CHAPITRES, PAS UN PIED À MOI — Eric,
    2026-08-30 : *« I changed my mind comme dans les autres chapitres, organes
-   livre et ? »*.
+   livre et ? »*. ✍️ 2026-09-30, lot 369 : citation gardée ; le bouton
+   qu'elle nomme s'appelle `Cancel` depuis le 05/09 (NORMES « DEUX MOTS, PAS
+   TROIS »).
    ⭐ CE QUE ÇA REND SANS RIEN ÉCRIRE : `.parcours-pied` porte déjà l'octogone,
    les 4 px au-dessus et en dessous, le rouge du défaire, le bleu du mouvement,
    la place du livre à gauche et celle du `?` à droite. Réutiliser l'organe,
@@ -527,7 +533,9 @@ export function renderDestinyFinal(ctx, onAction) {
 
   /* ── LE PIED : DEUX RANGS, DEUX PAIRES, ET C'EST LE RANG QUI DÉCIDE ──────
      🔴 Eric, 2026-09-03 : *« en B2 le back ramène à R »* · *« en SB2 : I changed
-     my mind dans le FF revient à B2 »*.
+     my mind dans le FF revient à B2 »*. ✍️ 2026-09-30, lot 369 : citation
+     gardée ; ce bouton est `Cancel` depuis le 05/09 (NORMES « DEUX MOTS, PAS
+     TROIS »), et sa sortie par rang n'a pas bougé.
      ⭐⭐ LE BOUTON NE RETIENT RIEN. J'avais proposé qu'il se souvienne d'où on
      vient ; Eric a tranché autrement, et mieux : c'est le RANG où l'organe est
      rendu qui porte sa sortie. Pas d'historique à relire, pas d'état à tenir à
@@ -584,7 +592,9 @@ export function renderDestinyFinal(ctx, onAction) {
        l'une en croyant réparer l'autre.
        ⭐ CE QUE LA MESURE A MONTRÉ, ET QUI DONNE RAISON À ERIC : dans Species, le
        pied vaut `I changed my mind` + `Done` tant que l'étape n'est pas faite,
-       puis `I changed my mind` + `Next`. Deux états pour un seul geste — ici le
+       puis `I changed my mind` + `Next` (mesure du 03/09 : le rouge portait
+       encore ce mot, il s'appelle `Cancel` depuis le 05/09 — NORMES « DEUX
+       MOTS, PAS TROIS »). Deux états pour un seul geste — ici le
        `Next` ACTE ET AVANCE d'une pression (`destinyNext` ne change pas), donc
        l'état intermédiaire n'a rien à montrer.
        ⚖️ NORMES §6 sépare `NEXT` (naviguer) de `DONE` (acter) : la nuance reste
@@ -658,9 +668,12 @@ export function renderDestinyStep(ctx, onAction) {
 
 /** LE PALIER DE DESTINY.
  *  ⛔ `exists: false` DANS LES DEUX ÉCRANS QUI PORTENT LEUR PROPRE PIED — le
- *  R a `Draw`/`Choose`, le final a `I changed my mind`/`Next`. Laisser la
+ *  R a `Draw`/`Choose`, le final a `Cancel` · `Done`/`Next`. Laisser la
  *  coquille poser sa paire en plus, ce serait le doublon du 19/08 : deux
- *  commandes pour un geste, à dix pixels l'une de l'autre. */
+ *  commandes pour un geste, à dix pixels l'une de l'autre.
+ *  ✍️ 2026-09-30, lot 369 : le final était écrit `I changed my mind`/`Next` —
+ *  mot retiré le 05/09 (NORMES « DEUX MOTS, PAS TROIS »), `Done` revenu le
+ *  06/09. */
 export function destinyValidate(ctx) {
   const drawnId = ctx.drawnId;
   const pret = Boolean(drawnId);

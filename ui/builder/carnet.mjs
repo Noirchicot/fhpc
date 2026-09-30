@@ -25,7 +25,7 @@
 /* LOT 191 — le mot d'un choix vit dans `mot-du-choix.mjs`, qui ne lit que la
    feuille `interrupteurs.mjs` : ce fichier peut le lire sans cycle
    (`catalogue.mjs` importe `carnet.mjs`). */
-import { motHumainDeLId, motDuChoix, motDuRefus } from "./mot-du-choix.mjs?v=916";
+import { motHumainDeLId, motDuChoix, motDuRefus } from "./mot-du-choix.mjs?v=929";
 
 /** Le carnet, indexé par chemin — jamais par « le dernier segment » (le
  *  bogue nommé en tête de l'ancien fichier, lot 33). */
@@ -46,8 +46,13 @@ export function violationAt(violations, path) {
 export function planSlots(decisions, basePath) {
   const prefix = `${basePath}[`;
   const list = Array.isArray(decisions) ? decisions : [];
+  /* ⚠️ LOT 372 — UN CRÉNEAU EST UN ENFANT DIRECT, `base[n]` ET RIEN DESSOUS. Mesuré au banc : une
+     fois Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait aussi les
+     plans publiés SOUS la réponse (`class.primal-order[0].cantrips`, `…cantrips[0]`). Le don
+     d'origine portait le même défaut depuis ses branches (`background.originFeat[0].list`…). */
   return list
-    .filter((entry) => typeof entry.path === "string" && entry.path.startsWith(prefix))
+    .filter((entry) => typeof entry.path === "string" && entry.path.startsWith(prefix) &&
+      /^\d+\]$/.test(entry.path.slice(prefix.length)))
     .map((entry) => {
       const match = /\[(\d+)\]$/.exec(entry.path);
       return { ...entry, index: match ? Number(match[1]) : 0 };

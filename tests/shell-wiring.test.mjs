@@ -137,23 +137,23 @@ test("10 bis — 💾 la troisième voie de la confirmation : `exporterJson` (l'
      `state.pendingStack = null` hors du `then` → rouge ici. */
   assert.match(voie[0], /\}\)\.then\(\(eteint\) => \{\s*if \(eteint\) state\.pendingStack = null;/,
     "la question ne se ferme QUE si l'extinction a eu lieu : un Save refusé la laisse posée");
-  /* le bouton `Save` et la voie appellent la MÊME fonction */
-  assert.match(shellText, /action\.kind === "exportJson"\)\s*\{\s*void exporterJson\(\);/, "témoin : `exportJson` → `exporterJson()`, sans version");
+  /* le bouton `Save` et la voie appellent la MÊME fonction — 🔄 LOT 374 : `Save character` passe par
+     `sauverPuisViderLeCache`, qui commence par elle, et ne vide RIEN si elle refuse. */
+  assert.match(shellText, /action\.kind === "exportJson"\)\s*\{\s*void sauverPuisViderLeCache\(\);/, "témoin : `exportJson` → `sauverPuisViderLeCache()`");
+  assert.match(shellText, /async function sauverPuisViderLeCache\(\) \{\s*if \(!\(await exporterJson\(\)\)\) return false;/,
+    "…qui appelle `exporterJson()` sans version, et s'arrête sur un refus");
   assert.equal((shellText.match(/\bfunction exporterJson\b/g) || []).length, 1, "un seul organe d'écriture JSON");
-  /* ⭐ ET CET ORGANE DIT S'IL A RANGÉ — lot 195. `true` après l'entrée du
-     magasin (dossier : elle suffit, le joueur possède ses octets ; tiroir : le
-     téléchargement en plus), `false` sur chaque refus. ⚔️ Rendre `true` sans
-     attendre `ecrire` → rouge : le `await` est ce qui fait du verdict un
-     verdict. */
-  const organe = shellText.match(/async function exporterJson\([\s\S]{0,1600}?\n\}\n/);
+  /* ⭐ ET CET ORGANE DIT S'IL A RANGÉ. 🔄 LOT 374 — il range par la séquence PURE des deux lieux
+     (`sauverDansLesDeux`, magasin.mjs : la copie de l'app, puis le lieu choisi), et rend `true` quand
+     les deux ont rangé, `false` sur chaque refus. ⚔️ Rendre `true` sans attendre la séquence → rouge. */
+  const organe = shellText.match(/async function exporterJson\([\s\S]{0,2400}?\n\}\n/);
   assert.ok(organe);
-  assert.match(organe[0], /const issue = await state\.magasin\.ecrire\(contenu, platformNow\(\)\);/,
-    "⛔ les octets passent par le magasin, jamais par un `telecharger` direct");
-  assert.match(organe[0], /if \(range\.possede\) return true;/,
-    "un dossier que le joueur possède : l'entrée rangée SUFFIT");
-  assert.match(organe[0], /telecharger\(\{[\s\S]*?\}\);\s*return true;/, "le tiroir : le téléchargement part AUSSI, et alors seulement `true`");
+  assert.match(organe[0], /const issue = await enFileDeLApp\(async \(\) => \{\s*const verdict = await sauverDansLesDeux\(\{/,
+    "⛔ les octets passent par la séquence des deux lieux, DANS la file de la copie de l'app — jamais par un `telecharger` direct");
+  assert.doesNotMatch(organe[0], /telecharger\(/, "le téléchargement est l'affaire de l'adaptateur du fichier");
+  assert.match(organe[0], /if \(issue\.ok\) return true;/, "`true` seulement quand les deux lieux ont rangé");
   assert.equal((organe[0].match(/return false;/g) || []).length, 4,
-    "les quatre refus (moteur pas chargé, magasin pas monté, magasin qui refuse, navigateur qui jette) → `false`");
+    "les quatre refus (moteur pas chargé, stockage pas monté, copie de l'app refusée, lieu choisi refusé) → `false`");
   /* ⛔ `Switch off` reste ce qu'il était : l'extinction sans Save */
   const off = shellText.match(/action\.kind === "confirmLayerStack"[\s\S]{0,200}?\n\s*\}\n/);
   assert.ok(off);
@@ -559,8 +559,15 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      sous la forme qui le dit, « une fois, et dans la coquille ».
      ⚠️ Un garde écrit contre une ORTHOGRAPHE devient faux le jour où
      l'orthographe change de camp. Écrit contre un PROPRIÉTAIRE, il tient. */
-  assert.deepEqual(porteursDuLibelle('"Back"'), [`${SORTIE_ETAPE.producteur} (1)`],
-    "`Back` est le mot de la paire, écrit UNE fois et par la coquille — jamais par un écran");
+  /* 🔄 LOT 371 — UN SECOND PORTEUR, ET UN SEUL, NOMMÉ PAR ERIC : le récap de Gear. Eric, 30/09, à « ton "cancel
+     pour tweaker" referme sans rien effacer : a) Back, bleu, comme la Bible · b) Cancel, rouge, exception » →
+     « a) ». ⭐ Ce que ce garde protège tient toujours : ce `Back`-là ne recule d'AUCUN cran — il referme une
+     fenêtre de l'écran, et `pressBack()` reste appelé par la coquille seule (garde au-dessus). L'exception est
+     bornée dans NORMES (`equipement-done-recap-next` · borne `bouton-la-classe-et-le-verbe-font-l-organe`). */
+  assert.deepEqual(porteursDuLibelle('"Back"').sort(), ["ui/builder/gear-ecran.mjs (1)", `${SORTIE_ETAPE.producteur} (1)`].sort(),
+    "`Back` est écrit par la coquille et par le seul récap de Gear — jamais par un autre écran");
+  assert.doesNotMatch(fs.readFileSync(path.join(UI_DIR, "gear-ecran.mjs"), "utf8"), /pressBack/,
+    "⛔ le Back du récap ne recule pas d'un cran : il ne connaît pas le verbe de la coquille");
 });
 
 /* ══ 16 ter — LA CONDITION SOUS LAQUELLE LES 76 px RESTENT VRAIS ══════════
@@ -911,17 +918,18 @@ test("22 — 🔴 LE PERSONNAGE SURVIT AU RECHARGEMENT, et la sauvegarde se voit
      Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
      disparaît s'il n'est pas enregistré s'il y a un reset. »* */
 
-  /* ① LE DÉMARRAGE PRÉFÈRE LE PERSONNAGE GARDÉ — l'exemple n'est plus que le
-     repli. ⛔ Le contraire (charger l'exemple et l'écraser ensuite) écrirait
-     l'exemple par-dessus le personnage du joueur au premier repeint. */
-  assert.match(shellText, /const garde = lirePersonnage\(\);[\s\S]{0,400}?state\.document = garde\.etat === "lu" \? garde\.document : exemple;/,
-    "le navigateur rend son personnage ; l'exemple ne sert que s'il n'y en a pas");
+  /* ① LE DÉMARRAGE PRÉFÈRE LE PERSONNAGE GARDÉ — la fiche vierge n'est que le
+     repli (⚖️ lot 366, Eric 30/09 : « Fiche vierge » ; c'était l'exemple). ⛔ Le
+     contraire (faire naître puis écraser ensuite) écrirait une fiche vierge
+     par-dessus le personnage du joueur au premier repeint. */
+  assert.match(shellText, /const garde = lirePersonnage\(\);[\s\S]{0,400}?state\.document = garde\.etat === "lu" \? garde\.document : personnageNeuf\(null\);/,
+    "le navigateur rend son personnage ; la fiche vierge ne sert que s'il n'y en a pas");
 
   /* ② UNE PERTE NE SE TAIT PAS (loi §0.5). Un personnage gardé mais illisible
-     laisse un message, sinon le joueur repart de l'exemple en croyant n'avoir
+     laisse un message, sinon le joueur repart d'une fiche vierge en croyant n'avoir
      jamais rien construit. */
   assert.match(shellText, /if \(garde\.etat === "refus"\) state\.memoireIgnoree = garde\.raison;/,
-    "⛔ jamais un repli silencieux sur l'exemple");
+    "⛔ jamais un repli silencieux sur une fiche vierge");
 
   /* ③ LA SAUVEGARDE VIT DANS `refresh`, ET PAS DANS `rebuild` — et c'est une
      propriété, pas un goût : `rename`, `describe`, `confirm` et `revoke`

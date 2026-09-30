@@ -444,8 +444,12 @@ export const LIBELLES = {
   saves: "Jets de sauvegarde",
   skills: "Compétences",
   tools: "Outils",
+  /* LOT 372 — les maîtrises d'armes et d'armures (ARCHI 35, Q1 → a). */
+  training: "Armures · Armes",
   actions: "Actions",
   spellcasting: "Incantation",
+  /* 🧬 LOT 373 — les sources hors classe : la lignée, les dons (ARCHI 35, Q1 → a). */
+  spellSources: "Autres sources d'incantation",
   resources: "Ressources",
   traits: "Traits et aptitudes",
   gear: "Équipement",
@@ -508,8 +512,12 @@ export const LIBELLES_EN = {
   saves: "Saving throws",
   skills: "Skills",
   tools: "Tools",
+  /* LOT 372 — weapon and armor training (ARCHI 35, Q1 → a). */
+  training: "Armor · Weapons",
   actions: "Actions",
   spellcasting: "Spellcasting",
+  /* 🧬 LOT 373 — sources outside the class: the lineage, the feats (ARCHI 35, Q1 → a). */
+  spellSources: "Other spellcasting",
   resources: "Resources",
   traits: "Traits and features",
   gear: "Gear",

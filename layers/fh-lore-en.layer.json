@@ -105,7 +105,7 @@
       },
       "srd:species:en:elf": {
         "op": "patch",
-        "note": "Vault: `D&D 5+ Races & Species.md` (Elf) + `_Tableau des Dieux (canon).md` (Anon kept conditional, per the vault's own GM-secret note).",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Elf) + `_Tableau des Dieux (canon).md` (Anon kept conditional, per the vault's own GM-secret note). · Lot 373 : la caractéristique d'incantation « chosen with the lineage » a sa porte (`species.lineage[0].ability`).",
         "changes": {
           "data.lore": {
             "text": "Elves are the only people of Nymedes who do not die of time. What they die of instead is everything else — a blade, a fall, a war — and so the elven number only ever falls. No elf has been born of two elves in living memory, nor in any memory an archive holds: elven unions bear nothing. Only a human or an Araag quickens an elven womb, and what comes of it is Elestu — a child who will grow old, and whose own children will be something else again. Every elf alive today was alive in the First Age.\n\nThat arithmetic explains the rest of them. A census-keeper of Huitzlika put it plainly: an archivist may serve three lifetimes and never see one. In the Third Age you are far likelier to meet an elf's great-grandchild in the university quarter of Theymoron — the Elestu keep the Moonkeeper circles and the lecture halls — than to meet the elf. The few who still walk the roads travel as guests who never quite arrive: courteous, unhurried, and privately certain that the kingdom hosting them will not outlast the conversation.\n\nAge does not bend them; it empties them. The oldest withdraw by degrees, and there are two ways it goes. Some slip into a sleep measured in centuries, laid in halls their descendants no longer remember how to open. Others go into a quiet madness no healer's art has ever touched — lucid, gentle, and no longer addressed to anyone present. An elven household will tell you which of its elders is merely absent and which is gone, and will not explain how it knows.\n\nThey are wanted dead by people who would never say so. A soulgem cut from a dying elf is the finest thing a soulforger will ever hold — denser, older and stranger than any other, and worth what a small city is worth. The trade is illegal everywhere and conducted everywhere, and it is the most reliable way an elf still ends.\n\nThe old traditions have an explanation, and they hold it lightly. They name the elves the children of a sleeping god — one who is said to have bought their immortality with his own, breaking himself into as many pieces as there were elves to carry them. In that telling an elf's soulgem is not merely fine: it holds a splinter of a god's memory, sealed away since the First Age and still faintly awake. Scholars disagree, at length, and have for eleven centuries. Elves themselves rarely take a position; those who do tend to be the ones who dream badly.\n\nWhatever the truth of it, something in the elven line answers when fate is asked directly — which is why an elf who leans on the Hand leans further than anyone else can.",
@@ -159,13 +159,19 @@
               "extrait": "(elf chosen)",
               "nature": "hors-choix",
               "pourquoi": "fh-species-source.mjs, « LES TROIS POUVOIRS DE DESTINÉE » : « chosen » est un terme GÉNÉRIQUE du chapitre (« ces peuples ont un pouvoir supplémentaire sur la Destinée »), pas un trait mécanique — les trois noms (Splinter of Anon, Twice-Born, Outlasting) RATIFIÉS PAR ERIC le 2026-08-08. Le titre dit un peuple élu, il ne fait rien choisir."
+            },
+            "lore-caracteristique": {
+              "extrait": "(chosen with the lineage)",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage[0].ability"
             }
           }
         }
       },
       "srd:species:en:gnome": {
         "op": "patch",
-        "note": "Vault: `D&D 5+ Races & Species.md` (Hoddon). Backstory kept deliberately vague, matching the vault's own site-parity note — see `Peuples de la forêt des démons.md` if that changes.",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Hoddon). Backstory kept deliberately vague, matching the vault's own site-parity note — see `Peuples de la forêt des démons.md` if that changes. · Lot 373 : la caractéristique d'incantation « chosen with the lineage » a sa porte (`species.lineage[0].ability`).",
         "changes": {
           "data.lore": {
             "text": "Most people on Nymedes have never seen a Hoddon, and plenty insist nobody has. The little folk keep to hidden family-holds deep in the old forests, guarding what remains of the banned craft of the vanished humans — remnants the Empire of Huitzlika has hunted for centuries, and the Hoddon along with them. A Hoddon on the road is a rare thing: quiet, watchful, and carrying more forbidden knowledge than any imperial archive.\n\nThey live under willows. A grown weeping willow of the Demon Forest — a Sauleur — roofs a space some ten metres across, and a hold is a dozen or so relatives beneath one of them, related by blood and by the one craft they will not discuss. They keep the Magician among the Arcana, which the Empire finds insolent and the Hoddon find self-evident.\n\nThe craft is the reason they are hunted, and it is not metaphor. Reaching adulthood, a Hoddon gives up an eye and takes a grey orb in its place. What the orb opens onto is a matrix laid over the visible world, and inside it sits a great deal of what the vanished humans knew. Nothing is written down. There are no Hoddon books to seize, no archive to burn, and no way for an outsider to read a captured orb — the fusion is a Hoddon technique and it has never left the holds. Imperial inquisitors have been trying for three centuries and have, so far, obtained eyes.\n\nWhat comes out of the craft is constructs. Hoddon-made things guard a boundary or run an orchard without supervision; some are shaped like forest animals, some like small forge-workers, some like the clockwork Modrons of an older cosmology. A hold that has lost half its people will still have its fields brought in.\n\nThey do not replace their losses easily, and they will tell you why without being asked. Hoddon children go missing, and when one does, the hold says the heron took it. A white heron comes down through the willow crown at dusk, the story goes, and carries the child up to heaven, because the child was too good for this world and heaven would not wait. Every hold has lost some. Every hold tells it in the same words, with the same small nod at the end that closes the subject.\n\nIt is a story told to children by adults who need it more than the children do. Anyone who has spent a winter under a Sauleur notices what the telling is for: nobody ever asks which child, the names are not spoken again, and a Hoddon who has drunk enough will change the subject with a speed that has nothing to do with grief. Holds disagree about the herons too — bitterly, along lines nobody will explain — and two holds that disagree do not visit one another.\n\nThere is shame under it, and the shame is old. Whatever the herons are, the Hoddon have been telling it to themselves for long enough that most of them believe it by the time they are grown, and the ones who do not have learned to nod at the right moment.\n\nSo they are few, they are careful, and they are very good at not being where the search is. Their neighbours mistake the caution for timidity. Anyone who has watched a Hoddon read a room with one living eye knows better.",
@@ -206,6 +212,12 @@
               "nature": "creation",
               "etape": "species",
               "chemin": "species.lineage"
+            },
+            "lore-caracteristique": {
+              "extrait": "(chosen with the lineage)",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage[0].ability"
             }
           }
         }
@@ -339,7 +351,7 @@
       },
       "srd:species:en:tiefling": {
         "op": "patch",
-        "note": "Vault: `D&D 5+ Races & Species.md` (Tiefling); original prose expanding the vault blurb.",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Tiefling); original prose expanding the vault blurb. · Lot 373 : la caractéristique d'incantation « chosen with the lineage » a sa porte (`species.lineage[0].ability`).",
         "changes": {
           "data.lore": {
             "text": "Fiend-touched by pact, curse or ancestry, tieflings are forever being mistaken for Araags — and correcting people, wearily, that their mark is older and came by a different road. Most learn young to be twice as charming as anyone expects, because they'll be trusted half as much.\n\nThe confusion is not stupidity on anyone's part. On a continent where the largest people alive is visibly soul-touched, a horned stranger reads as Araag first and everything else second, and the correction has to be made at every gate, every inn and every hiring. Tieflings make it. They also stop making it, eventually, in places where it does not help — which is how a good many end up counted as Araag in imperial rolls, to the irritation of both peoples.\n\nTheir own account puts the mark before the Harvest, not after it. Where an Araag was made by something that happened to a whole people within recorded history, a tiefling inherits from a bargain, a curse or a bloodline whose original party is long past arguing about the terms. This is a distinction of some pride and no practical value. The census-keeper of Huitzlika files them with the dragonborn and the orcs — peoples who drift through our roads and our wars — and does not distinguish the three roads by which they arrived.\n\nWhat the legacy actually grants is narrower than the rumour. A tiefling of the Abyssal line shrugs off poison; a Chthonic one, the rot; an Infernal one, fire — and each carries a thin thread of spells that widens twice in a career and then stops. It is not sorcery. It is a family resemblance that happens to be measurable, and tieflings who wanted more of it have generally had to go and study like everyone else.\n\nSo they arrive charming, because the alternative is arriving unemployed. The habit is deep enough that other peoples mistake it for the character rather than the armour. Tieflings do not usually correct that one. It is the first thing in the conversation that has ever worked in their favour.",
@@ -388,6 +400,12 @@
               "nature": "creation",
               "etape": "species",
               "chemin": "species.lineage"
+            },
+            "lore-caracteristique": {
+              "extrait": "(chosen with the legacy)",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage[0].ability"
             }
           }
         }

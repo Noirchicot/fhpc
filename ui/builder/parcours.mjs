@@ -41,6 +41,26 @@ function planAt(decisions, chemin) {
   return liste.find((entry) => entry && entry.path === chemin) || null;
 }
 
+/** 🎯 LOT 372 — L'ITEM EST-IL RÉPONDU, CE QU'IL PORTE SOUS SES RÉPONSES COMPRIS ?
+ *  Son plan (answered ≥ expected, sans verrou), ET chaque plan de groupe que le carnet publie SOUS
+ *  une de ses réponses (`class.divine-order[0].cantrips` : le cantrip en plus du Thaumaturge).
+ *  📏 Mesuré au banc : sans ceci, le `Done` de Divine Order signait un Thaumaturge sans cantrip.
+ *  ⛔ Lu sur le CHEMIN (`<item>[n].…`) et la PROVENANCE (un plan requis ne retient rien), jamais sur
+ *  un nom. Les branches d'un don (`background.originFeat[0].list`) ne sont pas SOUS une réponse
+ *  indexée de l'item : elles se signent une à une, dans leur B emboîté (lot 77). */
+const planFait = (p) => Number.isInteger(p.answered) && Number.isInteger(p.expected) && p.answered >= p.expected && !p.lock;
+/** Les plans de groupe publiés SOUS une réponse de l'item sont-ils tous répondus ? (vrai s'il n'y en a aucun) */
+export function sousPlansRepondus(liste, chemin) {
+  const prefixe = `${chemin}[`;
+  return (Array.isArray(liste) ? liste : []).filter((p) => p && typeof p.path === "string" && p.path.startsWith(prefixe) &&
+    /^\d+\]\./.test(p.path.slice(prefixe.length)) && !/\[\d+\]$/.test(p.path) &&
+    !(p.provenance && p.provenance.mode === "required")).every(planFait);
+}
+export function itemRepondu(liste, chemin) {
+  const plan = (Array.isArray(liste) ? liste : []).find((p) => p && p.path === chemin) || null;
+  return Boolean(plan && planFait(plan) && sousPlansRepondus(liste, chemin));
+}
+
 /** Ce plan porte-t-il, SOUS lui, un plan que le joueur doit encore répondre ?
  *  ⛔ « Sous lui » se lit sur le CHEMIN (`background.originFeat[0].cantrips`
  *  vit sous `background.originFeat[0]`), et « à répondre » sur la PROVENANCE —
@@ -126,8 +146,9 @@ export function itemsDeLEtape({ decisions, document, racine }) {
          joueur. Les deux sont rendus, parce que l'écran a besoin des deux :
          `Done` refuse tant que tout n'est pas répondu, le voyant s'allume sur
          la confirmation. */
+      /* 🎯 LOT 372 — et ce que le carnet publie sous ses réponses (`itemRepondu`). */
       repondu: Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
-        ? plan.answered >= plan.expected
+        ? plan.answered >= plan.expected && sousPlansRepondus(liste, plan.path)
         : false,
       confirme: estConfirme(document, plan.path),
       verrou: plan.lock || null

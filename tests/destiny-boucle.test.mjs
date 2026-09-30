@@ -85,7 +85,13 @@ test("aucune sortie de destinyReset ne laisse la signature debout ni la carte au
      déclarerait vert en lisant ce qu'il vient lui-même de faire écrire. */
   const bloc = sansCommentaires(blocDeDestinyReset());
   const sorties = [];
-  for (let i = bloc.indexOf("return"); i !== -1; i = bloc.indexOf("return", i + 1)) sorties.push(i);
+  /* 🔄 LOT 371 — UNE SORTIE QUI DEMANDE n'est pas une sortie qui repart : `questionAvantDEffacer` pose la question
+     (`bouton-famille-defaire`) et c'est la RÉPONSE qui rejoue ce bloc, confirmé — il repasse alors par un
+     effacement. ⛔ Elle ne s'exclut que si elle est l'instruction juste avant son `return`, rien d'autre. */
+  const demande = /questionAvantDEffacer\([^;]*\);\s*$/;
+  for (let i = bloc.indexOf("return"); i !== -1; i = bloc.indexOf("return", i + 1)) {
+    if (!demande.test(bloc.slice(Math.max(0, i - 200), i))) sorties.push(i);
+  }
   assert.ok(sorties.length >= 2, `on attend au moins deux sorties (B1 et B2), vu ${sorties.length}`);
 
   const manquantes = [];

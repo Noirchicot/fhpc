@@ -104,7 +104,9 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      treizième champ déclaré non dérivé. La preuve garde ses DEUX moitiés — le
      compte ET les noms — pour la raison écrite juste au-dessus : un compte seul
      resterait vert sur une liste de treize champs faux. */
-  assert.equal(out.underived.length, 13);
+  /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et DÉCLARÉ (ni lignée qui fasse lancer, ni don). */
+  assert.equal(out.underived.length, 14);
+  assert.equal(out.underived.some((entry) => entry.field === "spellSources"), true);
   assert.equal(out.underived.some((entry) => entry.field === "stats"), true);
   assert.equal(out.underived.some((entry) => entry.field === "traits (espèce)"), false);
   /* ⛔ La clef de trait reste FRANÇAISE, et c'est l'arbitrage du lot 13 (voir
@@ -112,7 +114,8 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      SENS (le nombre) ; le sens porte l'adresse `darkvision`, le trait porte la
      clef du record. Les rapprocher demanderait de les apparier par leur nom
      affichable — ce que la loi §0.13 interdit. */
-  assert.deepEqual(got.traits.map((trait) => trait.id),
+  /* 🔄 LOT 372 — les traits d'ESPÈCE parmi les traits (le don d'arrière-plan choisi y entre aussi). */
+  assert.deepEqual(got.traits.filter((trait) => trait.category === undefined).map((trait) => trait.id),
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],
     "LES CINQ TRAITS DE L'ELFE ONT TRAVERSÉ 3,1 Mo DE COUCHE ET UN TUYAU JSON-RPC");
   assert.match(got.traits.find((trait) => trait.id === "transe").text, /Repos long/,

@@ -467,19 +467,21 @@ test("D8 — 🗑️ LA POUBELLE, ORGANE AU SOCLE : un bouton carré, DESSINÉ, 
   assert.doesNotMatch(source, /createElementNS|M4 7h16/, "⛔ l'écran ne redessine pas la poubelle");
 });
 
-test("D9 — ❓ « DELETE THIS BOOK? » : la question vient avant l'effacement, `Delete` porte le rouge, `Cancel` ne fait rien, et un tap dehors vaut `Cancel`", () => {
+test("D9 — ❓ « DELETE THIS BOOK? » : la question vient avant l'effacement, elle EXIGE sa réponse, et `Cancel` comme `Delete` portent le rouge de leur mot (lot 371)", () => {
   /* ⚖️ Eric, 29/09 : Delete a book *« demande aussi une confirmation »*. */
   const voies = [];
   const popup = popupEffacerUnLivre({ nom: "Dungeon Master's Guide (2024)", choisir: (v) => voies.push(v) });
   assert.equal(popup.titre, MOTS_EFFACER_UN_LIVRE.titre);
   assert.equal(popup.titre, "Delete this book?");
-  assert.equal(popup.role, "guide", "§7 : elle prévient ; le gendarme dit une ERREUR, et rien n'est une erreur ici");
+  /* 🔄 LOT 371 — `popup-question-exige-une-reponse`, `popup-aiguilleur-nom-et-critere`,
+     `bouton-deux-mots-retour-et-couleur-se-deduit-mot` : « un tap dehors vaut Cancel » n'était pas d'Eric. */
+  assert.equal(popup.role, "aiguilleur", "ce qu'on ne peut pas refuser est un aiguilleur, pas un guide");
   assert.match(popup.texte, /Dungeon Master's Guide \(2024\)/, "elle nomme le livre");
   assert.deepEqual(popup.actions.map((a) => a.mot), ["Cancel", "Delete"]);
-  assert.deepEqual(popup.actions.map((a) => a.defait), [false, true], "`Delete` seul porte le rouge de ce qui coûte");
+  assert.deepEqual(popup.actions.map((a) => a.defait), [true, true], "`Cancel` rouge par son mot, `Delete` par ce qu'il coûte");
   for (const a of popup.actions) a.faire();
   assert.deepEqual(voies, ["cancel", "delete"], "chaque voie émet son nom — la fenêtre ne sait pas ce qu'elle fait");
-  assert.equal("exigeUneReponse" in popup, false, "⛔ rien n'est engagé avant la réponse : on peut la fermer");
+  assert.equal(popup.exigeUneReponse, true, "⛔ ni tap dehors, ni Échap");
 });
 
 /* ══ G — LOT 192 : WORLD, ET LA SAUVEGARDE AVANT L'EXTINCTION ═════════════
@@ -903,7 +905,9 @@ test("F1 — 🔌 la coquille câble Layers : la porte, les gestes (Fate's Hand,
 
 test("F2 — 🔴 la coquille ALIGNE la pile sur le document AVANT de dériver, au boot comme à l'ouverture d'un fichier", () => {
   const shell = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
-  const occurrences = shell.match(/alignerLaPileSurLeDocument\(\);\s*(?:\/\/[^\n]*)?\s*rebuild\(\);/g) || [];
+  /* ⚖️ LOT 367 — entre les deux, le RECALAGE (`recalerSurLaPileMontee`) : aligner les livres, recaler les
+     empreintes, PUIS dériver. L'ordre reste la loi ; il gagne un temps. */
+  const occurrences = shell.match(/alignerLaPileSurLeDocument\(\);\s*(?:\/\/[^\n]*)?\s*const recalage = recalerSurLaPileMontee\(\);\s*(?:\/\/[^\n]*)?\s*rebuild\(\);/g) || [];
   assert.equal(occurrences.length, 2, "deux chemins montent un document : le boot et `ouvrirUnFichier` sans rechargement");
   assert.match(shell, /const gestes = gestesDAlignement\(layersVerbs\.stack\(\), declares\)/, "…par les gestes purs, testés en E5");
 });

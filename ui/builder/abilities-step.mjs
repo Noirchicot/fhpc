@@ -64,14 +64,15 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=916";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=916";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=916";
-import { armerJeton } from "./glisser.mjs?v=916";
-import { facteurZoomCourant } from "./echelle.mjs?v=916";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=916";
-import { createDieHost, mount } from "./dice3d.mjs?v=916";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=916";
+import { markPressed } from "./carnet.mjs?v=929";
+import { NOMS_DE_CARAC } from "./caracteristique-glisse.mjs?v=929";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=929";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=929";
+import { armerJeton } from "./glisser.mjs?v=929";
+import { facteurZoomCourant } from "./echelle.mjs?v=929";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=929";
+import { createDieHost, mount } from "./dice3d.mjs?v=929";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=929";
 
 export { rollAbilitySet };
 
@@ -358,7 +359,8 @@ function motDesBoutons(meca) {
    de chaque côté dans l'écart de 8 entre colonnes ; les quatre autres tiennent.
    Eric a tranché T0 gras le 05/09, puis le 06/09 : *« Strength en T1, et autorise la
    sortie de la cellule »* — T1 gras, le nom déborde dans l'écart, rien ne le coupe. */
-const NOMS_DE_CARAC = { str: "Strength", dex: "Dexterity", con: "Constitution", int: "Intelligence", wis: "Wisdom", cha: "Charisma" };
+/* 🧬 LOT 373 — `NOMS_DE_CARAC` vit dans `caracteristique-glisse.mjs` : la porte « Spellcasting
+   ability » (Species, le don) nomme les mêmes caractéristiques — un seul écrivain. */
 function abilityLabel(key) { return NOMS_DE_CARAC[key] || key.toUpperCase(); }
 
 /** Le modificateur, écrit comme un joueur l'écrit : `+2`, `0`, `-1`. */
