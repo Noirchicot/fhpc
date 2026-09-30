@@ -47,17 +47,17 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=926";
-import { lignageChoisi, detenteurDuDonDEspece } from "./species-step.mjs?v=926";
+import { planAt } from "./carnet.mjs?v=927";
+import { lignageChoisi, detenteurDuDonDEspece } from "./species-step.mjs?v=927";
 /* 🧬 LOT 364 — les dons d'origine, nommés par UN compositeur (celui de l'organe du don). */
-import { donsDOrigineNommes, detenteurDuDonDArrierePlan } from "./inheritance-step.mjs?v=926";
+import { donsDOrigineNommes, detenteurDuDonDArrierePlan } from "./inheritance-step.mjs?v=927";
 /* LOT 360 — les choix de capacité, en mots : un seul écrivain, celui de l'étape Class. */
-import { capacitesChoisies } from "./class-step.mjs?v=926";
+import { capacitesChoisies } from "./class-step.mjs?v=927";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
    jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=926";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=927";
 /* LOT 294 — la fiche de personnage TEMPORAIRE, au-dessus de la revue. */
-import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=926";
+import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=927";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

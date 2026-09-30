@@ -59,9 +59,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=926";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=926";
-import { etapeParId } from "./etapes.mjs?v=926";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=927";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=927";
+import { etapeParId } from "./etapes.mjs?v=927";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -458,7 +458,11 @@ function blocSorts(r, etat, reg, declarees) {
 function blocSourcesDeSorts(r, declarees) {
   const titre = LIBELLES_EN.spellSources;
   const sources = Array.isArray(r.spellSources) ? r.spellSources.filter(estObjet) : [];
-  const enAttente = [...(declarees.champs || [])].some((champ) => typeof champ === "string" && champ.startsWith("spellSources["));
+  const champs = [...(declarees.champs || [])].filter((champ) => typeof champ === "string");
+  /* une source NOMMÉE qui attend sa caractéristique (`spellSources[<id>]`) — pas les manques communs
+     à tous les sorts (`spellSources[].spells[].damage`), qui font seulement la rubrique partielle */
+  const enAttente = champs.some((champ) => /^spellSources\[[^\]]/.test(champ));
+  const partielle = champs.some((champ) => champ.startsWith("spellSources["));
   if (sources.length === 0) return enAttente ? bloc("spellSources", titre, [motDAbsence("absente")]) : null;
   const enfants = [];
   for (const s of sources) {
@@ -481,7 +485,7 @@ function blocSourcesDeSorts(r, declarees) {
     for (const [niveau, noms] of parNiveau) liste.append(ligne(MOTS_FICHE.niveauDeSort(niveau), noms.join(", ")));
     enfants.push(liste);
   }
-  if (enAttente) enfants.push(motPartiel());
+  if (partielle) enfants.push(motPartiel());
   return bloc("spellSources", titre, enfants);
 }
 

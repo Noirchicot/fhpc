@@ -24,11 +24,11 @@
      · au clavier — les flèches (← ↓ un de moins, → ↑ un de plus), Début et Fin.
    ⛔ AUCUNE COTE ICI : elles viennent du plan (`MOLETTE`, `X1_gen.py` → `x1-disposition.mjs`), et
    la feuille qui les pose est construite par `feuilleDeLaMolette` — un seul écrivain pour X1 et X2. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=926";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=927";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN TROISIÈME — Wares le prend au même endroit. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=926";
+import { REPOS_MS } from "./sac-ecran.mjs?v=927";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=926";
+import { armerEngrenage } from "./engrenage.mjs?v=927";
 
 /** ⚖️ LE PLAFOND DE LA MOLETTE — Eric, 27/09 : *« 20 c'est bien »*, *« Partout ailleurs sauf dans
  *  x5 »*. ⛔ Écrit ICI et nulle part ailleurs (NORMES `x-quantite-molette`). */

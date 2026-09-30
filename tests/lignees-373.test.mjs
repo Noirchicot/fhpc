@@ -267,6 +267,12 @@ test("L6 — 🛠️ THE MOLE PEOPLE : la bourse captive d'un OUTIL, au palier p
     const outil = r.tools.find((t) => t.id === slugs[0]);
     assert.ok(outil && outil.proficiency === "novice", `${option.id} : l'outil au palier Novice`);
     assert.equal(outil.bonus, modDe(scoreDe(outil.ability)) + Math.floor(r.proficiency / 2), "Novice = la moitié de la maîtrise");
+    /* 📏 mesuré au banc : le récepteur disait « Tinker s tools — not in this ruleset » — le nom se lit
+       dans le catalogue des OUTILS */
+    const ctx = { decisions: plans(h, choix), query: q(h), document: doc(h, choix) };
+    const porte = texteDe(SPECIES_CATALOGUE.itemCorps({ path: "species.skillBudget" }, ctx, () => {}));
+    const nomDeLOutil = q(h)({ kind: "tool", id: budget.from[0] }).record.name;
+    assert.ok(porte.toUpperCase().includes(nomDeLOutil.toUpperCase()) && !porte.includes("not in this ruleset"), `le récepteur nomme « ${nomDeLOutil} »`);
     /* ⚔️ une autre lignée n'ouvre aucune bourse */
     const autre = lignees(h).find((x) => x.vue.id === vue.id && !x.effets.granted_skill_budget);
     assert.equal(plans(h, [FIGHTER, espece(vue.id), { path: "species.lineage[0]", value: autre.option.id }]).find((x) => x.path === "species.skillBudget"), undefined);

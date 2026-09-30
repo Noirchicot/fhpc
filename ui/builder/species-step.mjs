@@ -34,27 +34,27 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=926";
-import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=926";
+import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=927";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=927";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=926";
-import { renderChoixGlisses } from "./glisser.mjs?v=926";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=927";
+import { renderChoixGlisses } from "./glisser.mjs?v=927";
 /* ⭐ LOT 194 — LE MOT ET LA FENÊTRE D'UNE COMPÉTENCE VIENNENT DE CLASS, comme
    le sélecteur qui les emploie. Species en tenait sa propre copie (par
    `motDuChoix`), qui ne sait pas lire un SLUG : voir la tête de `skillLabel`
    là-bas pour la mesure. */
-import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=926";
+import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=927";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=926";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=926";
-import { etapeParId } from "./etapes.mjs?v=926";
+import { motDuVerrou } from "./skills-step.mjs?v=927";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=927";
+import { etapeParId } from "./etapes.mjs?v=927";
 /* 🧬 LOT 364 — le don d'origine de l'espèce (Versatile) : l'organe de l'Inheritance, un organe pour deux lieux. */
-import { renderFeatGlisse, featInfo, featListPlan, listeLabel } from "./inheritance-step.mjs?v=926";
-import { motDuChoix } from "./mot-du-choix.mjs?v=926";
-import { renderCaracteristiqueGlisse, caracPosee, MOT_CARAC_D_INCANTATION } from "./caracteristique-glisse.mjs?v=926";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=926";
+import { renderFeatGlisse, featInfo, featListPlan, listeLabel } from "./inheritance-step.mjs?v=927";
+import { motDuChoix } from "./mot-du-choix.mjs?v=927";
+import { renderCaracteristiqueGlisse, caracPosee, MOT_CARAC_D_INCANTATION } from "./caracteristique-glisse.mjs?v=927";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=927";
 /* 📌 LOT 191 / LOT 194 — l'organe du « mot d'un choix » (`mot-du-choix.mjs`)
    n'est plus importé ICI : la seule chose que cet écran nommait était une
    COMPÉTENCE, et une compétence se nomme par SLUG — c'est `skillLabel`
@@ -88,6 +88,15 @@ function text(value) { return document.createTextNode(String(value)); }
    `skillLabel` là-bas qui le porte, par le même organe. */
 function skillLabel(query, id) {
   return motDeLaCompetence(query, id);
+}
+/* 🧬 LOT 373 — UNE BOURSE CAPTIVE PEUT NOMMER UN OUTIL (The Mole People : « 1 skill point (Novice)
+   in tinker's tools »). Mesuré au banc : le récepteur disait « Tinker s tools — not in this
+   ruleset », parce que ce lecteur ne connaît que les compétences. ⭐ Le nom se lit dans le
+   catalogue `tool`, par le slug que le carnet publie ; une compétence garde son lecteur. */
+function maitriseLabel(query, slug) {
+  const outils = typeof query === "function" ? query({ kind: "tool" }) : null;
+  const outil = Array.isArray(outils) ? outils.find((v) => v && v.record && (v.record.slug || v.id) === slug) : null;
+  return outil ? outil.record.name : skillLabel(query, slug);
 }
 /* Capitalisation d'AFFICHAGE seulement (« half » → « Half ») — un mot
    d'écran, pas une règle (même famille que `CATEGORY_LABEL`, lot 39). */
@@ -148,7 +157,7 @@ function corpsDeLItem(item, ctx, act) {
         selected: etape ? etape.selected : [],
         lock: etape ? etape.lock : null,
         /* Le récepteur porte le NOM de sa compétence — c'est ce qu'on vise. */
-        mot: skillLabel(ctx.query, slug)
+        mot: maitriseLabel(ctx.query, slug)
       };
     });
     return renderChoixGlisses({
@@ -595,7 +604,7 @@ function resumeDeLItem(item, ctx, act) {
     const dotes = (budget.options || []).map((slug) => {
       const etape = planAt(decisions, `species.skillBudget.${slug}`);
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
-      return palier ? [slug, motPropre(skillLabel(ctx.query, slug)), String(palier)] : null;
+      return palier ? [slug, motPropre(maitriseLabel(ctx.query, slug)), String(palier)] : null;
     }).filter(Boolean);
     if (dotes.length === 0) return null;
     /* « Bound skills : (gras) puis texte normal — Delve (link) novice en
@@ -1064,7 +1073,7 @@ function renderSpeciesBudget(ctx, budgetPlan, act) {
     const step = planAt(decisions, path);
     const row = el("div", "skills-row");
     row.dataset.row = slug;
-    row.append(el("span", "record-row-label", [text(skillLabel(query, slug))]));
+    row.append(el("span", "record-row-label", [text(maitriseLabel(query, slug))]));
     row.append(renderPicker({
       options: step ? step.options : BUDGET_TIERS,
       selected: step ? step.selected : [],
@@ -1744,7 +1753,7 @@ function renderAcquiredBlock(ctx, record) {
     for (const slug of budget.options || []) {
       const etape = planAt(decisions, `species.skillBudget.${slug}`);
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
-      if (palier) lignes.push([skillLabel(ctx.query, slug), tierLabel(palier)]);
+      if (palier) lignes.push([maitriseLabel(ctx.query, slug), tierLabel(palier)]);
     }
   }
 

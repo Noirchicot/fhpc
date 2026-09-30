@@ -49,11 +49,11 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=926";
+import { lireLeFichier } from "./ouvrir.mjs?v=927";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=926";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=926";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=927";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=927";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
