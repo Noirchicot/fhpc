@@ -632,7 +632,13 @@ function resumeDeLItem(item, ctx, act) {
     const prises = (plan && Array.isArray(plan.selected) ? plan.selected : [])
       .map((id) => ({ nom: nomDOptionDeCapacite(ctx.query, capacite, id),
         onInfo: () => { const info = infoDOptionDeCapacite(ctx.query, capacite, id); if (info && act) act(info); } }));
-    return ligneDeBilan(null, prises);
+    /* 🎯 LOT 372 — le cantrip en plus, à la suite, avec son lien (la loi des liens : un sort qui
+       paraît mène au site). */
+    const cantrips = decisions.filter((p) => p && typeof p.path === "string" &&
+      p.path.startsWith(`${item.path}[`) && p.path.endsWith("].cantrips"))
+      .flatMap((p) => (Array.isArray(p.selected) ? p.selected : []))
+      .map((id) => ({ nom: spellLabel(ctx.query, id), href: lienSortParNomFhWeb(spellLabel(ctx.query, id)) }));
+    return ligneDeBilan(null, [...prises, ...cantrips]);
   }
 
   /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
@@ -1051,6 +1057,19 @@ export function renderClassChoices(ctx, onAction, seulement) {
       onInfo: (id) => { const info = infoDOptionDeCapacite(query, declaration, id); if (info) act(info); }
     });
     if (bloc) menu.append(bloc);
+    /* 🎯 LOT 372 — LE CANTRIP EN PLUS D'UNE OPTION (Thaumaturge, Magician), DANS LA MÊME PORTE.
+       Son plan vit SOUS la réponse (`class.divine-order[0].cantrips`), publié par le carnet
+       seulement quand l'option le déclare (`extra_cantrips`). ⭐ Le même organe, les mots
+       ratifiés des cantrips (« Cantrips », « Cantrip ») — ⛔ aucun mot neuf, aucun nom d'option. */
+    for (const sous of (Array.isArray(decisions) ? decisions : []).filter((p) => p && typeof p.path === "string" &&
+      p.path.startsWith(`${chemin}[`) && p.path.endsWith("].cantrips"))) {
+      const blocSous = renderChoixGlisses({
+        plan: sous, slots: planSlots(decisions, sous.path), titre: "Cantrips", mot: "Cantrip",
+        refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
+        onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); }
+      });
+      if (blocSous) menu.append(blocSous);
+    }
   }
 
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════

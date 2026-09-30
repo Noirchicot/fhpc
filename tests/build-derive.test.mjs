@@ -225,7 +225,9 @@ test("UN RECORD D'ESPÈCE SANS `traits` est déclaré — et la privation est D�
   const h = makeHarness({ extra: COUCHE_AMPUTEE });
   const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
 
-  assert.deepEqual(out.resolved.traits, [],
+  /* 🔄 LOT 372 — le don d'arrière-plan CHOISI entre en trait (catégorie `feat`, son texte recopié
+     tel quel, jamais analysé — ARCHI 35, Q3 → a). La garde tient sur son objet : l'espèce. */
+  assert.deepEqual(out.resolved.traits.filter((trait) => trait.category !== "feat"), [],
     "aucun trait n'est fabriqué depuis `description` : ce serait la fiche fausse que le contrat interdit");
   const entree = out.underived.find((entry) => entry.field === "traits (espèce)");
   assert.ok(entree, "et la liste vide ne reste pas muette — une liste vide muette ressemble à une réponse");
@@ -241,7 +243,8 @@ test("UN RECORD D'ESPÈCE SANS `traits` est déclaré — et la privation est D�
      amputée ne dérive rien », ce qui est vrai de n'importe quel champ. */
   const vraie = makeHarness();
   const bon = vraie.verbs.rebuild({ document: acceptanceDocument(vraie.layers) });
-  assert.equal(bon.resolved.traits.length, 5);
+  assert.equal(bon.resolved.traits.filter((trait) => trait.category === undefined).length, 5,
+    "🔄 lot 372 — les cinq traits d'ESPÈCE (le don d'arrière-plan choisi entre aussi, catégorie `feat`)");
   assert.equal(bon.underived.some((entry) => entry.field === "traits (espèce)"), false);
 });
 

@@ -81,6 +81,9 @@ export const MOTS_FICHE = {
   aucun: "None",
   partiel: "Some entries are not derived yet.",
   pied: "Expert view shows every value with its path, and why a part is not derived.",
+  /* LOT 372 — les deux lignes de « Armor · Weapons » (les mots d'ARCHI 35, Q1). */
+  armures: "Armor",
+  armes: "Weapons",
   espece: "Species",
   classe: "Class",
   niveau: "Level",
@@ -388,6 +391,22 @@ function blocNoms(cle, r, etat, nomDe) {
   return bloc(cle, titre, [liste, etat === "partielle" ? motPartiel() : null]);
 }
 
+/* ══ LOT 372 — LES MAÎTRISES D'ARMES ET D'ARMURES (ARCHI 35, Q1 → a) ══════════════════════
+   Une ligne par entrée de `resolved.training`, le texte TEL QUE LE MOTEUR LE PORTE (celui de la
+   source, jamais décomposé), et dessous, en provenance, ce qui l'accorde : la classe, ou le choix
+   de capacité (« Divine Order: Protector »). ⛔ Rien d'additionné ni de dédoublonné ici. */
+function blocTraining(r, etat) {
+  const titre = LIBELLES_EN.training;
+  if (etat === "absente" || etat === "vide") return bloc("training", titre, [motDAbsence(etat)]);
+  const liste = el("ul", "perso-liste");
+  for (const [mot, cle] of [[MOTS_FICHE.armures, "armor"], [MOTS_FICHE.armes, "weapons"]]) {
+    for (const entree of Array.isArray(r.training[cle]) ? r.training[cle] : []) {
+      if (entree && typeof entree.text === "string") liste.append(ligne(mot, entree.text, { provenance: entree.source || null }));
+    }
+  }
+  return bloc("training", titre, [liste, etat === "partielle" ? motPartiel() : null]);
+}
+
 function blocSorts(r, etat, reg, declarees) {
   const sc = r.spellcasting;
   if (etat === "absente" || etat === "vide") return bloc("spellcasting", LIBELLES_EN.spellcasting, [motDAbsence(etat)]);
@@ -540,6 +559,7 @@ export function renderFicheTemporaire(ctx) {
   fiche.append(blocSens(r, etat("senses"), unite));
   fiche.append(blocNoms("languages", r, etat("languages"), (l) => [estObjet(l) ? l.name : l]));
   fiche.append(blocMaitrises("tools", r, etat("tools"), reg, paliers));
+  fiche.append(blocTraining(r, etat("training")));
   fiche.append(blocSorts(r, etat("spellcasting"), reg, declarees));
   fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name]));
   /* ⭐ LOT 360 — LES CHOIX DE CAPACITÉ (Divine Order, Primal Order, Fighting Style) ENTRENT
