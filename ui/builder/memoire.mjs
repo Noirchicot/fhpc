@@ -173,6 +173,49 @@ export function oublierRecalage(magasin) {
   }
 }
 
+/* ══ ⚖️ LOT 374 — LA RÉVISION SUR LAQUELLE REPOSE LA COPIE DE TRAVAIL ═══════════════════════
+   La copie de travail (ci-dessus) s'écrit À CHAQUE GESTE, en synchrone. La copie de l'app (My
+   characters, `magasin.mjs`) suit en différé — et le passage en arrière-plan peut couper un envoi en
+   vol (§ 10 : la fermeture n'envoie aucun signal). ⭐ Pour savoir, à la réouverture, si un envoi a
+   RATÉ (on le renvoie) ou si un AUTRE onglet a écrit entre-temps (on pose la question), la copie de
+   travail retient la révision de l'app sur laquelle elle repose : `{id, revision}`.
+   ⭐ Une seconde clef, PAS un champ du personnage — même raison que la marque du recalage :
+   `fh-char/1` ne connaît pas cet état, et le fichier ne doit pas l'emporter. */
+export const CLEF_BASE = "fhpc.base";
+
+/** @returns {{id:string, revision:string}|null} */
+export function lireBase(magasin) {
+  const store = leMagasin(magasin);
+  if (!store) return null;
+  try {
+    const base = JSON.parse(store.getItem(CLEF_BASE) || "null");
+    return base && typeof base.id === "string" && typeof base.revision === "string" ? base : null;
+  } catch (_) { return null; }
+}
+
+/** @returns {{ok:true}|{ok:false,raison:string}} */
+export function ecrireBase(base, magasin) {
+  const store = leMagasin(magasin);
+  if (!store) return { ok: false, raison: "this browser does not allow local storage" };
+  try {
+    store.setItem(CLEF_BASE, JSON.stringify({ id: base.id, revision: base.revision }));
+    return { ok: true };
+  } catch (erreur) {
+    return { ok: false, raison: raisonDe(erreur) };
+  }
+}
+
+export function oublierBase(magasin) {
+  const store = leMagasin(magasin);
+  if (!store) return { ok: false, raison: "this browser does not allow local storage" };
+  try {
+    store.removeItem(CLEF_BASE);
+    return { ok: true };
+  } catch (erreur) {
+    return { ok: false, raison: raisonDe(erreur) };
+  }
+}
+
 /** Le mot d'un refus, tel que le navigateur l'a dit.
  *  ⚠️ ON NE TRADUIT PAS `QuotaExceededError` EN PROSE : un message inventé
  *  vieillirait mal et mentirait sur un cas qu'on n'a pas prévu. On rend ce que

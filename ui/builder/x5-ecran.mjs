@@ -20,16 +20,16 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=923";
+import * as D from "./x5-disposition.mjs?v=926";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=923";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=923";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=923";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=923";
-import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=923";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=926";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=926";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=926";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=926";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=926";
 /* ⭐ LOT 285 — la famille PARCHEMIN vit dans son module ; la coquille lui PRÊTE ses pièces
    (`construireX5` plus bas) plutôt que de les exporter : ⛔ pas d'import en boucle. */
-import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=923";
+import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=926";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {

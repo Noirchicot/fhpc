@@ -305,7 +305,8 @@ test("E1 — 🔌 `nouveauPersonnage` passe par la SÉQUENCE pure, et `Save` par
     "⛔ le nom de la porte ne s'écrit plus en dur dans le corps : il vient de l'appelant");
   /* 🗑️ `Delete` : l'organe de `memoire.mjs`, celui de l'ancien `Forget` — pas un
      `removeItem` écrit dans la coquille. */
-  assert.match(shell, /oublier: \(\) => \{ oublierPersonnage\(\); \}/);
+  /* 🔄 LOT 374 — la révision de base de cette copie part avec elle (`oublierBase`). */
+  assert.match(shell, /oublier: \(\) => \{ oublierPersonnage\(\); oublierBase\(\); \}/);
   assert.doesNotMatch(shell, /localStorage\.removeItem|\.removeItem\(/, "⛔ la clef du navigateur n'a qu'un écrivain");
   assert.match(naissance(), /^naitre: \(\) => \{\s*state\.document = personnageNeuf\(precedent\);/,
     "« repartir à zéro » est un document NEUF, pas des champs vidés un par un");
@@ -366,7 +367,7 @@ test("E6 — ⚖️ `New character` EST LE GRAND BOUTON : la fenêtre, PUIS l'é
   assert.equal((shell.match(/goToStep\(CONCEPT_INDEX\)/g) || []).length, 1,
     "la naissance de `New character` — pas un de plus");
   /* ⚔️ ET OUVRIR UN PERSONNAGE RANGÉ revient au Menu (rang R du magasin). */
-  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  const pose = shell.match(/function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe des deux portes existe");
   assert.doesNotMatch(pose[1], /goToStep\(/,
     "⛔ ouvrir un personnage rangé garde le Menu — c'est son rang R");
@@ -400,12 +401,19 @@ test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — et depuis le 197
      🔄 LOT 350 — la tranche de `ouvrirUnFichier` s'arrêtait au verbe
      `oublierPersonnage`, parti avec `Forget` : elle s'arrête désormais à la voie
      qui la suit, trouvée par `voie()`. */
+  /* 🔄 LOT 374 — le fichier ouvert ENTRE d'abord dans My characters (`ouvrirUnDocumentVenuDAilleurs`),
+     puis atterrit par l'organe ; la ligne de My characters (`ouvrirUnPersonnage`, l'ex-`ouvrirUneEntree`)
+     atterrit par l'organe avec sa révision. ⛔ Toujours UN atterrissage. */
   const ouvrir = voie("ouvrirUnFichier");
-  assert.match(ouvrir, /poserLeDocumentOuvert\(issue\.document\);/, "l'ouverture d'un fichier RÉEMPLOIE l'organe");
-  const entree = voie("ouvrirUneEntree");
-  assert.match(entree, /poserLeDocumentOuvert\(issue\.document\);/,
-    "rouvrir une sauvegarde du magasin est le MÊME atterrissage — ⛔ pas un second chemin");
-  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  assert.match(ouvrir, /ouvrirUnDocumentVenuDAilleurs\(issue\.document\);/, "l'ouverture d'un fichier passe par l'entrée dans l'app…");
+  const venu = shell.match(/async function ouvrirUnDocumentVenuDAilleurs\(document\) \{([\s\S]*?)\n\}/);
+  assert.ok(venu, "…qui existe");
+  assert.match(venu[1], /poserLeDocumentOuvert\(doc, \{ revision \}\);\s*$/, "…et RÉEMPLOIE l'organe, en dernier");
+  assert.deepEqual([...venu[1].matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), [], "⛔ elle ne pose aucun champ");
+  const entree = voie("ouvrirUnPersonnage");
+  assert.match(entree, /poserLeDocumentOuvert\(issue\.document, \{ revision: issue\.revision \}\);/,
+    "rouvrir un personnage de My characters est le MÊME atterrissage — ⛔ pas un second chemin");
+  const pose = shell.match(/function poserLeDocumentOuvert\(document(?:, \{ revision \} = \{\})?\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe existe");
   assert.match(pose[1], /remettreLEcranAZero\(\);/, "et c'est LUI qui réemploie l'organe");
   /* ⚠️ LES DEUX PORTES ÉCRIVENT ENCORE UN CHAMP, ET UN SEUL : le refus de
@@ -413,7 +421,7 @@ test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — et depuis le 197
      PAS — c'est-à-dire quand `poserLeDocumentOuvert` n'est jamais atteint. Ce
      n'est pas une moitié de remise à zéro, c'est le mot du refus. ⛔ Tout
      autre champ ici serait le second écrivain de retour. */
-  for (const [ou, texte] of [["ouvrirUnFichier", ouvrir], ["ouvrirUneEntree", entree]]) {
+  for (const [ou, texte] of [["ouvrirUnFichier", ouvrir], ["ouvrirUnPersonnage", entree]]) {
     const poses = [...new Set([...texte.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()))];
     assert.deepEqual(poses, ["state.ouvertureRefusee ="],
       `\`${ou}\` ne pose que le refus de LECTURE — le reste appartient à l'organe`);

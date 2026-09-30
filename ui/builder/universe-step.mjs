@@ -46,27 +46,26 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=923";
+import { renderConfirmDialog } from "./confirm.mjs?v=926";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=923";
+import { motDeLEchelon } from "./echelle.mjs?v=926";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=923";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=926";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=923";
-/* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
-   rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
-   ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
-   n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=923";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=926";
+/* 🗂️ LOT 374 — le rang B `characters` EST My characters, tel qu'Eric l'a dicté, et son rendu vit
+   dans son propre fichier (le déménagement de `Layers` au 188, et du magasin au 195).
+   ⛔ `mes-personnages` n'importe rien d'ici : pas de cycle à arbitrer. */
+import { renderMesPersonnages } from "./mes-personnages.mjs?v=926";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -674,17 +673,11 @@ function renderCranChoice({ echelle, onPick }) {
  *  vue double appartient à un autre chantier en cours, et déplacer son organe
  *  pendant qu'on l'écrit est le meilleur moyen de le perdre. À rapatrier
  *  quand ce chantier est fusionné. */
-/* 🗄️ B1 — MY CHARACTERS EST LE MAGASIN DEPUIS LE LOT 195, et son rendu vit
-   dans `magasin-ecran.mjs` — même déménagement que `Layers` au lot 188, et
-   pour la même raison : l'écran qui porte le plus de dedans a son fichier.
-
-   🔴 CE QUI EST MORT ICI, ET IL FAUT SAVOIR CE QUE C'ÉTAIT. Cet écran rendait
-   UNE ligne — le personnage du navigateur — sous la phrase *« This browser
-   keeps one character »*. Elle était VRAIE tant que `memoire.mjs` était le
-   seul rangement (une clef, un personnage). Le magasin garde une entrée DATÉE
-   par Save : la phrase mentait dès la seconde sauvegarde, et Eric l'a dit
-   autrement le 10/09 (*« dans cette fenêtre, toutes mes saves »*). Elle est
-   réécrite dans `magasin-ecran.mjs`, pas rognée. */
+/* 🗂️ B1 — MY CHARACTERS, et son rendu vit dans `mes-personnages.mjs` (lot 374) — le déménagement
+   de `Layers` au lot 188, et pour la même raison : l'écran qui porte le plus de dedans a son fichier.
+   🗄️ Deux âges avant lui : UNE ligne sous *« This browser keeps one character »* (vraie tant que
+   `memoire.mjs` était le seul rangement), puis le magasin des versions datées (lot 195,
+   `magasin-ecran.mjs`, retiré). La dictée du 29/09 donne une ligne par personnage. */
 
 function renderDisplayEcran(ctx, onAction) {
   const section = el("section", "universe-step display-ecran dalle-intermediaire");
@@ -887,6 +880,12 @@ function renderDungeonMasterEcran() {
   return section;
 }
 
+/** ⚖️ LOT 374 — LES DEUX MOTS DE L'ENVOI À MY CHARACTERS — ⚠️ brouillons anglais à Eric. */
+export const MOTS_DE_L_ENVOI = Object.freeze({
+  refus: (raison) => `My characters did not get your last changes: ${raison}. They are safe in this browser, and will be sent again when the app reopens.`,
+  repris: "Your last changes reached My characters when the app reopened."
+});
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document            le document `fh-char/1` courant
@@ -903,7 +902,7 @@ export function renderUniverseStep(ctx, onAction) {
      coquille ignorante du dedans de l'étape : elle dit à quel RANG on est
      (`ecran`), l'écran dit ce qu'on y voit. */
   if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
-  if (ctx.ecran === "characters") return renderMagasinEcran(ctx, onAction);
+  if (ctx.ecran === "characters") return renderMesPersonnages(ctx, onAction);
   if (ctx.ecran === "layers") return renderLayersEcran(ctx, onAction);
   if (ctx.ecran === "dm") return renderDungeonMasterEcran();
   const doc = ctx.document;
@@ -978,6 +977,16 @@ export function renderUniverseStep(ctx, onAction) {
     tete.append(el("p", "doc-field-error", [
       text(`This browser is not keeping your character: ${memoire.raison}. Save it from Sheet.`)
     ]));
+  }
+  /* ⚖️ LOT 374 — § 10 : *« un envoi raté repart à la réouverture, ET LE DIT »*. La copie de
+     My characters n'a pas reçu les derniers changements → le gendarme, en rouge, avec sa raison ; elle
+     les a reçus à la réouverture → une note, jusqu'au prochain envoi réussi. ⛔ Aucun mot quand tout
+     est arrivé : la ligne d'état « saved » est retirée (`menu-r-ligne-d-etat-retiree`). */
+  const envoi = ctx.envoi || { etat: "a-jour" };
+  if (envoi.etat === "refus") {
+    tete.append(el("p", "doc-field-error tdc-envoi", [text(MOTS_DE_L_ENVOI.refus(envoi.raison))]));
+  } else if (envoi.etat === "repris") {
+    tete.append(el("p", "universe-note tdc-envoi", [text(MOTS_DE_L_ENVOI.repris)]));
   }
   section.append(tete);
 
