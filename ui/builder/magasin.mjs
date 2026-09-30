@@ -49,11 +49,15 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=937";
+import { lireLeFichier } from "./ouvrir.mjs?v=938";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=937";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=937";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=938";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=938";
+/* 📚 LOT 388 — le juge d'un livre est celui qui le MONTE (`readLayer`, le seul chemin d'entrée d'une couche),
+   et la table des livres que l'app connaît (`LIVRES_DU_JOUEUR`). ⛔ Aucun second juge. */
+import { readLayer } from "../../src/layers/document.mjs?v=938";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=938";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
@@ -814,6 +818,103 @@ export function creerCourrier(envoyer) {
   };
 }
 
+
+/* ══ 📚 LOT 388 — LES LIVRES DU JOUEUR, DANS SON STOCKAGE ET SEULEMENT LÀ ══════════════════════════════
+   ⚖️ Eric, 29/09 : *« N'est-il pas plus avisé de le stocker en ligne afin qu'il soit accessible au navigateur
+   à tout moment, du moins pour le joueur. La poubelle d'un livre efface son contenu de son lieu de stockage.
+   Ce lieu de stockage est décidé par le bouton vault. »* ; 30/09 : le PHB *« sur son compte uniquement »*.
+   ⭐ UNE LIBRAIRIE PAR LIEU, UN ORGANE : `lister` (les ids rangés, sans télécharger) · `lire` (les OCTETS) ·
+   `ranger` · `effacer`, chacun avec un état nommé. Le lieu est celui de Vault : Dropbox → le dossier de l'app
+   (`dropbox.mjs`) ; le fichier (aucun lieu en ligne) → l'appareil (le rayon `livres` de la base).
+   🔴 DES OCTETS, JAMAIS UN TEXTE RÉ-ENCODÉ : un personnage retient l'EMPREINTE de chaque livre de sa pile
+   (`build.layers[].hash`, sur les octets). Un livre qui changerait d'un octet en voyage ferait d'un même PHB
+   deux livres pour `rebuild`.
+   ⛔ LE SITE N'EN PORTE JAMAIS UNE LIGNE : rien ici n'écrit ailleurs que dans le lieu du joueur. */
+
+/** LE JUGE D'UN LIVRE — avant de ranger quoi que ce soit. ⭐ `readLayer` est le seul chemin d'entrée d'une
+ *  couche (le même qui la montera) ; puis l'id doit être un livre que l'app connaît (`LIVRES_DU_JOUEUR`).
+ *  ⛔ Un refus porte la raison du juge, jamais une prose inventée.
+ *  @param {Uint8Array} octets
+ *  @returns {{etat:"valide", id:string, nom:string, octets:Uint8Array}|{etat:"refus", raison:string}} */
+export function validerUnLivre(octets) {
+  if (!(octets instanceof Uint8Array) || octets.length === 0) return { etat: "refus", raison: "this file is empty" };
+  let lu;
+  try { lu = readLayer(octets, "import"); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+  const connu = LIVRES_DU_JOUEUR.find((l) => l.id === lu.document.id);
+  if (!connu) {
+    return { etat: "refus", raison: `"${lu.document.id}" is not a book this app knows (it knows ${LIVRES_DU_JOUEUR.map((l) => l.court).join(", ")})` };
+  }
+  return { etat: "valide", id: connu.id, nom: typeof lu.document.name === "string" ? lu.document.name : connu.nom, octets };
+}
+
+/**
+ * L'ORGANE DES LIVRES — l'interface unique ; ⛔ aucun écran ne sait quel lieu il a.
+ * · `lister()` → `{etat:"liste", ids:string[]}` | `{etat:"refus", raison}`
+ * · `lire(id)` → `{etat:"lu", octets}` | `{etat:"absent"}` | `{etat:"refus", raison}`
+ * · `ranger(octets)` → `{ok:true, id}` | `{ok:false, raison}` — le juge d'abord (`validerUnLivre`)
+ * · `effacer(id)` → `{ok:true}` | `{ok:false, raison}`
+ */
+export function creerLibrairie(adaptateur) {
+  const capacites = Object.freeze({ ...adaptateur.capacites });
+  const connu = (id) => LIVRES_DU_JOUEUR.some((l) => l.id === id);
+  return {
+    capacites,
+    async lister() {
+      let ids;
+      try { ids = await adaptateur.ids(); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+      /* ⛔ Un fichier du lieu qui n'est pas un livre connu n'est pas un livre : il ne se liste pas. */
+      return { etat: "liste", ids: (Array.isArray(ids) ? ids : []).filter(connu) };
+    },
+    async lire(id) {
+      if (!connu(id)) return { etat: "refus", raison: `"${id}" is not a book this app knows` };
+      let octets;
+      try { octets = await adaptateur.lire(id); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+      return octets ? { etat: "lu", octets } : { etat: "absent" };
+    },
+    async ranger(octets) {
+      const verdict = validerUnLivre(octets);
+      if (verdict.etat !== "valide") return { ok: false, raison: verdict.raison };
+      try { await adaptateur.ranger(verdict.id, verdict.octets); } catch (cause) { return { ok: false, raison: motDe(cause) }; }
+      return { ok: true, id: verdict.id, nom: verdict.nom };
+    },
+    async effacer(id) {
+      if (!connu(id)) return { ok: false, raison: `"${id}" is not a book this app knows` };
+      try { await adaptateur.effacer(id); } catch (cause) { return { ok: false, raison: motDe(cause) }; }
+      return { ok: true };
+    }
+  };
+}
+
+/** LA LIBRAIRIE DE L'APPAREIL — le rayon `livres` de la base, un livre par id, ses octets tels quels. */
+export function librairieAppareil(base) {
+  return {
+    /* le mot du lieu tel qu'un livre le quitte (« It leaves this device ») — ⚠️ brouillon à Eric */
+    capacites: { lieu: "this device" },
+    async ids() { return (await base.tout(RAYON_LIVRES)).map((r) => r.clef); },
+    async lire(id) {
+      const v = await base.lire(RAYON_LIVRES, id);
+      return v instanceof Uint8Array ? v : (v && ArrayBuffer.isView(v) ? new Uint8Array(v.buffer) : null);
+    },
+    async ranger(id, octets) { await base.ecrire(RAYON_LIVRES, id, octets); },
+    async effacer(id) { await base.effacer(RAYON_LIVRES, id); }
+  };
+}
+
+/** Les livres d'un lieu, pour le moteur au démarrage : `{etat:"liste", livres:[{id, octets}]}` ou le refus du
+ *  lieu. ⛔ Un livre illisible dans le lieu n'est pas un livre absent : il se DIT (`illisibles`). */
+export async function livresDuLieu(librairie) {
+  const liste = await librairie.lister();
+  if (liste.etat !== "liste") return liste;
+  const livres = [];
+  const illisibles = [];
+  for (const id of liste.ids) {
+    const lu = await librairie.lire(id);
+    if (lu.etat === "lu") livres.push({ id, octets: lu.octets });
+    else if (lu.etat === "refus") illisibles.push({ id, raison: lu.raison });
+  }
+  return { etat: "liste", livres, illisibles };
+}
+
 /* ══ LA REPRISE DES SAUVEGARDES DATÉES (lots 195 à 373) ══════════════════════════════════════
    ⚖️ Un joueur qui a sauvé Ilyra trois fois retrouve Ilyra, UNE fois, dans My characters — sa version
    la plus récente. ⛔ Les entrées datées ne sont PAS effacées : elles restent dans leur rayon, intactes,
@@ -864,13 +965,17 @@ async function lireLeReglage(base, clef) {
    ce qui rend « comparer la révision, puis écrire » indivisible entre deux onglets. La décision est
    celle de l'appelant ; la base ne fait que la tenir dans la même transaction.
    🔄 LOT 374 — VERSION 2 : le rayon `personnages` s'ajoute ; `sauvegardes` (les entrées datées) et
-   `reglages` restent tels quels. */
+   `reglages` restent tels quels.
+   🔄 LOT 388 — VERSION 3 : le rayon `livres` s'ajoute (les livres du joueur rangés sur l'appareil, quand
+   aucun lieu en ligne n'est choisi). `onupgradeneeded` ne crée que les rayons qui manquent : rien d'autre
+   ne bouge. */
 
 export const BASE_NOM = "fhpc";
-export const BASE_VERSION = 2;
+export const BASE_VERSION = 3;
 const RAYON_PERSONNAGES = "personnages";
 const RAYON_SAUVEGARDES = "sauvegardes";
 const RAYON_REGLAGES = "reglages";
+const RAYON_LIVRES = "livres";
 const CLEF_REPRISE = "reprise-374";
 /* La clef du dossier retenu — celle des lots 195 et 202 : un joueur qui avait choisi son dossier le
    retrouve. */
@@ -878,7 +983,7 @@ const CLEF_DESTINATION = "destination";
 /* ⚖️ LOT 376 — le lieu choisi dans Vault (`{id}`), sous sa propre clef : la poignée du dossier garde la
    sienne (`destination`), et le dossier n'est qu'une façon du lieu « fichier ». */
 const CLEF_LIEU = "lieu";
-export const RAYONS = Object.freeze([RAYON_PERSONNAGES, RAYON_SAUVEGARDES, RAYON_REGLAGES]);
+export const RAYONS = Object.freeze([RAYON_PERSONNAGES, RAYON_SAUVEGARDES, RAYON_REGLAGES, RAYON_LIVRES]);
 /** ⚖️ LOT 377 — les réglages de l'app : la connexion à Dropbox y vit (`dropbox.mjs`), sur l'appareil. */
 export { RAYON_REGLAGES };
 

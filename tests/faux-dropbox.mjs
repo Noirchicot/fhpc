@@ -19,12 +19,18 @@ const CONTENU = "https://content.dropboxapi.com/2";
 const JETON = "https://api.dropboxapi.com/oauth2/token";
 
 function reponse(status, corps, entetes = {}) {
-  const texte = typeof corps === "string" ? corps : corps === undefined ? "" : JSON.stringify(corps);
+  /* 🔄 LOT 388 — un corps peut être des OCTETS (un livre) : `arrayBuffer` les rend tels quels. */
+  const octets = corps instanceof Uint8Array ? corps : null;
+  const texte = octets ? new TextDecoder().decode(octets) : typeof corps === "string" ? corps : corps === undefined ? "" : JSON.stringify(corps);
   const h = new Map(Object.entries(entetes).map(([k, v]) => [k.toLowerCase(), v]));
   return {
     status, ok: status >= 200 && status < 300,
     headers: { get: (n) => (h.has(n.toLowerCase()) ? h.get(n.toLowerCase()) : null) },
-    json: async () => JSON.parse(texte), text: async () => texte
+    json: async () => JSON.parse(texte), text: async () => texte,
+    arrayBuffer: async () => {
+      const o = octets || new TextEncoder().encode(texte);
+      return o.buffer.slice(o.byteOffset, o.byteOffset + o.byteLength);
+    }
   };
 }
 const erreur409 = (resume) => reponse(409, { error_summary: resume, error: { ".tag": resume.split("/")[0] } });
@@ -111,14 +117,16 @@ export function fauxDropbox({ appKey = "fa6ljsyakrdv7eu", maxParPage = 2 } = {})
         if (url === `${CONTENU}/files/download`) {
           const f = fichiers.get(clef);
           if (!f) return erreur409("path/not_found/..");
-          return reponse(200, f.texte, { "Dropbox-API-Result": JSON.stringify(metadonnees(f)) });
+          return reponse(200, f.octets || f.texte, { "Dropbox-API-Result": JSON.stringify(metadonnees(f)) });
         }
         if (url === `${CONTENU}/files/upload`) {
-          const texte = init.body;
+          const octetsDuCorps = init.body instanceof Uint8Array ? init.body : null;
+          const texte = octetsDuCorps ? new TextDecoder().decode(octetsDuCorps) : init.body;
           const tenu = fichiers.get(clef);
           const strict = arg.strict_conflict === true;
-          const ecrire = () => { const f = { chemin: arg.path, texte, rev: neuf("r") }; fichiers.set(clef, f); return reponse(200, metadonnees(f)); };
+          const ecrire = () => { const f = { chemin: arg.path, texte, octets: octetsDuCorps, rev: neuf("r") }; fichiers.set(clef, f); return reponse(200, metadonnees(f)); };
           const mode = arg.mode;
+          if (mode === "overwrite" || (mode && mode[".tag"] === "overwrite")) return ecrire();
           if (mode === "add" || (mode && mode[".tag"] === "add")) {
             if (!tenu) return ecrire();
             if (tenu.texte === texte && !strict) return reponse(200, metadonnees(tenu));

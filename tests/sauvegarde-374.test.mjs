@@ -320,8 +320,10 @@ test("R3 — 🧷 LA BASE DE LA COPIE DE TRAVAIL vit sous SA clef, jamais dans l
 });
 
 test("R4 — 🧱 LA BASE INDEXEDDB passe en version 2 et AJOUTE le rayon des personnages, sans toucher aux deux autres", () => {
-  assert.equal(BASE_VERSION, 2);
-  assert.deepEqual([...RAYONS], ["personnages", "sauvegardes", "reglages"]);
+  /* 🔄 LOT 388 — version 3 : le rayon `livres` s'AJOUTE (les livres du joueur sur l'appareil) ; les trois
+     d'avant ne bougent pas, et restent dans leur ordre. */
+  assert.equal(BASE_VERSION, 3);
+  assert.deepEqual([...RAYONS], ["personnages", "sauvegardes", "reglages", "livres"]);
 });
 
 /* ══ A — L'ALLER-RETOUR : « lisible par la nouvelle fiche » ═══════════════════════════════════ */
@@ -545,7 +547,8 @@ test("C5 — 🧭 LA RÉOUVERTURE ATTEND LE MOTEUR, et le stockage monte sans lu
   assert.match(monter, /await rafraichirLesPersonnages\(\);\s*await moteurPret;\s*if \(retourDeConnexion\) await revenirDeLaConnexion\(await retourDeConnexion\);\s*await reouvrirLaCopieDeTravail\(\);\s*await synchroniserLeLieu\(\);\s*await rafraichirLesPersonnages\(\);/,
     "la liste d'abord (elle n'a pas besoin du moteur), la réouverture après lui, la synchro après elle");
   assert.match(shell, /refresh\(\);\s*signalerMoteurPret\(\);\s*\}\)\(\);/, "le moteur tient sa promesse, même en panne");
-  assert.match(shell, /try \{ await monterLeStockage\(\); \} catch \(cause\) \{\s*state\.personnagesListe = \{ etat: "refus"/,
+  /* 🔄 LOT 388 — le `catch` signale d'abord au moteur que le stockage ne viendra pas (il attend les livres du lieu). */
+  assert.match(shell, /try \{ await monterLeStockage\(\); \} catch \(cause\) \{\s*signalerStockagePret\(null\);\s*state\.personnagesListe = \{ etat: "refus"/,
     "⛔ une panne du stockage se DIT dans My characters");
   const reouvrir = shell.match(/async function reouvrirLaCopieDeTravail\(\) \{[\s\S]*?\n\}/)[0];
   assert.match(reouvrir, /const base = lireBase\(\);\s*const decision = aLaReouverture\(\{ travail: travailAuDemarrage === null \? null : \{ id, texte: travailAuDemarrage \}, base, app \}\)/,

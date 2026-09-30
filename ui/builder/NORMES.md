@@ -11451,8 +11451,8 @@ une ligne d'état qui revient. ✅ Ce mot rouge était une lecture du lot 350 ; 
 🛡️ `universe-step` D1, D2, D3, D5, R1.
 
 ### 🎛️ `LAYERS` (B0), DE HAUT EN BAS — ce qui est actif, puis ce qui est installé et éteint
-📍 `menu-layers-la-page-dictee` · vivante · 29/09 · remplace `menu-layers-est-un-rang-b`
-⚖️ **`Layers` — le rang `B0` du Menu, derrière la porte `Layers` de R — porte deux groupes, puis les options : en haut ce qui est ACTIF (le SRD, toujours ; chaque livre du joueur que le perso déclare ; Fate's Hand engagé) ; sous le séparateur « installed, not active », ce qui est installé et éteint — et ce séparateur n'existe que s'il a quelque chose sous lui ; enfin « options » : `Import a book`, place réservée. Chaque ligne dit ce que sa source apporte — ses familles (engine · world · catalog) en italique T0 — et les familles se lisent, elles ne se règlent pas.**
+📍 `menu-layers-la-page-dictee` · vivante · 29/09 · remplace `menu-layers-est-un-rang-b` · **amendée 30/09 (lot 388) — `Import a book` est câblé**
+⚖️ **`Layers` — le rang `B0` du Menu, derrière la porte `Layers` de R — porte deux groupes, puis les options : en haut ce qui est ACTIF (le SRD, toujours ; chaque livre du joueur que le perso déclare ; Fate's Hand engagé) ; sous le séparateur « installed, not active », ce qui est installé et éteint — et ce séparateur n'existe que s'il a quelque chose sous lui ; enfin « options » : `Import a book` (câblé au lot 388, `menu-layers-import-a-book`). Chaque ligne dit ce que sa source apporte — ses familles (engine · world · catalog) en italique T0 — et les familles se lisent, elles ne se règlent pas.**
 
 > Eric, 2026-09-29, la partie B0 de la dictée, mot pour mot : **« SRD (tj actif) engine/catalog (en
 > italique t0) · PHB (bouton activé) shared by DM catalog (en italique) · DMG (bouton activé) shared by
@@ -11534,8 +11534,8 @@ sa copie en ligne.
 mot « World ».
 
 ### 🗑️ UNE POUBELLE PAR LIVRE — plus de `Delete a book`
-📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09 · **amendée 30/09 (lot 371) — la question exige sa réponse**
-⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete` — ~~un tap dehors vaut `Cancel`~~ : elle exige sa réponse). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
+📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09 · **amendée 30/09 (lot 371) — la question exige sa réponse** · **amendée 30/09 (lot 388) — elle s'allume pour un livre que le lieu porte**
+⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete` — ~~un tap dehors vaut `Cancel`~~ : elle exige sa réponse). Elle s'allume pour un livre qui vit dans ce stockage ; pour un livre qui n'y vit pas (un fichier servi à la page), elle reste ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
 
 > Eric, 2026-09-29, dans ses corrections du jour (arborescence d'entrée, au vault) : un bouton
 > **`Delete a book`** à côté d'`Import a book`, qui **demande aussi une confirmation** · puis, relayée
@@ -11570,8 +11570,37 @@ lot 351. La poubelle est donc là, ÉTEINTE (`disabled`, `data-reserve`, « soon
 d'une place réservée, `menu-reglage-impossible-reste-visible`), et son geste reste câblé jusqu'à la
 question : le jour où le stockage porte un livre, elle s'allume et la question l'attend. ⛔ Effacer le
 fichier servi à la page (`layers-livres/`) n'est PAS le geste dicté.
+✅ **LOT 388 — UN LIVRE VIT ENFIN DANS CE STOCKAGE** (`menu-layers-import-a-book`) : la poubelle d'un livre que
+le lieu porte s'allume, et `Delete` l'efface de ce lieu (Dropbox, ou l'appareil), puis la page redémarre.
 🛡️ `tests/ecran-layers.test.mjs` D4 (éteinte, elle n'émet rien ; câblée, elle DEMANDE), D5, D8, D9 ;
-`tests/bouton-inventaire.test.mjs`.
+`tests/bouton-inventaire.test.mjs` ; `tests/livres-388.test.mjs` P1, P2.
+
+#### 📚 `IMPORT A BOOK` — UN LIVRE VIT DANS LE STOCKAGE DU JOUEUR, ET SEULEMENT LÀ (lot 388)
+📍 `menu-layers-import-a-book` · vivante · 30/09
+⚖️ **`Import a book` (Layers, options) ouvre le choix d'un fichier. Le livre est JUGÉ avant d'être rangé — par le juge qui le montera (`readLayer`, la forme `fh-layer/1`) et la table des livres que l'app connaît (`LIVRES_DU_JOUEUR`) ; un fichier refusé se dit, avec la raison du juge, et rien n'est rangé. Le livre se range dans le lieu choisi dans Vault — Dropbox : `Apps/SOWLREACH/books/<id>.layer.json` ; le fichier (aucun lieu en ligne) : l'appareil —, octet pour octet, puis la page redémarre. À chaque ouverture, le livre se monte depuis ce lieu, ÉTEINT (le document du perso dit ce qui est allumé), sur tous les appareils reliés au même lieu. ⛔ Jamais sur le site, jamais dans le dépôt.**
+
+> Eric, 29/09, à « que peut effacer la poubelle ? » : **« N'est-il pas plus avisé de le stocker en ligne afin qu'il
+> soit accessible au navigateur à tout moment, du moins pour le joueur. La poubelle d'un livre efface son contenu de
+> son lieu de stockage. Ce lieu de stockage est décidé par le bouton vault. »** Et le 30/09 : le PHB **« sur son
+> compte uniquement »**. Le mandat du lot 388 (ARCHI 35, 30/09).
+
+⭐ **UN SEUL ÉCRIVAIN PAR LIVRE** (`monterLesLivres`, engine.mjs) : un livre que le lieu porte ne se lit JAMAIS dans
+les fichiers servis — ils ne sont même pas demandés. Les fichiers servis (`layers-livres/`, le disque d'Eric) ne
+comblent que les ids que le lieu, ayant RÉPONDU, ne porte pas.
+⛔ **AUCUN REPLI SILENCIEUX** (loi § 0.5) : un lieu qui refuse (hors ligne, jeton mort) ne laisse pas les fichiers
+servis prendre sa place — on ne sait pas ce qu'il porte. Aucun livre ne se monte ; un livre que le perso déclare se
+montre éteint, avec son mot (« not on this device »), et la page dit le refus : *« Your books could not be read from
+your Dropbox: … »* (brouillon). Un livre illisible dans le lieu se dit (`unreadable: …`).
+🔴 **DES OCTETS, JAMAIS UN TEXTE RÉ-ENCODÉ** : un perso retient l'EMPREINTE de chaque livre de sa pile, sur ses
+octets ; un PHB qui changerait d'un octet en voyage deviendrait un autre livre pour `rebuild`. Le sélecteur lit
+`arrayBuffer`, Dropbox range et rend des octets, l'appareil les garde tels quels (le rayon `livres`, base v3).
+⭐ **LE LIEU DU GESTE** : la librairie se lit au moment du geste (`LIBRAIRIES_DES_LIEUX`, une entrée par lieu câblé,
+comme les adaptateurs) ; le moteur attend l'ouverture du stockage pour monter les livres, et une panne du stockage
+ne suspend pas le démarrage. Un livre du même id se REMPLACE (le joueur vient de choisir ce fichier-là).
+⏳ Hors du lot : le contenu du PHB (lot 387), la réponse à `A-TRANCHER` §C34, le téléchargement du livre à chaque
+ouverture depuis Dropbox (aucun cache).
+🛡️ `tests/livres-388.test.mjs` (J1, J2, R1, M1 à M3, P1, P2, C1, C2) — 16 mutations vues rouges ;
+`tests/ecran-layers.test.mjs` D1, D4, F3.
 
 ### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement
 📍 `menu-layers-habillage` · vivante · 29/09

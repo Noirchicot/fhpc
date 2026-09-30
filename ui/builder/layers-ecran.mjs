@@ -80,13 +80,13 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee } from "./universe-step.mjs?v=937";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee, porte } from "./universe-step.mjs?v=938";
 /* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
    se réexporte d'ici pour l'écran, la coquille et les gardes. */
-import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=937";
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=938";
 export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
 /* ⭐ LOT 351 — la poubelle, organe au socle (feuille sans import), partagée avec `My characters`. */
-import { poubelle } from "./poubelle-organe.mjs?v=937";
+import { poubelle } from "./poubelle-organe.mjs?v=938";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -99,7 +99,7 @@ function text(value) { return document.createTextNode(String(value)); }
 /* ⭐ LOT 213 — L'ORGANE A DÉMÉNAGÉ DANS UNE FEUILLE SANS IMPORT, pour que la
    fiche X1 le prenne sans traîner `Layers` derrière elle. ⛔ Rien d'autre n'a
    bougé : la fabrique est la même, ses appelants ne changent pas d'adresse. */
-import { interrupteur } from "./interrupteur-organe.mjs?v=937";
+import { interrupteur } from "./interrupteur-organe.mjs?v=938";
 export { interrupteur };
 
 /* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════
@@ -290,6 +290,9 @@ export const MOTS_DE_LAYERS = Object.freeze({
   options: "options",
   importer: "Import a book",
   absent: "not on this device",
+  /* 📚 LOT 388 — le lieu des livres a refusé (hors ligne, jeton mort) : il se DIT, avec la raison du lieu.
+     ⚠️ Brouillon anglais à Eric. */
+  lieuRefuse: (lieu, raison) => `Your books could not be read from ${lieu}: ${raison}.`,
   /* le mot de TOUTE place réservée (`placeReservee`, `ligneReservee`) : le même, jamais un autre */
   bientot: "soon"
 });
@@ -301,7 +304,9 @@ export const MOTS_DE_LAYERS = Object.freeze({
  *  réimporté ») ; Eric arrête les mots. */
 export const MOTS_EFFACER_UN_LIVRE = Object.freeze({
   titre: "Delete this book?",
-  texte: "It leaves this device. To use it again, you will have to import it again."
+  /* 📚 LOT 388 — le livre quitte SON LIEU, nommé par sa donnée (« your Dropbox », « this device ») : « It leaves
+     this device » était faux pour un livre rangé dans Dropbox (vu au banc). */
+  texte: (lieu) => `It leaves ${lieu}. To use it again, you will have to import it again.`
 });
 
 /** LA QUESTION AVANT D'EFFACER UN LIVRE — ⚖️ Eric, 29/09 : Delete a book *« demande
@@ -313,7 +318,7 @@ export const MOTS_EFFACER_UN_LIVRE = Object.freeze({
  *  · elle n'EXIGE pas de réponse : rien n'est effacé avant le choix, un tap dehors
  *    vaut `Cancel`.
  *  @param {{nom: string, choisir: (voie: "cancel"|"delete") => void}} p */
-export function popupEffacerUnLivre({ nom, choisir }) {
+export function popupEffacerUnLivre({ nom, lieu = "this device", choisir }) {
   /* ⚖️ LOT 371 — UNE QUESTION EXIGE UNE RÉPONSE (`popup-question-exige-une-reponse`) : ni tap dehors, ni
      Échap. Ce qu'on ne peut pas refuser n'est pas une aide : c'est un AIGUILLEUR, pas un guide
      (`popup-aiguilleur-nom-et-critere`). Et `Cancel` porte le rouge de son MOT
@@ -323,7 +328,7 @@ export function popupEffacerUnLivre({ nom, choisir }) {
     titre: MOTS_EFFACER_UN_LIVRE.titre,
     role: "aiguilleur",
     exigeUneReponse: true,
-    texte: `${nom}\n${MOTS_EFFACER_UN_LIVRE.texte}`,
+    texte: `${nom}\n${MOTS_EFFACER_UN_LIVRE.texte(lieu)}`,
     actions: [
       { mot: "Cancel", defait: true, faire: () => choisir("cancel") },
       { mot: "Delete", defait: true, faire: () => choisir("delete") }
@@ -340,15 +345,18 @@ const lesFamilles = (familles) => familles.join(" · ");
  *  décidé par le bouton vault. »
  *  Aucun livre ne vit encore dans ce stockage (`Import a book` et les connecteurs du Vault
  *  sont hors du lot 351) : effacer le fichier servi à la page n'est pas le geste dicté. */
-function ligneDeLivre(livre, monte, declare, onAction) {
+function ligneDeLivre(livre, monte, declare, dansLeLieu, onAction) {
   const nom = monte.name || livre.nom;
   const sw = interrupteur({
     label: nom, etiquette: MOTS_DE_LAYERS.etiquetteLivre, familles: lesFamilles(livre.familles), on: declare,
     onChange: (on) => onAction({ kind: "requestBookSwitch", id: livre.id, value: on })
   });
   sw.dataset.livre = livre.id;
-  const trash = poubelle({ mot: `Delete ${nom}`, eteinte: true, onClick: () => onAction({ kind: "demanderEffacerUnLivre", id: livre.id }) });
-  const place = el("div", "tdc-place", [trash, el("span", "tdc-bientot", [text(MOTS_DE_LAYERS.bientot)])]);
+  /* 📚 LOT 388 — LA POUBELLE S'ALLUME QUAND LE LIVRE VIT DANS LE LIEU DU JOUEUR (`dansLeLieu`) : c'est de là
+     qu'elle l'efface. ⛔ Un livre servi par le site (le disque d'Eric) garde la poubelle éteinte : effacer un
+     fichier servi n'est pas le geste dicté. */
+  const trash = poubelle({ mot: `Delete ${nom}`, eteinte: !dansLeLieu, onClick: () => onAction({ kind: "demanderEffacerUnLivre", id: livre.id }) });
+  const place = el("div", "tdc-place", dansLeLieu ? [trash] : [trash, el("span", "tdc-bientot", [text(MOTS_DE_LAYERS.bientot)])]);
   const ligne = el("div", "layers-livre", [sw, place]);
   ligne.dataset.ligneLivre = livre.id;
   return ligne;
@@ -418,12 +426,15 @@ export function renderLayersEcran(ctx, onAction) {
      ce qui manque. Un livre présent mais illisible dit sa raison. */
   const ids = idsDuDocument(doc);
   const refuses = Array.isArray(ctx.livresRefuses) ? ctx.livresRefuses : [];
+  /* 📚 LOT 388 — les livres rangés dans le lieu du joueur (Vault), et son refus s'il en a un. */
+  const lieu = ctx.lieuDesLivres || { etat: "liste", ids: [] };
+  const dansLeLieu = new Set(lieu.etat === "liste" && Array.isArray(lieu.ids) ? lieu.ids : []);
   for (const livre of LIVRES_DU_JOUEUR) {
     const monte = pile ? pile.find((c) => c && c.id === livre.id) : null;
     const refus = refuses.find((r) => r && r.id === livre.id);
     const declare = ids.has(livre.id);
     if (monte) {
-      (declare ? actifs : eteints).push(ligneDeLivre(livre, monte, declare, onAction));
+      (declare ? actifs : eteints).push(ligneDeLivre(livre, monte, declare, dansLeLieu.has(livre.id), onAction));
     } else if (declare || refus) {
       const b = ligneReservee(livre.nom, refus ? `unreadable: ${refus.raison}` : MOTS_DE_LAYERS.absent);
       b.dataset.livre = livre.id;
@@ -461,9 +472,16 @@ export function renderLayersEcran(ctx, onAction) {
      chaque livre porte sa poubelle. 🗄️ `+ Table items` est parti dans Dungeon Master
      (Eric, 29/09 : *« table items devient -> campaign items »*, lot 357). */
   lignes.append(el("p", "tdc-regle", [text(MOTS_DE_LAYERS.options)]));
-  const importer = placeReservee(MOTS_DE_LAYERS.importer);
+  /* 📚 LOT 388 — `Import a book` EST CÂBLÉ : il ÉMET (`importerUnLivre`), et la coquille ouvre le sélecteur de
+     fichier (un `<input type="file">` n'existe ni sous Node ni dans le stub — la loi de `Open a file…`). */
+  const importer = porte(MOTS_DE_LAYERS.importer, () => onAction({ kind: "importerUnLivre" }));
   importer.dataset.importer = "true";
   lignes.append(el("div", "layers-options", [importer]));
+  /* ⛔ AUCUN REPLI SILENCIEUX : un lieu qui refuse se dit, avec sa raison et son nom. */
+  if (lieu.etat === "refus") {
+    const mot = el("p", "doc-field-error layers-lieu-refuse", [text(MOTS_DE_LAYERS.lieuRefuse(lieu.lieu || "your storage", lieu.raison || "no answer"))]);
+    lignes.append(mot);
+  }
   section.append(lignes);
 
   return section;

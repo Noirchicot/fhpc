@@ -46,26 +46,26 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=937";
+import { renderConfirmDialog } from "./confirm.mjs?v=938";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=937";
+import { motDeLEchelon } from "./echelle.mjs?v=938";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=937";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=938";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=937";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=938";
 /* 🗂️ LOT 374 — le rang B `characters` EST My characters, tel qu'Eric l'a dicté, et son rendu vit
    dans son propre fichier (le déménagement de `Layers` au 188, et du magasin au 195).
    ⛔ `mes-personnages` n'importe rien d'ici : pas de cycle à arbitrer. */
-import { renderMesPersonnages } from "./mes-personnages.mjs?v=937";
+import { renderMesPersonnages } from "./mes-personnages.mjs?v=938";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -774,7 +774,7 @@ export function livresDuMenu(doc) {
  *  `--bouton-moyen`), texte T4 16 / 600, DEUX ÉTAGES PERMIS (Eric, 29/09 : *« deux
  *  lignes dans un bouton → oui »*). La famille `.menu-porte` entre dans le patron par
  *  la LISTE (shell.css), jamais par une copie de ses déclarations. */
-function porte(mot, onClick) {
+export function porte(mot, onClick) {
   const b = document.createElement("button");
   b.type = "button";
   b.className = "menu-porte";

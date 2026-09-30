@@ -260,12 +260,10 @@ test("D1 — 🎛️ LA PAGE DICTÉE, FATE'S HAND ALLUMÉ : le SRD est une lampe
      `Delete a book` (chaque livre porte sa poubelle). */
   const options = node.querySelectorAll(".layers-options")[0];
   assert.ok(options, "la rangée des options existe");
-  const reservees = options.querySelectorAll("button.menu-porte[data-reserve]");
-  assert.deepEqual(reservees.map((b) => b.textContent), [MOTS_DE_LAYERS.importer], "la dictée : « Bouton import a book », et lui seul");
-  for (const b of reservees) {
-    assert.equal(b.disabled, true, `${b.textContent} : présente, éteinte`);
-    assert.equal(b.parentNode.querySelectorAll(".tdc-bientot")[0].textContent, "soon", `${b.textContent} : un mot sous elle`);
-  }
+  /* 🔄 LOT 388 — `Import a book` EST CÂBLÉ : une porte VIVANTE au gabarit large, plus une place réservée. */
+  const boutons = options.querySelectorAll("button.menu-porte");
+  assert.deepEqual(boutons.map((b) => b.textContent), [MOTS_DE_LAYERS.importer], "la dictée : « Bouton import a book », et lui seul");
+  assert.equal(options.querySelectorAll("[data-reserve]").length, 0, "⛔ plus une place réservée");
   assert.ok(node.querySelectorAll("[data-importer]")[0], "sa clef de construction");
   /* 🗄️ `+ TABLE ITEMS` A QUITTÉ LAYERS — Eric, 29/09 : *« table items devient -> campaign items
      (et va dans Dungeon master) »*. La page Dungeon Master le pose (lot 357). ⚔️ Vu rouge : le
@@ -361,7 +359,8 @@ test("D4 — 🔌 les gestes : Fate's Hand demande la PILE, un livre demande SON
   const tous = [];
   const page = rendu({ pile, document: docAvec([...SOCLE, "xdmg-en", ...FH_LAYER_IDS]) }, (a) => tous.push(a.kind));
   for (const b of page.querySelectorAll("button").filter((x) => !x.disabled)) b.click();
-  assert.deepEqual([...new Set(tous)].sort(), ["requestBookSwitch", "requestLayerStack"],
+  /* 🔄 LOT 388 — `Import a book` émet son verbe ; la poubelle d'un livre qui n'est pas dans le lieu reste éteinte. */
+  assert.deepEqual([...new Set(tous)].sort(), ["importerUnLivre", "requestBookSwitch", "requestLayerStack"],
     "⛔ aucun `requestLayerSwitch` : Fate's Hand est tout ou rien ; et la poubelle éteinte n'émet rien");
 });
 
@@ -477,6 +476,9 @@ test("D9 — ❓ « DELETE THIS BOOK? » : la question vient avant l'effacement,
      `bouton-deux-mots-retour-et-couleur-se-deduit-mot` : « un tap dehors vaut Cancel » n'était pas d'Eric. */
   assert.equal(popup.role, "aiguilleur", "ce qu'on ne peut pas refuser est un aiguilleur, pas un guide");
   assert.match(popup.texte, /Dungeon Master's Guide \(2024\)/, "elle nomme le livre");
+  /* 🔄 LOT 388 — et le lieu qu'il quitte, par la donnée */
+  assert.match(popup.texte, /It leaves this device\./);
+  assert.match(popupEffacerUnLivre({ nom: "X", lieu: "your Dropbox", choisir() {} }).texte, /It leaves your Dropbox\./);
   assert.deepEqual(popup.actions.map((a) => a.mot), ["Cancel", "Delete"]);
   assert.deepEqual(popup.actions.map((a) => a.defait), [true, true], "`Cancel` rouge par son mot, `Delete` par ce qu'il coûte");
   for (const a of popup.actions) a.faire();
@@ -916,8 +918,9 @@ test("F3 — 📚 `engine.mjs` va chercher les livres sous `layers-livres/`, et 
   const engine = stripComments(fs.readFileSync(path.join(UI, "engine.mjs"), "utf8"));
   assert.match(engine, /layers-livres\/\$\{file\}/);
   assert.match(engine, /if \(!reponse \|\| !reponse\.ok\) return null/, "un 404 rend null : zéro livre");
-  assert.match(engine, /layers\.verbs\.disable\(\{ id \}\)/, "un livre se monte ÉTEINT — le document décide");
-  assert.match(engine, /if \(file === SOUS_LES_LIVRES\) livresRefuses = await monterLesLivres/, "…juste au-dessus de `srfh`");
+  /* 🔄 LOT 388 — le lieu du joueur d'abord (voir `tests/livres-388.test.mjs`), puis les fichiers servis. */
+  assert.match(engine, /layers\.verbs\.disable\(\{ id: monte\.id \}\)/, "un livre se monte ÉTEINT — le document décide");
+  assert.match(engine, /if \(file === SOUS_LES_LIVRES\) \(\{ refuses: livresRefuses, lieu: lieuDesLivres \} = await monterLesLivres\(layers, root, livresDuLieu\)\);/, "…juste au-dessus de `srfh`");
 });
 
 test("F4 — 🔴 LOT 350 : LES DEUX GESTES DE COUCHES DÉCLARENT LA PILE MONTÉE — après `rebuild`, jamais avant", () => {

@@ -36,8 +36,8 @@
      `keepalive`, et une vieille Chromium le refusait avec une pré-requête : la coquille réessaie alors
      sans lui (`httpDuNavigateur`). ⛔ Le passage en arrière-plan n'est donc jamais la seule chance. */
 
-import { clefDeLEntree } from "./magasin.mjs?v=937";
-import { RAYON_REGLAGES } from "./magasin.mjs?v=937";
+import { clefDeLEntree } from "./magasin.mjs?v=938";
+import { RAYON_REGLAGES } from "./magasin.mjs?v=938";
 
 /** ✅ L'App key de l'application SOWLREACH (Eric, 30/09, 13:14). ⭐ PUBLIQUE : elle voyage dans le code,
  *  comme une adresse. ⛔ L'App secret n'est ni demandé ni gardé. */
@@ -54,6 +54,8 @@ const CONTENU = "https://content.dropboxapi.com/2";
  *    (`clefDeLEntree`) ; la poubelle retire le dossier entier en un appel. */
 export const DOSSIER_COURANTS = "/characters";
 export const DOSSIER_VERSIONS = "/versions";
+/** 📚 LOT 388 — `/books/<id>.layer.json` : un livre du joueur, ses octets tels qu'il les a donnés. */
+export const DOSSIER_LIVRES = "/books";
 
 /** L'`id` de ce lieu dans la table de Vault (`LIEUX`, magasin.mjs). */
 export const LIEU = "dropbox";
@@ -286,12 +288,14 @@ async function genreDuRefus401(reponse) {
   try { const j = await reponse.json(); return j && j.error && typeof j.error[".tag"] === "string" ? j.error[".tag"] : ""; } catch (_) { return ""; }
 }
 
-/**
+/** 📞 LE CLIENT — ce que tout appel à Dropbox partage : le jeton du gardien, le 401, les pannes nommées, un
+ *  dossier listé, un chemin effacé. ⭐ LOT 388 — sorti de l'adaptateur des personnages pour que la librairie
+ *  des livres le PARTAGE : ⛔ jamais une seconde façon d'appeler Dropbox.
  * @param {object} p
  * @param {(url:string, init:object) => Promise<Response>} p.http   `fetch`, ou le faux Dropbox
  * @param {ReturnType<typeof gardienDesJetons>} p.jetons
  */
-export function adaptateurDropbox({ http, jetons }) {
+function clientDropbox({ http, jetons }) {
   /** UN APPEL — le jeton du gardien ; un jeton expiré se renouvelle UNE fois ; un jeton refusé se dit. */
   const appeler = async (url, { arg, corps, contenu, urgent = false } = {}) => {
     for (let essai = 0; essai < 2; essai += 1) {
@@ -351,16 +355,26 @@ export function adaptateurDropbox({ http, jetons }) {
       reponse = await appeler(`${API}/files/list_folder/continue`, { corps: { cursor: page.cursor } });
     }
   };
-  const revisionTenue = async (id) => {
-    const reponse = await appeler(`${API}/files/get_metadata`, { corps: { path: cheminCourant(id) } });
-    if (reponse.ok) { const m = await reponse.json(); return typeof m.rev === "string" ? m.rev : null; }
-    if (reponse.status === 409) return null;
-    throw await panne(reponse);
-  };
   const effacerLeChemin = async (chemin) => {
     const reponse = await appeler(`${API}/files/delete_v2`, { corps: { path: chemin } });
     if (reponse.ok) return;
     if (reponse.status === 409 && /not_found/.test(await resumeDe(reponse))) return;   // déjà parti : c'est ce qu'on voulait
+    throw await panne(reponse);
+  };
+  return { appeler, panne, listerLeDossier, effacerLeChemin };
+}
+
+/**
+ * @param {object} p
+ * @param {(url:string, init:object) => Promise<Response>} p.http   `fetch`, ou le faux Dropbox
+ * @param {ReturnType<typeof gardienDesJetons>} p.jetons
+ */
+export function adaptateurDropbox({ http, jetons }) {
+  const { appeler, panne, listerLeDossier, effacerLeChemin } = clientDropbox({ http, jetons });
+  const revisionTenue = async (id) => {
+    const reponse = await appeler(`${API}/files/get_metadata`, { corps: { path: cheminCourant(id) } });
+    if (reponse.ok) { const m = await reponse.json(); return typeof m.rev === "string" ? m.rev : null; }
+    if (reponse.status === 409) return null;
     throw await panne(reponse);
   };
 
@@ -436,4 +450,45 @@ export function adaptateurDropbox({ http, jetons }) {
     return rangs;
   };
   return adaptateur;
+}
+
+
+/* ══ 📚 LOT 388 — LA LIBRAIRIE DROPBOX : `Apps/SOWLREACH/books/<id>.layer.json` ═══════════════════════════════
+   ⚖️ Eric, 29/09 : *« La poubelle d'un livre efface son contenu de son lieu de stockage. Ce lieu de stockage est
+   décidé par le bouton vault. »* ; 30/09 : le PHB *« sur son compte uniquement »*. Le même client que les
+   personnages (`clientDropbox`). ⭐ Des OCTETS (`arrayBuffer`), jamais un texte : l'empreinte d'un livre est
+   celle de ses octets. ⭐ Ranger un livre du même id le REMPLACE (`overwrite`) : le joueur vient de choisir ce
+   fichier-là ; un livre n'a pas de versions datées. */
+const cheminDuLivre = (id) => `${DOSSIER_LIVRES}/${id}.layer.json`;
+const MOTIF_LIVRE = /^[a-z0-9][a-z0-9-]{0,79}$/;
+export function librairieDropbox({ http, jetons }) {
+  const { appeler, panne, listerLeDossier, effacerLeChemin } = clientDropbox({ http, jetons });
+  const chemin = (id) => {
+    if (typeof id !== "string" || !MOTIF_LIVRE.test(id)) throw new PanneDropbox("refus", "this book has no usable id");
+    return cheminDuLivre(id);
+  };
+  return {
+    capacites: { lieu: MOT_DE_DROPBOX },
+    async ids() {
+      return (await listerLeDossier(DOSSIER_LIVRES))
+        .map(({ nom }) => (typeof nom === "string" && nom.endsWith(".layer.json") ? nom.slice(0, -".layer.json".length) : null))
+        .filter((id) => id !== null && MOTIF_LIVRE.test(id));
+    },
+    async lire(id) {
+      const reponse = await appeler(`${CONTENU}/files/download`, { arg: { path: chemin(id) } });
+      if (reponse.status === 409) {
+        if (/not_found/.test(await resumeDe(reponse))) return null;
+        throw new PanneDropbox("refus", "Dropbox could not give this book back");
+      }
+      if (!reponse.ok) throw await panne(reponse);
+      return new Uint8Array(await reponse.arrayBuffer());
+    },
+    async ranger(id, octetsDuLivre) {
+      const reponse = await appeler(`${CONTENU}/files/upload`, {
+        arg: { path: chemin(id), mode: "overwrite", autorename: false, mute: true }, contenu: octetsDuLivre
+      });
+      if (!reponse.ok) throw await panne(reponse);
+    },
+    async effacer(id) { await effacerLeChemin(chemin(id)); }
+  };
 }
