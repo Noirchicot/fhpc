@@ -11688,7 +11688,7 @@ fautes) ; le lieu liste tout fichier de livre, le juge du montage refuse et dit 
 jamais hors de `books/` ; le texte d'un refus vit dans `texteDuRefusDImport`.
 
 #### 🖋️ UN CATALOG DE CRÉATEUR — UN LIVRE COMME LES AUTRES, QUI N'AJOUTE QUE DU NEUF (lot 390)
-📍 `menu-layers-catalog-de-createur` · vivante · 30/09
+📍 `menu-layers-catalog-de-createur` · vivante · 30/09 · **amendée 30/09 (lot 393) — un choix mort qui vise un catalog nomme sa ligne ; le guide dit l'image générique**
 ⚖️ **Un catalog de créateur est un livre comme les autres : un fichier distinct dans `books/` du lieu choisi dans Vault, importé par `Import a book`, montré dans Layers (son nom, « by <author> », la famille `catalog`, l'interrupteur et la poubelle des livres). Il n'ajoute que des records neufs, sous son propre id — `<créateur>-<catalog>`, qui préfixe chacun de ses records — : il ne remplace jamais un record qui existe, ne lève aucun drapeau, ne change aucune règle, et il déclare son auteur et sa licence. Un seul juge, `verifierUnCatalog` (`src/catalog/juge.mjs`), à l'import, au montage et en ligne de commande (`tools/verifier-catalog.mjs`) : il dit chaque faute avec son chemin, et ce qu'il accepte, le montage ne le refuse jamais. Deux catalogs du même id sont le même catalog : le second importé remplace le premier.**
 
 > Eric, 30/09 : un joueur qui a créé un livre doit pouvoir en faire un catalog — **« le plus simple c'est de demander à
@@ -11729,6 +11729,33 @@ se monte pas et Layers le dit (`unreadable: <la première faute> (and N more fau
 coller dans une IA : `docs/CATALOG.md`. Le script headless sur le Mac est le lot 391.
 ⏳ Les mots (le refus, « by … », le guide) sont des brouillons anglais : Eric arrête la lettre.
 🛡️ `tests/catalog-390.test.mjs` (K1 à K10) ; `tests/layers-document.test.mjs` (la dérive de l'attribution).
+🔄 **LOT 393** — un choix mort qui vise un record de catalog NOMME la ligne à rallumer (*« Ember lance comes with
+Emberwood (model catalog) — switch it on in Layers »*) : le préfixe du record est son catalog (la règle du juge), lu
+contre la liste des catalogs connus que la coquille, seul écrivain, passe à la feuille des interrupteurs à chaque
+repeint (`connaitreLesCatalogues` — leur nom quand le lieu les porte, leur id sinon : ce que Layers montre). Et le
+guide dit qu'une espèce de catalog prend l'image générique. 🛡️ `tests/livre-absent-393.test.mjs` B1, B2, C1.
+
+#### 🔌 UN INTERRUPTEUR DE `LAYERS` NE TOUCHE QUE SON LIVRE (lot 393)
+📍 `menu-layers-un-interrupteur-ne-touche-que-son-livre` · vivante · 30/09
+⚖️ **Allumer ou éteindre un livre — ou Fate's Hand — ne change, dans `build.layers`, que ce que le geste vise : un livre du joueur que le perso déclare et que cet appareil n'a pas (ni monté, ni éteint : absent) reste déclaré, à sa place. Le perso le garde, sur tous ses appareils, jusqu'à ce que le joueur l'éteigne lui-même, là où le livre est monté.**
+
+> ARCHI 35, 30/09 (mandat du lot 393), sur la trouvaille du banc du lot 390 : *« une perte de donnée silencieuse, et la
+> Bible l'interdit déjà »* — `socle-perso-sauve-s-ouvre-toujours` : *« un livre du joueur absent de cet appareil ne se
+> recale pas »* (§C34).
+
+📏 **LE DÉFAUT, VU AU BANC DU LOT 390 (v940)** : un perso déclare le PHB, absent de l'appareil (« not on this
+device ») ; on allume Emberwood — `monterLeLivre` vidait `build.layers`, `rebuild` adoptait la pile MONTÉE, et le
+PHB, qui n'y est pas, disparaissait du perso. `monterLesCouches` (l'interrupteur de Fate's Hand) faisait de même.
+⭐ **LA RÉPARATION** : un organe pur (`garderLesLivresAbsents`, recalage.mjs), appelé par les deux gestes APRÈS la
+déclaration de la pile montée (`reposerLesLivresAbsents`) : il repose chaque livre du joueur que le perso déclarait
+AVANT et que la pile montée entière n'a pas, juste après ce qui le précédait. Un livre MONTÉ qu'on éteint part —
+c'est le geste ; une couche de l'app retirée du produit ne revient pas (les noms réservés, `estUnNomDeLApp`).
+⚠️ Ce que ça ne change pas : ce qu'un perso qui déclare un livre absent voit sur cet appareil — la question ouverte
+`A-TRANCHER §C34`, dont le mot est à Eric. Ce lot garde la DONNÉE ; il ne tranche rien de son affichage.
+📏 Au banc (30/09, v941, un PHB fixture effacé de l'appareil, Emberwood importé) : allumer le PHB gardait
+`example-emberwood` absent ; Emberwood éteint puis rallumé, « Player's Handbook (2024) — NOT ON THIS DEVICE » reste, et
+`xphb-en` reste dans `build.layers` à chaque geste.
+🛡️ `tests/livre-absent-393.test.mjs` A1 à A3 ; `tests/ecran-layers.test.mjs` F4 (amendé).
 
 ### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement
 📍 `menu-layers-habillage` · vivante · 29/09

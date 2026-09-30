@@ -116,11 +116,28 @@ export const LIVRES_DU_JOUEUR = Object.freeze([
  *  d'interrupteur « World » ni « Destiny » à pousser, et un mot qui les nommerait
  *  enverrait le joueur vers une ligne qui n'existe pas. */
 export function interrupteurDeLaCouche(coucheId) {
+  if (CATALOGUES.has(coucheId)) return { id: coucheId, label: CATALOGUES.get(coucheId) };
   if (INTERRUPTEURS.some((sw) => sw.couches.includes(coucheId))) return MAITRE;
   if (CATALOGUE_FH.includes(coucheId)) return MAITRE;
   const livre = LIVRES_DU_JOUEUR.find((l) => l.id === coucheId);
   if (livre) return { id: livre.id, label: livre.nom };
   return null;
+}
+
+/* ══ 📚 LOT 393 — LES CATALOGS DE CRÉATEUR CONNUS ═══════════════════════════════════════════════════════
+   Un choix mort qui vise un record de catalog doit nommer la ligne à rallumer (ARCHI 35, lot 393). Le PRÉFIXE du
+   record EST l'id de son catalog — c'est la règle du juge du lot 390 (`src/catalog/juge.mjs`), qui refuse tout
+   record hors de son préfixe : lire ce préfixe, c'est lire une donnée garantie, pas deviner une forme.
+   ⛔ Cette feuille n'importe rien (`tests/jamais-un-id-nu.test.mjs`) : elle ne connaît donc pas le juge. C'est la
+   DONNÉE qui lui dit quels catalogs existent — la coquille, SEUL écrivain, lui passe à chaque repeint ceux que le
+   lieu porte (leur NOM, celui que Layers montre) et ceux que le perso déclare sans que l'appareil les ait (leur id,
+   comme Layers les montre alors). Le mot nomme donc la ligne telle que Layers l'écrit. */
+let CATALOGUES = new Map();
+/** Remplace, en bloc, la liste des catalogs connus : `[{id, nom}]`. Un seul appelant : la coquille. */
+export function connaitreLesCatalogues(liste) {
+  CATALOGUES = new Map((Array.isArray(liste) ? liste : [])
+    .filter((c) => c && typeof c.id === "string" && c.id !== "")
+    .map((c) => [c.id, typeof c.nom === "string" && c.nom !== "" ? c.nom : c.id]));
 }
 
 /* ══ DANS QUELLE COUCHE VIT UN ID — UN REPLI, ET IL LE DIT ═══════════════
@@ -211,7 +228,9 @@ export function coucheDUnId(id) {
   const segments = id.split(":");
   const deux = segments.slice(0, 2).join(":");
   if (COUCHE_PAR_PREFIXE[deux]) return COUCHE_PAR_PREFIXE[deux];
-  return COUCHE_PAR_PREFIXE[segments[0]] || null;
+  if (COUCHE_PAR_PREFIXE[segments[0]]) return COUCHE_PAR_PREFIXE[segments[0]];
+  /* 📚 LOT 393 — un record de catalog : son préfixe est son catalog (la règle du juge), s'il est connu. */
+  return CATALOGUES.has(segments[0]) ? segments[0] : null;
 }
 
 /** L'INTERRUPTEUR QUI PORTE UN ID — `{id, label}` ou `null`. C'est ce que le

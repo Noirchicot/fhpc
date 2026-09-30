@@ -10,15 +10,45 @@
    coquille les câble à l'ouverture (démarrage, fichier ouvert) ; `memoire.mjs` garde la
    marque sous sa clef. */
 
-import { canonicalText } from "../../src/doc/canonical.mjs?v=940";
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=940";
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=940";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=941";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=941";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=941";
 /* 📚 LOT 390 — UN LIVRE DU JOUEUR, C'EST LE PHB, LE DMG, OU UN CATALOG DE CRÉATEUR, dont l'app ne connaît pas
    l'id d'avance. Sans son fichier sous la main, un catalog se sépare d'une couche RETIRÉE du produit par la
    table des noms réservés de l'app (`estUnNomDeLApp`, le juge du catalog) : aucune couche de l'app n'en sort,
    aucun catalog n'y entre. */
-import { estUnNomDeLApp } from "../../src/catalog/juge.mjs?v=940";
+import { estUnNomDeLApp } from "../../src/catalog/juge.mjs?v=941";
 const estUnLivreDuJoueur = (id) => LIVRES_DU_JOUEUR.some((l) => l.id === id) || !estUnNomDeLApp(id);
+
+/** 📚 LOT 393 — UN INTERRUPTEUR DE LAYERS NE TOUCHE QUE SON LIVRE. 📏 Vu au banc du lot 390 : un perso déclare le
+ *  PHB sur un appareil qui ne l'a pas (« not on this device ») ; on allume UN AUTRE livre (Emberwood) — le geste
+ *  vide `build.layers`, `rebuild` adopte la pile MONTÉE, et le PHB, qui n'y est pas, disparaît du perso sans qu'on
+ *  y ait touché. Une perte de donnée silencieuse, que la Bible interdit déjà (`socle-perso-sauve-s-ouvre-toujours` :
+ *  *« un livre du joueur absent de cet appareil ne se recale pas »*, §C34).
+ *  ⭐ LA RÉPARATION, PURE : après le geste, on REPOSE chaque livre du joueur que le document déclarait AVANT et que
+ *  l'appareil n'a PAS (absent de toute la pile montée, éteintes comprises), à sa place — juste après ce qui le
+ *  précédait et qui est encore déclaré. Un livre MONTÉ qu'on éteint, lui, part : c'est le geste.
+ *  @param {Array} declaree  `build.layers` APRÈS le geste (la pile montée, adoptée ou déclarée)
+ *  @param {Array} avant     `build.layers` AVANT le geste
+ *  @param {Array} montee    le manifeste de toute la pile montée (`layers.verbs.stack()`)
+ *  @returns {Array} `declaree`, avec les livres absents reposés — le même tableau s'il n'y en a aucun */
+export function garderLesLivresAbsents(declaree, avant, montee) {
+  const ici = new Set((Array.isArray(montee) ? montee : []).map((c) => c && c.id));
+  const avantListe = Array.isArray(avant) ? avant : [];
+  const absents = avantListe.filter((c) => c && estUnLivreDuJoueur(c.id) && !ici.has(c.id));
+  if (absents.length === 0) return declaree;
+  const out = (Array.isArray(declaree) ? declaree : []).map((c) => ({ ...c }));
+  for (const livre of absents) {
+    if (out.some((c) => c.id === livre.id)) continue;
+    let place = 0;
+    for (let j = avantListe.indexOf(livre) - 1; j >= 0; j -= 1) {
+      const k = out.findIndex((c) => c.id === avantListe[j].id);
+      if (k >= 0) { place = k + 1; break; }
+    }
+    out.splice(place, 0, { ...livre });
+  }
+  return out;
+}
 
 /** ⚖️ LOT 367 — LE RECALAGE : UN PERSONNAGE SAUVÉ AVANT UNE MISE À JOUR DES RÈGLES S'OUVRE
  *  SUR LES COUCHES D'AUJOURD'HUI. Eric, 30/09, à « comment le perso s'ouvre-t-il ? » →

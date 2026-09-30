@@ -932,7 +932,10 @@ test("F4 — 🔴 LOT 350 : LES DEUX GESTES DE COUCHES DÉCLARENT LA PILE MONTÉ
   for (const nom of ["monterLesCouches", "monterLeLivre"]) {
     const corps = shell.match(new RegExp(`function ${nom}\\([^)]*\\) \\{([\\s\\S]*?)\\n\\}`));
     assert.ok(corps, `\`${nom}\` a changé de forme — ce garde lit à côté`);
-    assert.match(corps[1], /layers: \[\] \} \};\s*rebuild\(\);\s*declarerLaPileMontee\(\);\s*$/,
-      `\`${nom}\` : vider, dériver, PUIS déclarer — sans ça, un perso sans classe perd sa pile (E9)`);
+    /* 🔄 LOT 393 — puis REPOSER les livres absents (`reposerLesLivresAbsents`) : un interrupteur ne touche que son
+       livre, et un livre que l'appareil n'a pas ne quitte pas le perso (`tests/livre-absent-393.test.mjs`). */
+    assert.match(corps[1], /layers: \[\] \} \};\s*rebuild\(\);\s*declarerLaPileMontee\(\);\s*reposerLesLivresAbsents\(avant\);\s*$/,
+      `\`${nom}\` : vider, dériver, PUIS déclarer, puis reposer les livres absents — sans ça, un perso sans classe perd sa pile (E9)`);
+    assert.match(corps[1], /const avant = state\.document\.build\.layers;/, `\`${nom}\` : ce que le perso déclarait, lu AVANT de vider`);
   }
 });

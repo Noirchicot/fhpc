@@ -30,6 +30,8 @@ the end of this page.
   changing the class — which a catalog never does. A way to attach a subclass to its class without changing
   it will come later.
 - Classes, class features, skills, rules, monsters: a catalog adds content, not rules.
+- **Pictures.** A species from a catalog shows the builder's generic picture: a catalog has no pictures of its
+  own for now.
 
 ---
 
