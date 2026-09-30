@@ -49,15 +49,18 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=939";
+import { lireLeFichier } from "./ouvrir.mjs?v=940";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=939";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=939";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=940";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=940";
 /* 📚 LOT 388 — le juge d'un livre est celui qui le MONTE (`readLayer`, le seul chemin d'entrée d'une couche),
    et la table des livres que l'app connaît (`LIVRES_DU_JOUEUR`). ⛔ Aucun second juge. */
-import { readLayer } from "../../src/layers/document.mjs?v=939";
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=939";
+import { readLayer } from "../../src/layers/document.mjs?v=940";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=940";
+/* 📚 LOT 390 — le juge d'un CATALOG DE CRÉATEUR (tout livre que l'app ne connaît pas d'avance) : le même à
+   l'import, au montage et en ligne de commande. ⛔ Aucun second juge. */
+import { verifierUnCatalog, fauteEnLigne } from "../../src/catalog/juge.mjs?v=940";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
@@ -831,20 +834,48 @@ export function creerCourrier(envoyer) {
    deux livres pour `rebuild`.
    ⛔ LE SITE N'EN PORTE JAMAIS UNE LIGNE : rien ici n'écrit ailleurs que dans le lieu du joueur. */
 
-/** LE JUGE D'UN LIVRE — avant de ranger quoi que ce soit. ⭐ `readLayer` est le seul chemin d'entrée d'une
- *  couche (le même qui la montera) ; puis l'id doit être un livre que l'app connaît (`LIVRES_DU_JOUEUR`).
- *  ⛔ Un refus porte la raison du juge, jamais une prose inventée.
+/** L'ID D'UN LIVRE DANS UN LIEU — le nom de son fichier (`<id>.layer.json`). La forme de `MOTIF_LIVRE`
+ *  (dropbox.mjs) : un livre connu (`xphb-en`) comme un catalog (`noirchicot-mistlands`). ⛔ Ce n'est pas ce
+ *  qui dit ce qu'est le fichier — c'est le juge qui le dit ; c'est ce qui empêche un id de sortir de
+ *  `books/` (`/`, `..`). */
+export const ID_DE_LIVRE = /^[a-z0-9][a-z0-9-]{0,79}$/;
+const estUnLivreConnu = (id) => LIVRES_DU_JOUEUR.some((l) => l.id === id);
+
+/** L'id que déclare un fichier, lu sans le juger — seulement pour choisir son juge. `null` s'il n'en dit rien. */
+function idDeclare(octets) {
+  try {
+    const doc = JSON.parse(new TextDecoder().decode(octets));
+    return doc && typeof doc.id === "string" ? doc.id : null;
+  } catch (_) { return null; }
+}
+
+/** Le résumé d'un refus de catalog — la première faute, et combien d'autres. Là où une ligne seule se lit
+ *  (Layers : « unreadable: … »). */
+function resumeDesFautes(fautes) {
+  const autres = fautes.length - 1;
+  return `${fauteEnLigne(fautes[0])}${autres > 0 ? ` (and ${autres} more fault${autres > 1 ? "s" : ""})` : ""}`;
+}
+
+/** LE JUGE D'UN LIVRE — avant de ranger quoi que ce soit.
+ *  · Un livre que l'app CONNAÎT (`LIVRES_DU_JOUEUR` : le PHB, le DMG) : `readLayer`, le seul chemin d'entrée
+ *    d'une couche, le même qui la montera.
+ *  · 📚 LOT 390 — TOUT AUTRE FICHIER EST UN CATALOG DE CRÉATEUR : son juge est `verifierUnCatalog`
+ *    (`src/catalog/juge.mjs`) — il n'ajoute que des records neufs, sous son propre id, et il dit CHAQUE
+ *    faute avec son chemin (`fautes`). ⛔ Un refus porte la raison du juge, jamais une prose inventée.
  *  @param {Uint8Array} octets
- *  @returns {{etat:"valide", id:string, nom:string, octets:Uint8Array}|{etat:"refus", raison:string}} */
+ *  @returns {{etat:"valide", id:string, nom:string, octets:Uint8Array, auteur?:string}
+ *           |{etat:"refus", raison:string, fautes?:Array<{chemin:string, phrase:string}>}} */
 export function validerUnLivre(octets) {
   if (!(octets instanceof Uint8Array) || octets.length === 0) return { etat: "refus", raison: "this file is empty" };
-  let lu;
-  try { lu = readLayer(octets, "import"); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
-  const connu = LIVRES_DU_JOUEUR.find((l) => l.id === lu.document.id);
-  if (!connu) {
-    return { etat: "refus", raison: `"${lu.document.id}" is not a book this app knows (it knows ${LIVRES_DU_JOUEUR.map((l) => l.court).join(", ")})` };
+  const connu = LIVRES_DU_JOUEUR.find((l) => l.id === idDeclare(octets));
+  if (connu) {
+    let lu;
+    try { lu = readLayer(octets, "import"); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+    return { etat: "valide", id: connu.id, nom: typeof lu.document.name === "string" ? lu.document.name : connu.nom, octets };
   }
-  return { etat: "valide", id: connu.id, nom: typeof lu.document.name === "string" ? lu.document.name : connu.nom, octets };
+  const verdict = verifierUnCatalog(octets);
+  if (verdict.etat !== "valide") return { etat: "refus", raison: resumeDesFautes(verdict.fautes), fautes: verdict.fautes };
+  return { etat: "valide", id: verdict.id, nom: verdict.nom, auteur: verdict.auteur, octets };
 }
 
 /**
@@ -856,14 +887,16 @@ export function validerUnLivre(octets) {
  */
 export function creerLibrairie(adaptateur) {
   const capacites = Object.freeze({ ...adaptateur.capacites });
-  const connu = (id) => LIVRES_DU_JOUEUR.some((l) => l.id === id);
+  /* 📚 LOT 390 — un livre n'est plus seulement un livre CONNU : un catalog de créateur a un id que l'app ne
+     connaît pas d'avance. Le lieu liste tout fichier de livre ; c'est le JUGE qui dit s'il se monte
+     (`livresDuLieu`), jamais cette liste. */
+  const connu = (id) => typeof id === "string" && ID_DE_LIVRE.test(id);
   return {
     capacites,
     async lister() {
       let ids;
       try { ids = await adaptateur.ids(); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
-      /* ⛔ Un fichier du lieu qui n'est pas un livre connu n'est pas un livre : il ne se liste pas. */
-      return { etat: "liste", ids: (Array.isArray(ids) ? ids : []).filter(connu) };
+      return { etat: "liste", ids: (Array.isArray(ids) ? ids : []).filter(connu).sort() };
     },
     async lire(id) {
       if (!connu(id)) return { etat: "refus", raison: `"${id}" is not a book this app knows` };
@@ -873,9 +906,10 @@ export function creerLibrairie(adaptateur) {
     },
     async ranger(octets) {
       const verdict = validerUnLivre(octets);
-      if (verdict.etat !== "valide") return { ok: false, raison: verdict.raison };
+      /* 📚 LOT 390 — le refus d'un catalog porte CHAQUE faute : la fenêtre d'Import a book les dit. */
+      if (verdict.etat !== "valide") return { ok: false, raison: verdict.raison, ...(verdict.fautes ? { fautes: verdict.fautes } : {}) };
       try { await adaptateur.ranger(verdict.id, verdict.octets); } catch (cause) { return { ok: false, raison: motDe(cause) }; }
-      return { ok: true, id: verdict.id, nom: verdict.nom };
+      return { ok: true, id: verdict.id, nom: verdict.nom, ...(verdict.auteur ? { auteur: verdict.auteur } : {}) };
     },
     async effacer(id) {
       if (!connu(id)) return { ok: false, raison: `"${id}" is not a book this app knows` };
@@ -901,7 +935,11 @@ export function librairieAppareil(base) {
 }
 
 /** Les livres d'un lieu, pour le moteur au démarrage : `{etat:"liste", livres:[{id, octets}]}` ou le refus du
- *  lieu. ⛔ Un livre illisible dans le lieu n'est pas un livre absent : il se DIT (`illisibles`). */
+ *  lieu. ⛔ Un livre illisible dans le lieu n'est pas un livre absent : il se DIT (`illisibles`).
+ *  📚 LOT 390 — ET UN CATALOG SE JUGE ICI, AU MONTAGE, PAR LE MÊME JUGE QU'À L'IMPORT : un fichier qu'Eric a
+ *  posé à la main dans `books/` n'est jamais passé par `Import a book`. Refusé, il ne se monte pas, et il se
+ *  dit (`illisibles`, la première faute) ; accepté, il porte son nom et son auteur (Layers les montre).
+ *  ⭐ Son id est celui que le FICHIER déclare : un fichier `a.layer.json` qui dirait `b` ne se monte pas. */
 export async function livresDuLieu(librairie) {
   const liste = await librairie.lister();
   if (liste.etat !== "liste") return liste;
@@ -909,8 +947,13 @@ export async function livresDuLieu(librairie) {
   const illisibles = [];
   for (const id of liste.ids) {
     const lu = await librairie.lire(id);
-    if (lu.etat === "lu") livres.push({ id, octets: lu.octets });
-    else if (lu.etat === "refus") illisibles.push({ id, raison: lu.raison });
+    if (lu.etat === "refus") { illisibles.push({ id, raison: lu.raison }); continue; }
+    if (lu.etat !== "lu") continue;
+    if (estUnLivreConnu(id)) { livres.push({ id, octets: lu.octets }); continue; }
+    const verdict = verifierUnCatalog(lu.octets);
+    if (verdict.etat !== "valide") { illisibles.push({ id, raison: resumeDesFautes(verdict.fautes) }); continue; }
+    if (verdict.id !== id) { illisibles.push({ id, raison: `this file says it is "${verdict.id}"` }); continue; }
+    livres.push({ id, octets: lu.octets, nom: verdict.nom, auteur: verdict.auteur });
   }
   return { etat: "liste", livres, illisibles };
 }

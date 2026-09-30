@@ -920,7 +920,8 @@ test("F3 — 📚 `engine.mjs` va chercher les livres sous `layers-livres/`, et 
   assert.match(engine, /if \(!reponse \|\| !reponse\.ok\) return null/, "un 404 rend null : zéro livre");
   /* 🔄 LOT 388 — le lieu du joueur d'abord (voir `tests/livres-388.test.mjs`), puis les fichiers servis. */
   assert.match(engine, /layers\.verbs\.disable\(\{ id: monte\.id \}\)/, "un livre se monte ÉTEINT — le document décide");
-  assert.match(engine, /if \(file === SOUS_LES_LIVRES\) \(\{ refuses: livresRefuses, lieu: lieuDesLivres \} = await monterLesLivres\(layers, root, livresDuLieu\)\);/, "…juste au-dessus de `srfh`");
+  /* 🔄 LOT 390 — le montage rend aussi les catalogs de créateur (`catalogues`), toujours au même endroit. */
+  assert.match(engine, /if \(file === SOUS_LES_LIVRES\) \{\s*\(\{ refuses: livresRefuses, lieu: lieuDesLivres, catalogues: cataloguesDuLieu \} = await monterLesLivres\(layers, root, livresDuLieu\)\);/, "…juste au-dessus de `srfh`");
 });
 
 test("F4 — 🔴 LOT 350 : LES DEUX GESTES DE COUCHES DÉCLARENT LA PILE MONTÉE — après `rebuild`, jamais avant", () => {

@@ -46,26 +46,29 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=939";
+import { renderConfirmDialog } from "./confirm.mjs?v=940";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=939";
+import { motDeLEchelon } from "./echelle.mjs?v=940";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh, MOTS_DE_LAYERS } from "./layers-ecran.mjs?v=939";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh, MOTS_DE_LAYERS } from "./layers-ecran.mjs?v=940";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=939";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=940";
+/* 📚 LOT 390 — ce qui sépare un catalog de créateur d'une couche retirée du produit : la table des noms
+   réservés de l'app, dans le juge du catalog (un seul écrivain). */
+import { estUnNomDeLApp } from "../../src/catalog/juge.mjs?v=940";
 /* 🗂️ LOT 374 — le rang B `characters` EST My characters, tel qu'Eric l'a dicté, et son rendu vit
    dans son propre fichier (le déménagement de `Layers` au 188, et du magasin au 195).
    ⛔ `mes-personnages` n'importe rien d'ici : pas de cycle à arbitrer. */
-import { renderMesPersonnages } from "./mes-personnages.mjs?v=939";
+import { renderMesPersonnages } from "./mes-personnages.mjs?v=940";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -180,11 +183,15 @@ export function currentContent(doc) {
 }
 
 /** Les livres du joueur présents dans le manifeste du document, dans l'ordre
- *  de `LIVRE_LAYER_IDS` — jamais dans celui, variable, du document. */
+ *  de `LIVRE_LAYER_IDS` — jamais dans celui, variable, du document.
+ *  📚 LOT 390 — PUIS LES CATALOGS DE CRÉATEUR qu'il déclare : toute couche de contenu qui n'est pas un livre
+ *  connu (`currentContent` — un livre du joueur est toute couche qui n'est pas une couche de l'app, jugé par
+ *  la DONNÉE, jamais par la forme de son id), dans l'ordre de leur id : stable, lui aussi. */
 export function currentBooks(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
   const ids = new Set(layers.map((layer) => layer.id));
-  return LIVRE_LAYER_IDS.filter((id) => ids.has(id));
+  const catalogs = currentContent(doc).filter((id) => !LIVRE_LAYER_IDS.includes(id) && !estUnNomDeLApp(id)).sort();
+  return [...LIVRE_LAYER_IDS.filter((id) => ids.has(id)), ...catalogs];
 }
 
 /** La pile que `document.build.layers` DÉCLARE, réduite à l'un des deux noms
@@ -762,11 +769,8 @@ export const MOT_DES_REGLES_MISES_A_JOUR =
  *  ⛔ LE MOT COURT D'UN LIVRE VIT DANS SA TABLE (`LIVRES_DU_JOUEUR.court`), jamais écrit
  *  ici : deux écritures du nom d'un livre divergeraient au premier livre ajouté.
  *  @returns {string[]} */
-export function livresDuMenu(doc) {
-  const livres = currentBooks(doc).map((id) => {
-    const livre = LIVRES_DU_JOUEUR.find((l) => l.id === id);
-    return livre ? (livre.court || livre.nom) : id;
-  });
+export function livresDuMenu(doc, pile) {
+  const livres = currentBooks(doc).map((id) => motCourtDuLivre(id, pile));
   return ["SRD", ...(compositionFh(doc).maitre ? ["FH"] : []), ...livres];
 }
 
@@ -787,10 +791,14 @@ export function livresAbsentsDuMenu(doc, pile) {
  *  de la composition (« open Layers »). ⛔ Le brouillon de `A-TRANCHER §C34` n'est pas celui-ci : il
  *  attend Eric (ARCHI 35, 30/09 : *« le rouge et le renvoi à Layers suffisent »*). */
 export const MOT_DES_LIVRES_ABSENTS = (courts) => `${courts.join(", ")}: ${MOTS_DE_LAYERS.absent} — open Layers.`;
-const motCourtDuLivre = (id) => {
+/** Le mot d'un livre sur R : celui de sa table (`PHB`) ; 📚 LOT 390 — pour un catalog de créateur, son NOM tel
+ *  que la pile montée le porte (`Mistlands`), et son id tant qu'il n'est pas monté sur cet appareil. */
+function motCourtDuLivre(id, pile) {
   const livre = LIVRES_DU_JOUEUR.find((l) => l.id === id);
-  return livre ? (livre.court || livre.nom) : id;
-};
+  if (livre) return livre.court || livre.nom;
+  const monte = Array.isArray(pile) ? pile.find((c) => c && c.id === id) : null;
+  return monte && typeof monte.name === "string" ? monte.name : id;
+}
 
 /** UNE PORTE DU MENU — le gabarit LARGE (NORMES §6 : dessin 105 × 40, cible 105 × 44,
  *  `--bouton-moyen`), texte T4 16 / 600, DEUX ÉTAGES PERMIS (Eric, 29/09 : *« deux
@@ -1125,7 +1133,7 @@ export function renderUniverseStep(ctx, onAction) {
   /* 📚 LOT 388 — un livre déclaré que la pile n'a pas monté s'écrit EN ROUGE dans `Books`, et la ligne rouge
      dessous envoie là où l'on répare (`livresAbsentsDuMenu`). */
   const absents = livresAbsentsDuMenu(doc, ctx.pile);
-  const mots = livresDuMenu(doc);
+  const mots = livresDuMenu(doc, ctx.pile);
   const livres = currentBooks(doc);
   const avantLesLivres = mots.length - livres.length;
   const morceaux = [];
@@ -1140,7 +1148,7 @@ export function renderUniverseStep(ctx, onAction) {
   });
   section.append(ligneLue("Books", morceaux));
   if (absents.length > 0) {
-    const dit = el("p", "doc-field-error", [text(MOT_DES_LIVRES_ABSENTS(absents.map(motCourtDuLivre)))]);
+    const dit = el("p", "doc-field-error", [text(MOT_DES_LIVRES_ABSENTS(absents.map((id) => motCourtDuLivre(id, ctx.pile))))]);
     dit.dataset.livresAbsents = "true";
     section.append(dit);
   }

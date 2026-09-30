@@ -10,9 +10,15 @@
    coquille les câble à l'ouverture (démarrage, fichier ouvert) ; `memoire.mjs` garde la
    marque sous sa clef. */
 
-import { canonicalText } from "../../src/doc/canonical.mjs?v=939";
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=939";
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=939";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=940";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=940";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=940";
+/* 📚 LOT 390 — UN LIVRE DU JOUEUR, C'EST LE PHB, LE DMG, OU UN CATALOG DE CRÉATEUR, dont l'app ne connaît pas
+   l'id d'avance. Sans son fichier sous la main, un catalog se sépare d'une couche RETIRÉE du produit par la
+   table des noms réservés de l'app (`estUnNomDeLApp`, le juge du catalog) : aucune couche de l'app n'en sort,
+   aucun catalog n'y entre. */
+import { estUnNomDeLApp } from "../../src/catalog/juge.mjs?v=940";
+const estUnLivreDuJoueur = (id) => LIVRES_DU_JOUEUR.some((l) => l.id === id) || !estUnNomDeLApp(id);
 
 /** ⚖️ LOT 367 — LE RECALAGE : UN PERSONNAGE SAUVÉ AVANT UNE MISE À JOUR DES RÈGLES S'OUVRE
  *  SUR LES COUCHES D'AUJOURD'HUI. Eric, 30/09, à « comment le perso s'ouvre-t-il ? » →
@@ -43,8 +49,7 @@ export function recalageDeLaPile(declarees, montees) {
   const cle = (c) => `${c.id}@${c.version}#${c.hash}`;
   if (decl.map(cle).join("|") === mont.map(cle).join("|")) return null;
   const parId = new Map(mont.map((c) => [c.id, c]));
-  const livres = new Set(LIVRES_DU_JOUEUR.map((l) => l.id));
-  if (decl.some((c) => livres.has(c.id) && !parId.has(c.id))) return null;
+  if (decl.some((c) => estUnLivreDuJoueur(c.id) && !parId.has(c.id))) return null;
   const declares = new Set(decl.map((c) => c.id));
   const changees = [
     ...decl.filter((c) => !parId.has(c.id) || cle(parId.get(c.id)) !== cle(c)).map((c) => c.id),

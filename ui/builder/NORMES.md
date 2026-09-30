@@ -11621,8 +11621,8 @@ le lieu porte s'allume, et `Delete` l'efface de ce lieu (Dropbox, ou l'appareil)
 `tests/bouton-inventaire.test.mjs` ; `tests/livres-388.test.mjs` P1, P2.
 
 #### 📚 `IMPORT A BOOK` — UN LIVRE VIT DANS LE STOCKAGE DU JOUEUR, ET SEULEMENT LÀ (lot 388)
-📍 `menu-layers-import-a-book` · vivante · 30/09
-⚖️ **`Import a book` (Layers, options) ouvre le choix d'un fichier. Le livre est JUGÉ avant d'être rangé — par le juge qui le montera (`readLayer`, la forme `fh-layer/1`) et la table des livres que l'app connaît (`LIVRES_DU_JOUEUR`) ; un fichier refusé se dit, avec la raison du juge, et rien n'est rangé. Le livre se range dans le lieu choisi dans Vault — Dropbox : `Apps/SOWLREACH/books/<id>.layer.json` ; le fichier (aucun lieu en ligne) : l'appareil —, octet pour octet, puis la page redémarre. À chaque ouverture, le livre se monte depuis ce lieu, ÉTEINT (le document du perso dit ce qui est allumé), sur tous les appareils reliés au même lieu. ⛔ Jamais sur le site, jamais dans le dépôt.**
+📍 `menu-layers-import-a-book` · vivante · 30/09 · **amendée 30/09 (lot 390) — tout fichier qui n'est pas un livre connu est un catalog de créateur, et son juge dit chaque faute**
+⚖️ **`Import a book` (Layers, options) ouvre le choix d'un fichier. Le livre est JUGÉ avant d'être rangé — un livre que l'app connaît (`LIVRES_DU_JOUEUR`) par le juge qui le montera (`readLayer`, la forme `fh-layer/1`) ; tout autre fichier est un catalog de créateur, jugé par `verifierUnCatalog` (`menu-layers-catalog-de-createur`) ; un fichier refusé se dit, avec la raison du juge — pour un catalog, ses fautes, chacune avec son chemin —, et rien n'est rangé. Le livre se range dans le lieu choisi dans Vault — Dropbox : `Apps/SOWLREACH/books/<id>.layer.json` ; le fichier (aucun lieu en ligne) : l'appareil —, octet pour octet, puis la page redémarre. À chaque ouverture, le livre se monte depuis ce lieu, ÉTEINT (le document du perso dit ce qui est allumé), sur tous les appareils reliés au même lieu. ⛔ Jamais sur le site, jamais dans le dépôt.**
 
 > Eric, 30/09, au soir : **« je veux ce fichier distinct, je peux facilement l'enlever et le remettre dans drop box »**,
 > puis **« si je fais import, je localise ce fichier et c'est bon »**, et à « les sorts du PHB entrent dans le même fichier
@@ -11676,6 +11676,52 @@ ouverture depuis Dropbox (aucun cache).
 `tests/base-v3-388.test.mjs` (B0 à B6, sur `tests/fausse-indexeddb.mjs`) — 6 mutations de la montée et les
 mutations des deux onglets vues rouges ;
 `tests/ecran-layers.test.mjs` D1, D4, F3.
+🔄 LOT 390 — J1, R1, P1, C1 amendés : un id que l'app ne connaît pas est un catalog de créateur (son juge dit ses
+fautes) ; le lieu liste tout fichier de livre, le juge du montage refuse et dit ; la poubelle efface un catalog,
+jamais hors de `books/` ; le texte d'un refus vit dans `texteDuRefusDImport`.
+
+#### 🖋️ UN CATALOG DE CRÉATEUR — UN LIVRE COMME LES AUTRES, QUI N'AJOUTE QUE DU NEUF (lot 390)
+📍 `menu-layers-catalog-de-createur` · vivante · 30/09
+⚖️ **Un catalog de créateur est un livre comme les autres : un fichier distinct dans `books/` du lieu choisi dans Vault, importé par `Import a book`, montré dans Layers (son nom, « by <author> », la famille `catalog`, l'interrupteur et la poubelle des livres). Il n'ajoute que des records neufs, sous son propre id — `<créateur>-<catalog>`, qui préfixe chacun de ses records — : il ne remplace jamais un record qui existe, ne lève aucun drapeau, ne change aucune règle, et il déclare son auteur et sa licence. Un seul juge, `verifierUnCatalog` (`src/catalog/juge.mjs`), à l'import, au montage et en ligne de commande (`tools/verifier-catalog.mjs`) : il dit chaque faute avec son chemin, et ce qu'il accepte, le montage ne le refuse jamais. Deux catalogs du même id sont le même catalog : le second importé remplace le premier.**
+
+> Eric, 30/09 : un joueur qui a créé un livre doit pouvoir en faire un catalog — **« le plus simple c'est de demander à
+> une IA de produire le json »** ; à « le socle (modèle, vérificateur, import ouvert) plus le script headless sur ton
+> Mac ? » → **« a »**. La carte produit (§ 0) : du contenu *« JSON, généré par IA ou à la main »*.
+> ARCHI 35, 30/09 (mandat du lot 390) : un catalog est un livre comme les autres ; il n'ajoute que des records neufs,
+> dans son espace de noms — ⛔ jamais un remplacement : *« un record remplacé fait tomber les déclarations posées sur
+> lui, et la pile FH au-dessus »* (la leçon du lot 387) ; *« la parole du MJ sur un record existant, c'est `overrides`
+> et Campaign items, pas un catalog »* ; un seul juge. Puis, aux deux questions de contrat : l'id `noirchicot-mistlands`
+> préfixe les records, les noms de l'app sont interdits (Q1 → a) ; l'auteur est `attribution.author` (Q2 → a).
+
+🔄 **RÉVISION DU CONTRAT `fh-layer/1`** (ARCHI 35, Q2 → a) : `attribution.author`, une chaîne — facultative pour les
+couches de l'app, EXIGÉE par le juge d'un catalog. Schéma, `assertAttribution` (`ATTRIBUTION_KEYS`, document.mjs) et
+le garde de dérive (`tests/layers-document.test.mjs`) révisés ensemble. *« Une donnée que l'écran affiche ne se tire
+pas d'un champ de prose. »*
+⭐ **LE JUGE EST PUR** : son verdict ne dépend que des octets — la ligne de commande et l'app rendent le même verdict
+par CONSTRUCTION. « Un id déjà pris » n'a pas besoin de la pile : tout record de l'app vit sous un espace de noms de
+l'app (`srd:`, `srfh:`, `fh:`, `xphb:`, `xdmg:`, `ESPACES_DE_L_APP`), qu'un catalog ne peut employer ; et un id écrit
+deux fois dans le fichier (que `JSON.parse` tairait) se cherche dans le texte (`clefsEnDouble`). Il collecte CHAQUE
+faute ; puis `readLayer` en dernier : s'il refusait quand même, sa raison deviendrait une faute — jamais un catalog
+accepté qui tomberait au démarrage.
+⭐ **CE QU'UN RECORD PORTE, PAR GENRE** (`CHAMPS_EXIGES`) : les champs que le builder LIT — ⛔ aucun inventé : chacun
+est porté par TOUS les records du même genre dans le SRD, avec le même type, et chaque liste fermée est exactement
+celle du SRD. Les genres d'un catalog : espèce, arrière-plan, don, sort, objet magique, arme, armure, équipement.
+⚠️ **LA SOUS-CLASSE N'Y EST PAS** : elle vit dans le record de sa classe (`class.data.subclass`) — l'ajouter serait
+patcher la classe. C'est ce que les créateurs font le plus (ARCHI 35) : un genre « sous-classe » attaché à sa classe
+par référence viendra dans un lot à part, probablement avec le Level up. Le guide le dit.
+⭐ **UN LIVRE DU JOUEUR, C'EST TOUTE COUCHE QUI N'EST PAS UNE COUCHE DE L'APP** — jugé par la donnée, jamais par la
+forme d'un id : le montage monte chaque catalog que le lieu porte (au-dessus des livres connus, sous Fate's Hand,
+éteint) ; le Menu l'écrit dans `Books` par son nom ; le recalage ne l'efface pas d'un perso quand il manque à
+l'appareil (la même exclusion que §C34). Sans le fichier sous la main, la table des NOMS RÉSERVÉS de l'app
+(`estUnNomDeLApp`) sépare un catalog absent d'une couche retirée du produit (qui, elle, se recale).
+⭐ **UN FICHIER POSÉ À LA MAIN DANS `books/` EST JUGÉ AU MONTAGE** (`livresDuLieu`), par le même juge : refusé, il ne
+se monte pas et Layers le dit (`unreadable: <la première faute> (and N more faults)`).
+⛔ « homebrew » ne s'écrit ni dans Layers, ni dans le guide, ni dans le texte pour l'IA : c'est un catalog
+(`equipement-campaign-items`, le lexique).
+📐 Le MODÈLE : `examples/catalog-modele.layer.json` — un record de chaque genre, tout inventé. Le GUIDE et le texte à
+coller dans une IA : `docs/CATALOG.md`. Le script headless sur le Mac est le lot 391.
+⏳ Les mots (le refus, « by … », le guide) sont des brouillons anglais : Eric arrête la lettre.
+🛡️ `tests/catalog-390.test.mjs` (K1 à K10) ; `tests/layers-document.test.mjs` (la dérive de l'attribution).
 
 ### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement
 📍 `menu-layers-habillage` · vivante · 29/09

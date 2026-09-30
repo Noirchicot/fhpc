@@ -11,7 +11,7 @@
    l'URL de CE module : sans elle, un moteur frais pouvait recharger des
    couches de la version d'avant, servies par le cache (max-age=600 PAR
    fichier). Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=939";
+import { versionQuery } from "./version.mjs?v=940";
 
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
@@ -150,6 +150,7 @@ async function monterLesLivres(layers, root, livresDuLieu) {
   }
   const duLieu = new Map(lieu.etat === "liste" ? (lieu.livres || []).map((l) => [l.id, l.octets]) : []);
   for (const r of lieu.etat === "liste" ? (lieu.illisibles || []) : []) refuses.push({ id: r.id, raison: r.raison });
+  const catalogues = [];
   for (const file of LIVRE_FILES) {
     const id = file.replace(/\.layer\.json$/, "");
     if (refuses.some((r) => r.id === id)) continue;
@@ -165,7 +166,22 @@ async function monterLesLivres(layers, root, livresDuLieu) {
       refuses.push({ id, raison: error.message });
     }
   }
-  return { refuses, lieu: lieu.etat === "liste" ? { etat: "liste", ids: [...duLieu.keys()] } : lieu };
+  /* 📚 LOT 390 — LES CATALOGS DE CRÉATEUR : tout livre du lieu que l'app ne connaît pas d'avance, déjà JUGÉ
+     par `verifierUnCatalog` (`livresDuLieu`, magasin.mjs — le même juge qu'à l'import). Ils se montent
+     au-dessus des livres connus, sous Fate's Hand, dans l'ordre de leur id, ÉTEINTS comme eux. ⛔ Jamais
+     depuis le site : un catalog ne vit que dans le lieu du joueur. */
+  const connus = new Set(LIVRE_FILES.map((f) => f.replace(/\.layer\.json$/, "")));
+  const duCreateur = lieu.etat === "liste" ? (lieu.livres || []).filter((l) => !connus.has(l.id)) : [];
+  for (const livre of [...duCreateur].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
+    try {
+      const monte = layers.verbs.register({ bytes: livre.octets, origin: `lieu:${livre.id}` });
+      layers.verbs.disable({ id: monte.id });
+      catalogues.push({ id: monte.id, nom: livre.nom || monte.name, auteur: livre.auteur || null });
+    } catch (error) {
+      refuses.push({ id: livre.id, raison: error.message });
+    }
+  }
+  return { refuses, catalogues, lieu: lieu.etat === "liste" ? { etat: "liste", ids: [...duLieu.keys()] } : lieu };
 }
 
 function makeBus() {
@@ -191,14 +207,14 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../..", livresDuLieu } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs?v=939");
-  const { createBuild } = await import("../../src/build/index.mjs?v=939");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=939");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=939");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=940");
+  const { createBuild } = await import("../../src/build/index.mjs?v=940");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=940");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=940");
   /* LOT 148 BIS — le module qui fait ARRIVER sur la fiche les traits que la
      couche des espèces AJOUTE (`Splinter of Anon`, `Outlasting`,
      `Twice-Born`). Sans lui, ils s'appliquent sans que le joueur les voie. */
-  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=939");
+  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=940");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
@@ -216,14 +232,17 @@ export async function bootEngine({ root = "../..", livresDuLieu } = {}) {
 
   let livresRefuses = [];
   let lieuDesLivres = { etat: "liste", ids: [] };
+  let cataloguesDuLieu = [];
   for (const file of LAYER_FILES) {
     const bytes = new Uint8Array(await (await fetch(`${root}/layers/${file}${versionQuery(import.meta.url)}`)).arrayBuffer());
     layers.verbs.register({ bytes, origin: file });
     /* 📚 LOT 188 — les livres du joueur, juste au-dessus de `srfh` (voir leur tête). */
-    if (file === SOUS_LES_LIVRES) ({ refuses: livresRefuses, lieu: lieuDesLivres } = await monterLesLivres(layers, root, livresDuLieu));
+    if (file === SOUS_LES_LIVRES) {
+      ({ refuses: livresRefuses, lieu: lieuDesLivres, catalogues: cataloguesDuLieu } = await monterLesLivres(layers, root, livresDuLieu));
+    }
   }
 
-  return { build, layers, bus, livresRefuses, lieuDesLivres };
+  return { build, layers, bus, livresRefuses, lieuDesLivres, cataloguesDuLieu };
 }
 
 /* 🗄️ LOT 366 — `loadExampleDocument` (le personnage d'exemple EN+FH, « la seule matière

@@ -113,6 +113,12 @@
           "minLength": 1,
           "maxLength": 80
         },
+        "author": {
+          "$comment": "RÉVISION DU 2026-09-30 (lot 390, ARCHI 35 : Q2 → a) — l'AUTEUR, une chaîne. Facultatif pour les couches de l'app (le SRD, Fate's Hand, les livres du joueur) ; EXIGÉ par le juge d'un catalog de créateur (`src/layers/catalog.mjs`), parce que Layers l'affiche (« by <author> ») — et une donnée que l'écran affiche ne se tire pas d'un champ de prose (`text`).",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
         "text": { "type": "string", "maxLength": 2000 },
         "url": { "type": "string", "maxLength": 500 }
       }
