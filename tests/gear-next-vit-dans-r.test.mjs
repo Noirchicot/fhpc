@@ -41,7 +41,7 @@ const UI = path.join(ROOT, "ui", "builder");
 const G = await import("../ui/builder/gear-disposition.mjs");
 const W = await import("../ui/builder/wares-disposition.mjs");
 const P = await import("../ui/builder/sac-disposition.mjs");
-const { construireLEcranGear, feuilleDesCotes, CLEF_DE } = await import("../ui/builder/gear-ecran.mjs");
+const { construireLEcranGear, feuilleDesCotes, CLEF_DE, MOTS_DU_RECAP } = await import("../ui/builder/gear-ecran.mjs");
 const { RACINE_EQUIPEMENT } = await import("../ui/builder/equipment-step.mjs");
 const { estConfirme } = await import("../ui/builder/parcours.mjs");
 const { cransAlignes } = await import("../ui/builder/etapes.mjs");
@@ -160,8 +160,8 @@ test("② ter — la feuille le pose à sa cote du plan ; aucune règle ne le re
     "⛔ la sortie n'est pas au corps 16 px");
   assert.doesNotMatch(css, /\[data-porte="next"\]/, "⛔ `Next` quitterait le bleu de la famille");
   assert.match(lire("tokens.css"), /--t4:\s*calc\(16px/, "témoin : `--t4` vaut bien 16 px");
-  assert.match(css, /\.gear-porte\[data-porte="annuler"\]\s*\{\s*--bouton-fond:\s*var\(--critical\)/,
-    "« cancel annule donc rouge » (03/09)");
+  /* 🔄 LOT 371 — le récap porte `Back` (Eric, 30/09 : « a) Back, bleu ») : le bleu de la famille, aucune règle à lui */
+  assert.doesNotMatch(css, /\[data-porte="(annuler|retour)"\]/, "⛔ une règle propre au retour du récap le sortirait du bleu");
 });
 
 test("② quater — le récap : Gear, Pack, bourse ; il EXIGE sa réponse (Cancel referme, Next valide) et cache Done", () => {
@@ -179,7 +179,10 @@ test("② quater — le récap : Gear, Pack, bourse ; il EXIGE sa réponse (Canc
   assert.equal(texte(1), "Robe · 5 × Ration");
   assert.equal(texte(2), "64 gp", "l'or, écrit comme le montant posé sur la bourse");
   const [annuler, suivant] = [...recap.querySelector(".gear-recap-pied").querySelectorAll("button")];
-  assert.deepEqual([annuler.textContent, suivant.textContent], ["Cancel", "Next"], "« cancel pour tweaker et next pour poursuivre »");
+  /* 🔄 LOT 371 — Eric, 30/09 : « a) Back, bleu … if you want to tweak some more, réécris qq chose » */
+  assert.deepEqual([annuler.textContent, suivant.textContent], ["Back", "Next"], "Back pour retoucher, Next pour poursuivre");
+  assert.equal(annuler.dataset.porte, "retour", "le verbe de ce qui recule — jamais `annuler`, qui défait");
+  assert.equal(recap.querySelector(".gear-recap-invite").textContent, MOTS_DU_RECAP.invite, "la phrase qui invite à retoucher");
   /* ⚖️ LOT 371 — `popup-question-exige-une-reponse` : le récap ne se ferme QUE par ses réponses. Un clic sur le
      voile — à côté du récap — ne fait RIEN (il exigeait « annuler » au lot 363). */
   n.querySelector('[data-organe="recap-voile"]').click();

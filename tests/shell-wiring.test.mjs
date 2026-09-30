@@ -559,8 +559,15 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      sous la forme qui le dit, « une fois, et dans la coquille ».
      ⚠️ Un garde écrit contre une ORTHOGRAPHE devient faux le jour où
      l'orthographe change de camp. Écrit contre un PROPRIÉTAIRE, il tient. */
-  assert.deepEqual(porteursDuLibelle('"Back"'), [`${SORTIE_ETAPE.producteur} (1)`],
-    "`Back` est le mot de la paire, écrit UNE fois et par la coquille — jamais par un écran");
+  /* 🔄 LOT 371 — UN SECOND PORTEUR, ET UN SEUL, NOMMÉ PAR ERIC : le récap de Gear. Eric, 30/09, à « ton "cancel
+     pour tweaker" referme sans rien effacer : a) Back, bleu, comme la Bible · b) Cancel, rouge, exception » →
+     « a) ». ⭐ Ce que ce garde protège tient toujours : ce `Back`-là ne recule d'AUCUN cran — il referme une
+     fenêtre de l'écran, et `pressBack()` reste appelé par la coquille seule (garde au-dessus). L'exception est
+     bornée dans NORMES (`equipement-done-recap-next` · borne `bouton-la-classe-et-le-verbe-font-l-organe`). */
+  assert.deepEqual(porteursDuLibelle('"Back"').sort(), ["ui/builder/gear-ecran.mjs (1)", `${SORTIE_ETAPE.producteur} (1)`].sort(),
+    "`Back` est écrit par la coquille et par le seul récap de Gear — jamais par un autre écran");
+  assert.doesNotMatch(fs.readFileSync(path.join(UI_DIR, "gear-ecran.mjs"), "utf8"), /pressBack/,
+    "⛔ le Back du récap ne recule pas d'un cran : il ne connaît pas le verbe de la coquille");
 });
 
 /* ══ 16 ter — LA CONDITION SOUS LAQUELLE LES 76 px RESTENT VRAIS ══════════

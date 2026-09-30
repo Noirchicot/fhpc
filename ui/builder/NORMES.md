@@ -5689,15 +5689,25 @@ dit « rien dans la marge, à part une dalle ou une tuile » ; la lune, à gauch
 🛡️ `tests/gear-next-vit-dans-r.test.mjs` ① bis.
 
 ### ➡️ LA SORTIE D'ÉQUIPEMENT : `Done`, UN RÉCAP, PUIS `Next`
-📍 `equipement-done-recap-next` · vivante · 30/09 · borne `bouton-back-next-n-ecrivent-jamais`
-⚖️ **Sous la bourse de Gear, `Done` — vert, 16 / 600 — ouvre un récap (Gear, Pack, la bourse) qui EXIGE une réponse : `Cancel` le referme sans rien écrire, `Next` valide l'étape et va au cran suivant du belt. Tant que le récap est ouvert, `Done` est hors de vue. L'étape validée, le même organe dit `Next` (bleu) et repart sans récap. ⛔ Ce `Next` SIGNE l'étape : c'est une déviation voulue par Eric de `bouton-back-next-n-ecrivent-jamais`, bornée à cette sortie.**
+📍 `equipement-done-recap-next` · vivante · 30/09 · borne `bouton-back-next-n-ecrivent-jamais` · borne `bouton-la-classe-et-le-verbe-font-l-organe`
+⚖️ **Sous la bourse de Gear, `Done` — vert, 16 / 600 — ouvre un récap (Gear, Pack, la bourse) qui EXIGE une réponse : `Back` (bleu), sous une phrase qui invite à retoucher, le referme sans rien écrire ; `Next` valide l'étape et va au cran suivant du belt. Tant que le récap est ouvert, `Done` est hors de vue. L'étape validée, le même organe dit `Next` (bleu) et repart sans récap. ⛔ Ce `Next` SIGNE l'étape : c'est une déviation voulue par Eric de `bouton-back-next-n-ecrivent-jamais`, bornée à cette sortie. Son `Back` est le seul qu'un écran écrive : il referme le récap, il ne recule d'aucun cran.**
 
 > Eric, 2026-09-30, mot pour mot : **« Comme dans les étapes precedentes on avait l'habitude de valider
 > l'étape par un done. un texte de recap. probablement un recap sur un popup car peu de place pour le faire
 > sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre. et validation de l'étape dans le
 > belt »**. Puis, chaque réponse à SA question : le mot du bouton, avant et après validation ? → **« Done, puis
 > Next »** · que montre le récap ? → **« Gear, Pack, bourse »** · après validation, s'il modifie son équipement,
-> le voyant du belt ? → **« Reste allumé »**.
+> le voyant du belt ? → **« Reste allumé »**. Puis, relayée par ARCHI 35 le même jour : *« ton "cancel pour
+> tweaker" referme sans rien effacer : a) Back, bleu, comme la Bible · b) Cancel, rouge, exception »* →
+> **« a) if you want to tweak some more, réécris qq chose »**.
+
+⚖️ **LE RETOUR DU RÉCAP EST `BACK`** — il ne défait rien, il recule (`bouton-deux-mots-retour-et-couleur-se-deduit-mot`) ;
+bleu, la famille `gear-porte` sans règle à lui. Au-dessus de la paire, une phrase invite à retoucher —
+✍️ *« Want to tweak some more? Back returns to your gear. »*, BROUILLON d'ARCHI 35 (`MOTS_DU_RECAP`,
+`gear-ecran.mjs`) : Eric arrête ce que le joueur lit.
+⛔ **ET C'EST UNE EXCEPTION NOMMÉE À `bouton-la-classe-et-le-verbe-font-l-organe`** (« `Back` est EXCLUSIF à la
+coquille ») : ce `Back`-là ne recule d'aucun cran — il referme une fenêtre de l'écran, et `pressBack()` reste à
+la coquille seule. Le témoin (`shell-wiring` 17) nomme ses DEUX porteurs, et aucun troisième.
 
 ⚖️ **LA DÉVIATION, DÉCLARÉE** (`socle-norme-est-un-defaut` : un écran qui dévie le fait explicitement) : la Bible
 dit « un `Next` ne signe jamais » ; Eric veut « next pour poursuivre » **et** « validation de l'étape dans le
@@ -5708,8 +5718,7 @@ n'a rien d'obligatoire, elle est toujours achevée, `bouton-done-gris-inacheve`)
 16 / 600 (`bouton-deux-largeurs`, plus le T2 de `Send`) ; le récap ne se ferme que par `Cancel` ou `Next`
 (`popup-question-exige-une-reponse`) ; `Done` n'est pas rendu tant qu'il est ouvert
 (`bouton-done-et-next-jamais-ensemble`).
-⏳ **CE QUI ATTEND ERIC** (audit du lot 370) : le `Cancel` du récap n'abandonne rien (c'est son mot ; la Bible
-dirait `Back`, exclusif à la coquille) ; `Done`, `Cancel` et `Next` sont fabriqués par l'écran et non par la
+⏳ **CE QUI ATTEND ERIC** (audit du lot 370) : `Done`, `Back` et `Next` sont fabriqués par l'écran et non par la
 coquille (`socle-l-ecran-declare-la-coquille-execute`).
 🛡️ `tests/gear-next-vit-dans-r.test.mjs` ②–④.
 
@@ -7181,14 +7190,14 @@ dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
 
 ### 🚧 LA CLASSE ET LE VERBE FONT L'ORGANE — mais TROIS MOTS ont leur propre régime
-📍 `bouton-la-classe-et-le-verbe-font-l-organe` · vivante · 07/09
+📍 `bouton-la-classe-et-le-verbe-font-l-organe` · vivante · 07/09 · bornée par `equipement-done-recap-next`
 ⚖️ **Un organe de la coquille se reconnaît à sa CLASSE et à son VERBE, jamais à son libellé — sauf trois mots dont le régime est écrit dans un témoin : `Back` est EXCLUSIF à la coquille, `Validate` est BANNI, `Cancel` et `Done` sont PARTAGÉS.**
 
 📏 **LES TROIS RÉGIMES, MESURÉS LE 07/09 — qui écrit le mot nu dans `ui/` :**
 
 | le mot | porteurs | le régime | son témoin |
 |---|---|---|---|
-| **`Back`** | **`shell.mjs` seul** | 🔒 **exclusif** — ⛔ un écran ne l'écrit pas | `shell-wiring.test.mjs:517` — *« écrit UNE fois et par la coquille — jamais par un écran »* |
+| **`Back`** | **`shell.mjs`** — et, depuis le 30/09, le récap de Gear (`equipement-done-recap-next`, le mot d'Eric) | 🔒 **exclusif** — ⛔ un écran ne l'écrit pas, hors l'exception nommée | `shell-wiring.test.mjs:517` — *« écrit UNE fois et par la coquille — jamais par un écran »* |
 | **`Validate`** | **aucun** | ⛔ **banni** — il ne doit exister nulle part | `shell-wiring.test.mjs:345` |
 | **`Cancel`** | `confirm` · `destiny-step` · `parcours-ecrans` · `abilities-step` · `shell` | ✅ **partagé** — 4 écrans l'écrivent aujourd'hui | ⛔ **aucun témoin sur le mot nu** |
 | **`Done`** | `destiny-step` · `species-step` · `parcours-ecrans` · `shell` | ✅ **partagé** — 3 écrans l'écrivent aujourd'hui | ⛔ **aucun témoin sur le mot nu** |
@@ -7618,7 +7627,7 @@ tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleur
 pourquoi elle avait été écrite avant de la retirer.
 
 ### 🔴 LA TRILOGIE EST DUE À TOUT ÉCRAN — livre · bouton(s) · `?` *(Eric, 2026-09-06)*
-📍 `rangee-trilogie-due-partout` · vivante · 06/09 · bornée par `menu-r-sans-pied`
+📍 `rangee-trilogie-due-partout` · vivante · 06/09 · bornée par `menu-r-sans-pied` · bornée par `menu-rangs-b-sans-livre`
 ⚖️ **La trilogie livre · bouton(s) majeurs · `?` est DUE à tout écran : un écran sans elle est un défaut, et c'est l'exception qui s'argumente et se date.**
 
 > Eric, 2026-09-06 : *« **ils doivent tous avoir la trilogie.** Mais c'est les autres qu'on passe
@@ -8287,6 +8296,16 @@ les verrous du carnet). `rebuild()` (shell.mjs) pose désormais `refusSansFiche(
 serait gardé, et un code inconnu suit la même loi.
 ⛔ **AUCUNE RÈGLE DE JEU NE BOUGE** : sans classe, la fiche reste une « dérivation impossible » (Sheet
 montre l'écran « perso incomplet »). Ce qui change, c'est ce que les étapes DISENT pendant la création.
+✍️ **LOT 371 — LA VOIE MORTE DE LA PHRASE EST REMPLACÉE** : elle finissait par *« or change your mind and pick
+again »*, nommant `I changed my mind`, mort depuis le 05/09 (relevé du lot 369). Relayée par ARCHI 35, 30/09 :
+à *« les deux phrases fausses : a) propose des mots »* → Eric : **« a »**. Les mots, BROUILLONS d'ARCHI 35 :
+· ici (`motDesChoixNonResolus`, ecran-mort.mjs) — *« … — switch it on in Layers (Menu, the first tab), or use
+  Cancel to clear this step and pick again. Nothing you chose has been erased. »* ⚠️ Adapté : la tête
+  (*« Araag comes with Fate's Hand — switch it on in Layers »*) est citée par cette règle et par
+  `menu-layers-fate-s-hand-tout-ou-rien`, elle ne bouge pas ; seule la voie morte change ;
+· la conclusion d'une étape réglée (`MOTS_ETAPE_REGLEE`, parcours-ecrans.mjs — un seul écrivain, il y en avait
+  deux) — *« This step is settled. Move on when you are ready. Cancel clears this step so you can choose
+  again. »*, et sans `Next` : *« This step is settled. Cancel clears this step so you can choose again. »*
 
 | le lecteur | sur le silence (avant) | sur les refus sans fiche (après) |
 |---|---|---|
@@ -9852,6 +9871,9 @@ fichier serait vert pour rien)*.
 ⚖️ **Une capacité de classe qui fait choisir au niveau 1 se DÉCLARE dans la couche (`data[feature_choices]` : id, nom, niveau, compte, et ses options — ou `options_from`, un genre de record) ; le carnet publie `class.<id>`, l'étape Class ouvre la porte avec l'organe du glisser, et la capacité quitte « Granted automatically ». L'écran ne connaît aucune capacité par son nom : une capacité déclarée demain obtient sa porte sans une ligne d'écran. La fiche nomme la réponse (« Primal Order: Warden »).**
 
 > ARCHI 35, 29/09, Q1 → a) : *« Divine Order, Primal Order et Fighting Style s'écrivent et se montrent. Leurs effets (armures, armes, bonus, et le cantrip en plus de Thaumaturge / Magician, qui est lui-même un choix) feront un lot sur `derive`. »* ⛔ Jusque-là, aucune règle ne lit la réponse : la Sheet le dit sous « Recorded, but no rule reads them », et c'est la vérité.
+> ✅ **RATIFIÉE PAR ERIC LE 30/09** — relayée par ARCHI 35 après l'audit du lot 370, qui relevait que cette décision
+> ne tenait que de la parole de l'architecte : à *« Les effets en attente (Orders, Fighting Style, Skilled) »* →
+> **« a »** — leurs effets feront un lot à la suite.
 
 📌 **CE QUI LES TIENT** : `tests/choix-du-niveau-1.test.mjs` (la couverture, la forme, la création relue à l'écrivain, la dette, les clefs, trois témoins) et `tests/portes-360.test.mjs` (les plans, la porte, les acquis, la fiche, le palier 2 et la Sheet) — dix-neuf mutations vues rouges.
 
@@ -9883,10 +9905,13 @@ fichier serait vert pour rien)*.
 📍 `species-le-trait-d-un-don-a-sa-porte` · vivante · 29/09
 ⚖️ **L'espèce nomme le trait que son don réalise (`feat_choice.trait`), comme `skill_points.trait` et `destiny.base_bonus_trait` : le trait quitte « Granted automatically » pour la porte, par la donnée. Une ligne verte « → chosen at step N » ne vaut que si cette étape FAIT ce choix.**
 
-📍 `sheet-la-fiche-nomme-les-dons-d-origine` · vivante · 29/09
-⚖️ **La fiche nomme chaque don d'origine, celui de l'arrière-plan comme celui de Versatile, par UN compositeur : « <ce qui l'accorde>: <le don> (<sa configuration>) », la source étant le record qui l'accorde — « Origin feat: Magic Initiate (Cleric) » · Acolyte, « Versatile: Magic Initiate (Wizard) » · Human. Les libellés sont une proposition ; Eric les ajuste.**
+📍 `sheet-la-fiche-nomme-les-dons-d-origine` · vivante · 29/09 · **amendée 30/09 — libellés ratifiés par Eric**
+⚖️ **La fiche nomme chaque don d'origine, celui de l'arrière-plan comme celui de Versatile, par UN compositeur : « <ce qui l'accorde>: <le don> (<sa configuration>) », la source étant le record qui l'accorde — « Origin feat: Magic Initiate (Cleric) » · Acolyte, « Versatile: Magic Initiate (Wizard) » · Human. Ces libellés sont ceux d'Eric (30/09 : « a) gardés »).**
 
 > ARCHI 35, 29/09, Q3 : *« Le don de l'arrière-plan est nommé aussi, par le MÊME compositeur, sinon la fiche nomme le second don et pas le premier. »* ⛔ Q4 : les maîtrises de Skilled s'écrivent et se montrent ; leur effet attend le lot sur `derive`, avec les capacités du lot 360.
+> ✅ **RATIFIÉES PAR ERIC LE 30/09** (relayées par ARCHI 35, audit du lot 370) : les effets en attente — Orders,
+> Fighting Style, Skilled → **« a »**, un lot à la suite ; et les libellés de la fiche (« Origin feat: … »,
+> « Versatile: … ») → **« a) gardés »**.
 > ✅ Eric, **30/09**, à *« Sur la fiche, le Human porte deux lignes voisines : "Versatile — Human" (le trait d'espèce,
 > tel que le moteur le publie pour chaque trait) et "Versatile: Magic Initiate (Wizard)" (ce qu'il a choisi). a) garder
 > les deux (le trait et le choix) · b) une seule ligne, celle du choix ? »* → **« a »** : le trait ET le choix restent.
@@ -10819,6 +10844,18 @@ depuis le 27/09.
 ⭐ Dit au seul lecteur de `GUIDES` (`guideDeLEtape`) : le `?` posé et le `?` qui répond ne peuvent
 pas diverger. Le guide du Menu demeure, lu depuis ses rangs B.
 🛡️ `tests/guide-point.test.mjs` A6 ; `universe-step` R5.
+
+### 📕 LES RANGS B DU MENU N'ONT PAS DE LIVRE
+📍 `menu-rangs-b-sans-livre` · vivante · 30/09 · borne `rangee-trilogie-due-partout`
+⚖️ **Les rangs B du Menu — Layers, Display, Dungeon Master — portent leur rangée sans le livre : leurs boutons et le `?`. La trilogie reste due partout ailleurs.**
+
+> Relayée par ARCHI 35, 30/09, après l'audit du lot 370 : *« Rangée livre · majeurs · ? sur les pages du Menu
+> (Layers, Display, Dungeon Master) : a) on l'ajoute · b) exemptées »* → Eric : **« b »**.
+
+⭐ **UNE EXCEPTION NOMMÉE, DATÉE, PAS UNE RÈGLE QUI TOMBE** (la loi des deux âges : la plus récente fait foi
+sur son périmètre, et seulement sur lui). Elle rejoint celle de R (`menu-r-sans-pied`) : R n'a ni livre ni `?`,
+ses rangs B gardent le `?` sans livre.
+📌 Elle clôt le ⛔ du lot 357 (la page Dungeon Master sans livre) et l'écart antérieur A3 de l'audit du lot 370.
 
 ### 🔕 LA LIGNE D'ÉTAT EST RETIRÉE — UNE PERTE SE DIT TOUJOURS
 📍 `menu-r-ligne-d-etat-retiree` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde`

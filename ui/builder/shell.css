@@ -9366,9 +9366,9 @@ button.gear-porte[data-organe="done"][data-porte="done"] { --bouton-fond: var(--
 .gear-recap-liste[data-vide] { font-style: italic; color: var(--text-soft); }
 .gear-recap-pied { display: flex; justify-content: center; gap: var(--sp-8); }
 .gear-recap-pied > .gear-porte { inline-size: var(--bouton-petit); }
-/* 🔴 `Cancel` PORTE LE ROUGE DE CE QUI ABANDONNE — Eric, 03/09 : *« cancel annule donc rouge »*. Ici il
-   n'efface rien (il referme pour « tweaker ») ; il garde la couleur de son MOT, comme partout. */
-.gear-porte[data-porte="annuler"] { --bouton-fond: var(--critical); }
+/* 🔵 LOT 371 — le récap porte `Back` (Eric, 30/09 : « a) »), qui prend le bleu de la famille : aucune règle à lui.
+   La phrase qui invite à retoucher : l'encre douce d'une proposition, au-dessus de la paire. */
+.gear-recap-invite { margin: 0; font-size: var(--t2); font-style: italic; color: var(--text-soft); text-align: center; }
 
 /* ══ LOT 311 — LE PIED D'ÉQUIPEMENT : TROIS CARRÉS, SEND CENTRÉ, LE `?` À DROITE ══════════════
    ⚖️ Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le

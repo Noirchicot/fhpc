@@ -688,7 +688,12 @@ function boutonSortie(id, options) {
 /** ➡️ LOT 363 — LE RÉCAP DE L'ÉTAPE, un popup (Eric, 30/09 : *« probablement un recap sur un popup car
  *  peu de place pour le faire sur gear »*). Trois blocs, dictés à la question *« Que montre le récap ? »*
  *  → **« Gear, Pack, bourse »** : ce que le perso porte (emplacement → objet), ce qu'il y a dans le sac,
- *  et l'or. En bas, `Cancel` (*« pour tweaker »*) et `Next` (*« pour poursuivre »*).
+ *  et l'or. En bas, `Back` et `Next` (*« pour poursuivre »*).
+ *  ⚖️ LOT 371 — `BACK`, BLEU, PLUS `CANCEL` : Eric, 30/09, à « ton "cancel pour tweaker" referme sans rien
+ *  effacer : a) Back, bleu, comme la Bible · b) Cancel, rouge, exception » → **« a) if you want to tweak some
+ *  more, réécris qq chose »**. Le bouton ne défait rien, il RECULE : `Back` (`bouton-deux-mots-retour-…`), et
+ *  une phrase invite à retoucher. ⛔ `Back` était EXCLUSIF à la coquille : c'est une exception NOMMÉE, bornée
+ *  par la décision d'Eric (NORMES `equipement-done-recap-next`). Il ne recule pas d'un cran — il referme le récap.
  *  ⭐ UN SEUL ÉCRIVAIN PAR CHIFFRE : ce que Gear connaît déjà, il le relit — les boîtes portées
  *  (`lignesPortees`) et la bourse, écrite par `totalCourt` comme le montant posé dessus (*« deux façons
  *  d'écrire un nombre dans le même écran, c'est deux façons de le lire »*). L'étape ne lui tend que le
@@ -698,6 +703,10 @@ function boutonSortie(id, options) {
  *  ne se ferme que par une de ses réponses (`popup-question-exige-une-reponse`). Il PREND le pointeur sur
  *  tout l'écran — rien dessous n'est atteignable tant qu'il est ouvert. ⛔ `Cancel` n'écrit rien : il
  *  referme. */
+export const MOTS_DU_RECAP = Object.freeze({
+  invite: "Want to tweak some more? Back returns to your gear.",
+  retour: "Back"
+});
 export function popupDuRecap(options) {
   const v = eld("div", "gear-voile");
   v.dataset.organe = "recap-voile";
@@ -717,9 +726,11 @@ export function popupDuRecap(options) {
   p.append(bloc("Gear", lignesPortees(options.boites).map((l) => `${l.emplacement} — ${l.objet}`), "Nothing worn."));
   p.append(bloc("Pack", (options.recapSac || []).map((l) => (l.qte > 1 ? `${l.qte} × ${l.objet}` : l.objet)), "Empty."));
   p.append(bloc("Purse", [`${totalCourt(options.bourse ? Math.floor(enGP(options.bourse)) : 0)} gp`], ""));
+  /* ✍️ BROUILLON d'ARCHI 35 (30/09) — Eric arrête les mots que le joueur lit. */
+  p.append(eld("p", "gear-recap-invite", MOTS_DU_RECAP.invite));
   const pied = eld("div", "gear-recap-pied");
-  const annuler = bouton("gear-porte", "Cancel", undefined, () => options.surAnnulerRecap && options.surAnnulerRecap());
-  annuler.dataset.porte = "annuler";
+  const annuler = bouton("gear-porte", MOTS_DU_RECAP.retour, undefined, () => options.surAnnulerRecap && options.surAnnulerRecap());
+  annuler.dataset.porte = "retour";
   const suivant = bouton("gear-porte", "Next", undefined, () => options.surSuivant && options.surSuivant());
   suivant.dataset.porte = "suivant";
   pied.append(annuler, suivant);

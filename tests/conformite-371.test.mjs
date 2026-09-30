@@ -103,3 +103,19 @@ test("③ bis — les cinq `Cancel` qui effacent demandent D'ABORD, s'il y a que
   assert.equal((lire("parcours-ecrans.mjs").match(/kind: "parcoursCancel"/g) || []).length, 2);
   assert.match(lire("destiny-step.mjs"), /bouton\("Cancel", "parcours-annuler", \(\) => act\(\{ kind: "destinyReset" \}\)\)/);
 });
+
+test("④ aucune phrase que le joueur lit ne nomme plus le bouton mort « change your mind » ; la phrase d'étape réglée a UN écrivain", async () => {
+  /* ⚖️ Relevé du lot 369, Eric 30/09 : « a) propose des mots ». `I changed my mind` est `Cancel` depuis le 05/09 :
+     une phrase qui dit « change your mind » envoie chercher un bouton qui n'existe plus. Lu dans le CODE (les
+     commentaires parlent du passé, ils ont le droit de le nommer). */
+  const fautives = [];
+  for (const f of fs.readdirSync(path.join(ROOT, "ui", "builder")).filter((n) => n.endsWith(".mjs"))) {
+    if (/change your mind/i.test(stripComments(lire(f)))) fautives.push(f);
+  }
+  assert.deepEqual(fautives, [], "⛔ une phrase nomme encore le bouton mort");
+  const { MOTS_ETAPE_REGLEE } = await import("../ui/builder/parcours-ecrans.mjs");
+  for (const phrase of Object.values(MOTS_ETAPE_REGLEE)) assert.match(phrase, /Cancel clears this step/, "elle nomme le bouton qui existe");
+  const source = stripComments(lire("parcours-ecrans.mjs"));
+  assert.equal((source.match(/This step is settled/g) || []).length, 2,
+    "⛔ la phrase d'étape réglée s'écrit une fois (les deux entrées de `MOTS_ETAPE_REGLEE`), jamais recopiée ailleurs");
+});

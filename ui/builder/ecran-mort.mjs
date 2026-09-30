@@ -151,7 +151,11 @@ export function motDesChoixNonResolus(refs) {
   const sortie = nommes === 0
     ? "Open Menu, the first tab, and turn that ruleset back on in Layers"
     : `switch ${nommes > 1 || total > 1 ? "them" : "it"} on in Layers (Menu, the first tab)`;
-  return `${liste(clauses)} — ${sortie}, or change your mind and pick again. Nothing you chose has been erased.`;
+  /* ⚖️ LOT 371 — « change your mind » nommait un bouton mort (`Cancel` depuis le 05/09). ✍️ BROUILLON d'ARCHI 35
+     (Eric, 30/09 : « a) propose des mots »), ADAPTÉ : la tête « X comes with Y — switch it on in Layers » est la
+     phrase citée par deux règles (`voyant-un-choix-mort-se-nomme-meme-sans-classe`,
+     `menu-layers-fate-s-hand-tout-ou-rien`) — elle ne bouge pas ; seule la voie morte est remplacée. */
+  return `${liste(clauses)} — ${sortie}, or use Cancel to clear this step and pick again. Nothing you chose has been erased.`;
 }
 
 /** LE MOT DU 2026-08-20, REPRIS À LA LETTRE — il n'avait aucun défaut.
