@@ -80,13 +80,16 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee, porte } from "./universe-step.mjs?v=939";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee, porte } from "./universe-step.mjs?v=940";
 /* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
    se réexporte d'ici pour l'écran, la coquille et les gardes. */
-import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=939";
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=940";
 export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
 /* ⭐ LOT 351 — la poubelle, organe au socle (feuille sans import), partagée avec `My characters`. */
-import { poubelle } from "./poubelle-organe.mjs?v=939";
+import { poubelle } from "./poubelle-organe.mjs?v=940";
+/* 📚 LOT 390 — ce qui sépare un catalog de créateur d'une couche de l'app : la table des noms réservés, dans le
+   juge du catalog (un seul écrivain). */
+import { estUnNomDeLApp, fauteEnLigne } from "../../src/catalog/juge.mjs?v=940";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -99,7 +102,7 @@ function text(value) { return document.createTextNode(String(value)); }
 /* ⭐ LOT 213 — L'ORGANE A DÉMÉNAGÉ DANS UNE FEUILLE SANS IMPORT, pour que la
    fiche X1 le prenne sans traîner `Layers` derrière elle. ⛔ Rien d'autre n'a
    bougé : la fabrique est la même, ses appelants ne changent pas d'adresse. */
-import { interrupteur } from "./interrupteur-organe.mjs?v=939";
+import { interrupteur } from "./interrupteur-organe.mjs?v=940";
 export { interrupteur };
 
 /* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════
@@ -289,6 +292,9 @@ export const MOTS_DE_LAYERS = Object.freeze({
   eteints: "installed, not active",
   options: "options",
   importer: "Import a book",
+  /* 📚 LOT 390 — l'étiquette d'un catalog de créateur, à la place de « your copy » : son auteur
+     (`attribution.author`). ⚠️ Brouillon anglais à Eric. */
+  parAuteur: (auteur) => `by ${auteur}`,
   absent: "not on this device",
   /* 📚 LOT 388 — le lieu des livres a refusé (hors ligne, jeton mort) : il se DIT, avec la raison du lieu.
      ⚠️ Brouillon anglais à Eric. */
@@ -296,6 +302,25 @@ export const MOTS_DE_LAYERS = Object.freeze({
   /* le mot de TOUTE place réservée (`placeReservee`, `ligneReservee`) : le même, jamais un autre */
   bientot: "soon"
 });
+/** 📚 LOT 390 — LE TEXTE DE LA FENÊTRE QUAND `Import a book` REFUSE. Un livre connu refusé dit la raison de
+ *  son juge (lot 388) ; un catalog de créateur dit ses FAUTES, chacune avec son chemin — les premières, puis
+ *  combien il en reste : la fenêtre ne défile pas, et le vérificateur (le même juge, en ligne de commande)
+ *  les dit toutes. ⚠️ Brouillon anglais à Eric.
+ *  @param {{raison:string, fautes?:Array<{chemin:string, phrase:string}>}} issue */
+export const FAUTES_DANS_LA_FENETRE = 4;
+export function texteDuRefusDImport(issue) {
+  const fautes = issue && Array.isArray(issue.fautes) ? issue.fautes : null;
+  if (!fautes || fautes.length === 0) return `This book was not imported: ${issue && issue.raison}`;
+  const n = fautes.length;
+  const lignes = fautes.slice(0, FAUTES_DANS_LA_FENETRE).map(fauteEnLigne).map((l) => `· ${l}`);
+  const reste = n - lignes.length;
+  return [
+    `This catalog was not imported. ${n === 1 ? "One thing to fix:" : `${n} things to fix:`}`,
+    lignes.join("\n"),
+    `${reste > 0 ? `…and ${reste} more. ` : ""}Fix ${n === 1 ? "it" : "them"}, then import the file again.`
+  ].join("\n\n");
+}
+
 /* 🗄️ `tableItems` (« + Table items ») EST PARTI — Eric, 29/09 : *« table items devient ->
    campaign items (et va dans Dungeon master) »*. La place vit désormais dans la page
    Dungeon Master (lot 357), sous le nom « Campaign items ». */
@@ -348,7 +373,7 @@ const lesFamilles = (familles) => familles.join(" · ");
 function ligneDeLivre(livre, monte, declare, dansLeLieu, onAction) {
   const nom = monte.name || livre.nom;
   const sw = interrupteur({
-    label: nom, etiquette: MOTS_DE_LAYERS.etiquetteLivre, familles: lesFamilles(livre.familles), on: declare,
+    label: nom, etiquette: livre.etiquette || MOTS_DE_LAYERS.etiquetteLivre, familles: lesFamilles(livre.familles), on: declare,
     onChange: (on) => onAction({ kind: "requestBookSwitch", id: livre.id, value: on })
   });
   sw.dataset.livre = livre.id;
@@ -438,6 +463,30 @@ export function renderLayersEcran(ctx, onAction) {
     } else if (declare || refus) {
       const b = ligneReservee(livre.nom, refus ? `unreadable: ${refus.raison}` : MOTS_DE_LAYERS.absent);
       b.dataset.livre = livre.id;
+      (declare ? actifs : eteints).push(b);
+    }
+  }
+  /* 📚 LOT 390 — PUIS LES CATALOGS DE CRÉATEUR : un livre comme les autres (ARCHI 35), avec l'interrupteur et
+     la poubelle des livres ; son étiquette est son AUTEUR (« by … »), et ses familles, `catalog` seulement.
+     Ceux que la pile porte (montés depuis le lieu), ceux que le perso déclare, ceux que le juge a refusés
+     — dans l'ordre de leur id. ⛔ Jamais une couche de l'app (`estUnNomDeLApp`). */
+  const catalogues = Array.isArray(ctx.cataloguesDuLieu) ? ctx.cataloguesDuLieu : [];
+  const estCatalog = (id) => typeof id === "string" && !estUnNomDeLApp(id) && !LIVRES_DU_JOUEUR.some((l) => l.id === id);
+  const idsDesCatalogs = [...new Set([
+    ...(pile || []).map((c) => c && c.id), ...ids, ...refuses.map((r) => r && r.id)
+  ].filter(estCatalog))].sort();
+  for (const id of idsDesCatalogs) {
+    const monte = pile ? pile.find((c) => c && c.id === id) : null;
+    const refus = refuses.find((r) => r && r.id === id);
+    const declare = ids.has(id);
+    const connu = catalogues.find((c) => c.id === id);
+    const nom = (monte && monte.name) || (connu && connu.nom) || id;
+    if (monte) {
+      const livre = { id, nom, familles: ["catalog"], etiquette: connu && connu.auteur ? MOTS_DE_LAYERS.parAuteur(connu.auteur) : undefined };
+      (declare ? actifs : eteints).push(ligneDeLivre(livre, monte, declare, dansLeLieu.has(id), onAction));
+    } else if (declare || refus) {
+      const b = ligneReservee(nom, refus ? `unreadable: ${refus.raison}` : MOTS_DE_LAYERS.absent);
+      b.dataset.livre = id;
       (declare ? actifs : eteints).push(b);
     }
   }

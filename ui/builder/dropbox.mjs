@@ -36,8 +36,8 @@
      `keepalive`, et une vieille Chromium le refusait avec une pré-requête : la coquille réessaie alors
      sans lui (`httpDuNavigateur`). ⛔ Le passage en arrière-plan n'est donc jamais la seule chance. */
 
-import { clefDeLEntree } from "./magasin.mjs?v=939";
-import { RAYON_REGLAGES } from "./magasin.mjs?v=939";
+import { clefDeLEntree } from "./magasin.mjs?v=940";
+import { RAYON_REGLAGES, ID_DE_LIVRE } from "./magasin.mjs?v=940";
 
 /** ✅ L'App key de l'application SOWLREACH (Eric, 30/09, 13:14). ⭐ PUBLIQUE : elle voyage dans le code,
  *  comme une adresse. ⛔ L'App secret n'est ni demandé ni gardé. */
@@ -460,7 +460,9 @@ export function adaptateurDropbox({ http, jetons }) {
    celle de ses octets. ⭐ Ranger un livre du même id le REMPLACE (`overwrite`) : le joueur vient de choisir ce
    fichier-là ; un livre n'a pas de versions datées. */
 const cheminDuLivre = (id) => `${DOSSIER_LIVRES}/${id}.layer.json`;
-const MOTIF_LIVRE = /^[a-z0-9][a-z0-9-]{0,79}$/;
+/* 📚 LOT 390 — la forme de l'id d'un fichier de livre a UN écrivain (`ID_DE_LIVRE`, magasin.mjs) : un catalog
+   de créateur (`noirchicot-mistlands`) y entre comme le PHB. */
+const MOTIF_LIVRE = ID_DE_LIVRE;
 export function librairieDropbox({ http, jetons }) {
   const { appeler, panne, listerLeDossier, effacerLeChemin } = clientDropbox({ http, jetons });
   const chemin = (id) => {

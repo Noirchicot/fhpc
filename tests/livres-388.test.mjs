@@ -103,8 +103,14 @@ test("J1 — ⚖️ LE JUGE D'UN LIVRE EST CELUI QUI LE MONTE : forme `fh-layer/
   const pasUneCouche = refus(new TextEncoder().encode(JSON.stringify({ schema: "fh-char/1", id: "kara" })));
   assert.equal(pasUneCouche.etat, "refus");
   assert.match(pasUneCouche.raison, /fh-layer\/1|clef inconnue/, "⭐ la raison est celle du juge (`readLayer`), jamais une prose inventée");
+  /* 🔄 LOT 390 — un id que l'app ne connaît pas n'est plus refusé d'office : c'est un CATALOG DE CRÉATEUR, et
+     son juge est `verifierUnCatalog` — qui dit chaque faute avec son chemin (ici, la fixture n'a ni auteur ni
+     record). La loi « un refus porte la raison du juge » tient : la raison EST sa première faute. */
   const inconnu = refus(livre({ id: "homebrew-en" }));
-  assert.deepEqual(inconnu, { etat: "refus", raison: "\"homebrew-en\" is not a book this app knows (it knows PHB, DMG)" });
+  assert.equal(inconnu.etat, "refus");
+  assert.ok(Array.isArray(inconnu.fautes) && inconnu.fautes.length >= 2, "chaque faute, pas la première seulement");
+  assert.deepEqual(inconnu.fautes.map((f) => f.chemin), ["attribution.author", "records"]);
+  assert.match(inconnu.raison, /^attribution\.author — Missing\. .* \(and 1 more fault\)$/);
 });
 
 test("J2 — ⛔ UN FICHIER REFUSÉ N'EST RANGÉ NULLE PART — ni sur l'appareil, ni dans Dropbox", async () => {
@@ -143,9 +149,13 @@ test("R1 — 📚 UN LIVRE VALIDE SE RANGE DANS LE LIEU CHOISI, OCTET POUR OCTET
     "un livre du même id se REMPLACE : le joueur vient de choisir ce fichier-là");
   assert.deepEqual(await loin.lister(), { etat: "liste", ids: ["xphb-en"] });
   assert.equal(sha((await loin.lire("xphb-en")).octets), sha(octets));
-  /* ⛔ un fichier du lieu qui n'est pas un livre connu ne se liste pas */
+  /* 🔄 LOT 390 — un fichier du lieu que l'app ne connaît pas SE LISTE (un catalog de créateur a un id que
+     l'app ne connaît pas d'avance) ; c'est le JUGE du montage qui le refuse, et le refus se DIT. */
   faux.ecrireDirectement("/books/notes.layer.json", "{}");
-  assert.deepEqual(await loin.lister(), { etat: "liste", ids: ["xphb-en"] });
+  assert.deepEqual(await loin.lister(), { etat: "liste", ids: ["notes", "xphb-en"] });
+  const auMontage = await livresDuLieu(loin);
+  assert.deepEqual(auMontage.livres.map((l) => l.id), ["xphb-en"], "⛔ `notes` ne se monte pas");
+  assert.deepEqual(auMontage.illisibles.map((l) => l.id), ["notes"], "⭐ il se dit");
 });
 
 /* ══ M — MONTER ══════════════════════════════════════════════════════════════════════════════════════ */
@@ -212,7 +222,9 @@ test("P1 — 🗑️ LA POUBELLE EFFACE LE LIVRE DE SON LIEU — l'appareil comm
   await loin.ranger(livre());
   assert.deepEqual(await loin.effacer("xphb-en"), { ok: true });
   assert.equal(faux.lire("/books/xphb-en.layer.json"), null, "⭐ parti de Dropbox");
-  assert.deepEqual((await loin.effacer("homebrew-en")).ok, false, "⛔ jamais un fichier qui n'est pas un livre connu");
+  /* 🔄 LOT 390 — la poubelle efface aussi un catalog de créateur (tout livre du lieu) ; ⛔ jamais un chemin
+     qui sortirait de `books/`. */
+  assert.deepEqual((await loin.effacer("../characters/kara")).ok, false, "⛔ jamais hors de `books/`");
   faux.revoquer();
   assert.equal((await loin.effacer("xphb-en")).ok, false, "un lieu qui refuse : dit, rien n'est prétendu effacé");
 });
@@ -247,7 +259,9 @@ test("C1 — 🔌 LA COQUILLE : une librairie par lieu câblé, le lieu du GESTE
   const importer = shell.slice(shell.indexOf('action.kind === "importerUnLivre"'), shell.indexOf('if (action.kind === "confirmLayerStack")'));
   assert.match(importer, /octets = new Uint8Array\(await fichier\.arrayBuffer\(\)\);/, "⭐ des OCTETS, jamais `text()` : l'empreinte est celle des octets");
   assert.match(importer, /const librairie = await librairieChoisie\(state\.stockage\.base\);\s*const issue = await librairie\.ranger\(octets\);/);
-  assert.match(importer, /This book was not imported: \$\{issue\.raison\}/, "un refus se dit, avec la raison du juge");
+  /* 🔄 LOT 390 — le texte vit dans `texteDuRefusDImport` (layers-ecran.mjs) : un livre connu y garde « This book
+     was not imported: <raison du juge> », un catalog y dit ses fautes (`tests/catalog-390.test.mjs`). */
+  assert.match(importer, /texte: texteDuRefusDImport\(issue\)/, "un refus se dit, avec la raison du juge");
   assert.match(importer, /await redemarrerSurLesLivres\(\);/);
   assert.equal(/fichier\.text\(\)/.test(importer), false);
   const effacer = shell.slice(shell.indexOf('if (action.kind === "effacerUnLivre")'), shell.indexOf('if (action.kind === "importerUnLivre")'));

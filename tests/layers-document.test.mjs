@@ -15,7 +15,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  readLayer, assertLayerShape, sha256, GENRES, FORBIDDEN_KEYS, PATTERNS, PATCH_KEYS
+  readLayer, assertLayerShape, sha256, GENRES, FORBIDDEN_KEYS, PATTERNS, PATCH_KEYS, ATTRIBUTION_KEYS
 } from "../src/layers/document.mjs";
 import { parseChangePath } from "../src/layers/paths.mjs";
 import { aLayer, anAdd, fileBytes, readJson, HOMEBREW, SRD_FR } from "./layers-harness.mjs";
@@ -200,7 +200,10 @@ test("aucune dérive entre le validateur en code et fh-layer.schema.json", () =>
     "un drapeau": [PATTERNS.flag.source, schema.$defs.flag.pattern],
     "l'id d'une couche": [PATTERNS.layerId.source, schema.properties.id.pattern],
     "la langue": [PATTERNS.lang.source, schema.properties.lang.pattern],
-    "le slug d'un record": [PATTERNS.slug.source, schema.$defs.opAdd.properties.slug.pattern]
+    "le slug d'un record": [PATTERNS.slug.source, schema.$defs.opAdd.properties.slug.pattern],
+    /* 🔄 LOT 390 — `author` entre dans l'attribution (révision du contrat, ARCHI 35) : les clefs d'une
+       attribution sont désormais comparées, comme celles d'un patch. */
+    "les clefs d'une attribution": [ATTRIBUTION_KEYS, Object.keys(schema.$defs.attribution.properties)]
   };
   assert.deepEqual(drift(pairs, {}), [], "le code et le schéma doivent dire la même chose, mot pour mot");
 });
@@ -235,6 +238,11 @@ test("ATTAQUE DU GARDE DE DÉRIVE — il voit un genre de plus ajouté au schém
   assert.equal(withGhostKey.length, 1);
   assert.match(withGhostKey[0], /effets/, "une clef ouverte dans le schéma seul serait acceptée par la norme " +
     "et refusée par son exécution — l'écart doit se voir ici, pas chez quelqu'un d'autre");
+
+  /* 🔄 LOT 390 — le couple de l'attribution, violé lui aussi. */
+  const withGhostAuthor = drift({ "les clefs d'une attribution": [ATTRIBUTION_KEYS, ATTRIBUTION_KEYS.concat("editeur")] }, {});
+  assert.equal(withGhostAuthor.length, 1);
+  assert.match(withGhostAuthor[0], /editeur/);
 
   assert.deepEqual(drift({ "rien n'a bougé": [GENRES, GENRES] }, {}), [],
     "et il reste muet quand les deux disent la même chose");

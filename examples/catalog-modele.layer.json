@@ -1,0 +1,146 @@
+{
+  "schema": "fh-layer/1",
+  "id": "example-emberwood",
+  "version": "1.0.0",
+  "name": "Emberwood (model catalog)",
+  "lang": "en",
+  "units": { "distance": "ft", "weight": "lb" },
+  "description": "The model catalog of SOWLREACH: one record of each type a creator can add. Everything here is invented for the example. Copy it, rename it, and replace the records with your own.",
+  "flags": [],
+  "attribution": {
+    "author": "SOWLREACH",
+    "license": "CC0-1.0",
+    "text": "Invented for the model catalog, dedicated to the public domain.",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "records": {
+    "species": {
+      "example-emberwood:species:en:cindrel": {
+        "name": "Cindrel",
+        "data": {
+          "name": "Cindrel",
+          "creature_type": "Humanoid",
+          "size": "Small (about 3–4 feet tall)",
+          "size_key": "small",
+          "speed": "30 feet",
+          "speed_ft": 30,
+          "description": "Cindrel are small folk born near old hearths, their skin warm to the touch.\n\nWarm Blood. You have Resistance to Cold damage.\n\nHearth Sight. You have Darkvision with a range of 60 feet.",
+          "senses": [{ "id": "darkvision", "name": "Darkvision", "range_ft": 60 }],
+          "traits": [
+            { "id": "warm-blood", "name": "Warm Blood", "slug": "warm-blood", "text": "You have Resistance to Cold damage." },
+            { "id": "hearth-sight", "name": "Hearth Sight", "slug": "hearth-sight", "text": "You have Darkvision with a range of 60 feet." }
+          ]
+        }
+      }
+    },
+    "background": {
+      "example-emberwood:background:en:lantern-keeper": {
+        "name": "Lantern Keeper",
+        "data": {
+          "name": "Lantern Keeper",
+          "ability_keys": ["wis", "int", "con"],
+          "ability_scores": ["Wisdom", "Intelligence", "Constitution"],
+          "skill_ids": ["srd:skill:en:perception", "srd:skill:en:investigation"],
+          "skill_proficiencies": ["Perception", "Investigation"],
+          "feat_id": "example-emberwood:feat:en:ashen-resolve",
+          "feat": "Ashen Resolve",
+          "equipment": "Choose A or B: (A) Lantern, Ash Chalk, Traveler's Clothes, 12 GP; or (B) 50 GP"
+        }
+      }
+    },
+    "feat": {
+      "example-emberwood:feat:en:ashen-resolve": {
+        "name": "Ashen Resolve",
+        "data": {
+          "name": "Ashen Resolve",
+          "category": "origin",
+          "prerequisite": null,
+          "description": "You gain the following benefit.\n\nKeep the Flame. When you would be reduced to 0 Hit Points, you can drop to 1 Hit Point instead. Once you use this benefit, you can't use it again until you finish a Long Rest."
+        }
+      }
+    },
+    "spell": {
+      "example-emberwood:spell:en:ember-lance": {
+        "name": "Ember Lance",
+        "data": {
+          "name": "Ember Lance",
+          "level": 1,
+          "cantrip": false,
+          "school": "evocation",
+          "school_key": "evocation",
+          "casting_time": "Action",
+          "range": "60 feet",
+          "components": "V, S",
+          "duration": "Instantaneous",
+          "concentration": false,
+          "ritual": false,
+          "class_keys": ["Sorcerer", "Wizard"],
+          "classes": ["Sorcerer", "Wizard"],
+          "description": "A spear of glowing embers flies at one creature you can see within range. Make a ranged spell attack. On a hit, the target takes 2d8 Fire damage.\n\nUsing a Higher-Level Spell Slot. The damage increases by 1d8 for each spell slot level above 1."
+        }
+      }
+    },
+    "item": {
+      "example-emberwood:item:en:lantern-of-quiet-flame": {
+        "name": "Lantern of Quiet Flame",
+        "data": {
+          "name": "Lantern of Quiet Flame",
+          "category": "wondrous-item",
+          "rarity": "Uncommon",
+          "attunement": false,
+          "subtype": null,
+          "description": "This lantern burns without oil. Its light fills a 20-foot Emanation, and creatures more than 60 feet away can't see the light."
+        }
+      }
+    },
+    "weapon": {
+      "example-emberwood:weapon:en:hookblade": {
+        "name": "Hookblade",
+        "data": {
+          "name": "Hookblade",
+          "cost": "12 GP",
+          "weight": "2 lb.",
+          "damage": "1d6 Slashing",
+          "damage_dice": "1d6",
+          "damage_type_key": "slashing",
+          "weapon_category": "martial",
+          "weapon_range": "melee",
+          "properties": "Finesse, Light",
+          "property_list": [
+            { "key": "finesse", "label": "Finesse" },
+            { "key": "light", "label": "Light" }
+          ]
+        }
+      }
+    },
+    "armor": {
+      "example-emberwood:armor:en:cinderweave-coat": {
+        "name": "Cinderweave Coat",
+        "data": {
+          "name": "Cinderweave Coat",
+          "armor_category": "light",
+          "ac_base": 12,
+          "ac_dex_cap": null,
+          "armor_class": "12 + Dex modifier",
+          "cost": "60 GP",
+          "weight": "6 lb.",
+          "stealth_disadvantage": false,
+          "strength": null,
+          "strength_min": null,
+          "don_doff": "1 Minute to Don or Doff"
+        }
+      }
+    },
+    "gear": {
+      "example-emberwood:gear:en:ash-chalk": {
+        "name": "Ash Chalk",
+        "data": {
+          "name": "Ash Chalk",
+          "cost": "1 SP",
+          "weight": "0.5 lb.",
+          "description": "A stick of grey chalk that leaves a mark only firelight shows."
+        }
+      }
+    }
+  }
+}

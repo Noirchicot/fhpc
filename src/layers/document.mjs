@@ -284,10 +284,16 @@ function assertClosedKeys(object, allowed, { origin, what }) {
   }
 }
 
+/* 🔄 LOT 390 — RÉVISION DU CONTRAT (ARCHI 35, Q2 → a) : `author`, l'auteur, une chaîne. Facultatif ici — le
+   SRD, Fate's Hand et les livres du joueur ne le portent pas ; c'est le juge d'un catalog de créateur
+   (`catalog.mjs`) qui l'EXIGE. EXPORTÉE pour le garde de dérive : une clef ouverte dans le schéma seul serait
+   acceptée par la norme et refusée ici. */
+export const ATTRIBUTION_KEYS = ["license", "author", "text", "url"];
 function assertAttribution(value, { origin, what }) {
   if (!isPlainObject(value)) fail(origin, `${what} doit être un objet.`);
-  assertClosedKeys(value, new Set(["license", "text", "url"]), { origin, what });
+  assertClosedKeys(value, new Set(ATTRIBUTION_KEYS), { origin, what });
   assertString(value.license, { origin, what: `${what}.license`, max: 80 });
+  if (value.author !== undefined) assertString(value.author, { origin, what: `${what}.author`, max: 200 });
   for (const key of ["text", "url"]) {
     if (value[key] !== undefined && typeof value[key] !== "string") {
       fail(origin, `${what}.${key} doit être une chaîne.`);

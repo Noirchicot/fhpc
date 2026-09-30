@@ -19,12 +19,12 @@
    la liste PAGINE (`pageDeListe`, l'organe du socle), elle ne défile jamais.
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais : c'est Eric qui arrête les mots que le joueur lit. */
 
-import { imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=939";
-import { motDuChoix } from "./mot-du-choix.mjs?v=939";
-import { poubelle } from "./poubelle-organe.mjs?v=939";
-import { pageDeListe } from "./normes.mjs?v=939";
-import { swapContent } from "./socle.mjs?v=939";
-import { armerEngrenage } from "./engrenage.mjs?v=939";
+import { imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=940";
+import { motDuChoix } from "./mot-du-choix.mjs?v=940";
+import { poubelle } from "./poubelle-organe.mjs?v=940";
+import { pageDeListe } from "./normes.mjs?v=940";
+import { swapContent } from "./socle.mjs?v=940";
+import { armerEngrenage } from "./engrenage.mjs?v=940";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

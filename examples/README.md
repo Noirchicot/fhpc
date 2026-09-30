@@ -6,6 +6,7 @@
 | `personnage-srd-en-niveau1.fh-char.json` | Vesna, magicienne haut-elfe **SRD**, Criminal (don Alert), **générée** par `node src/tools/exemple-srd-en.mjs` (lot 379) | la pile SRD de l'app (`srd-5.2.1-en`, `srfh-shelving-en`, `srfh-mecaniques-en`) | ✅ |
 | `personnage-srd-fr-niveau1.fh-char.json` | Sylvane, magicienne elfe **française** : une **FIXTURE FIGÉE**, pas un fichier de joueur | `srd-5.2.1-fr` + `exemple-homebrew-fr`, qu'aucune pile de l'app ne monte | ⛔ |
 | `layer-homebrew-fr.fh-layer.json` | la couche homebrew d'exemple que la fixture française déclare | — | — |
+| `catalog-modele.layer.json` | le **modèle d'un catalog de créateur** (lot 390) : un record de chaque genre qu'un créateur ajoute, tout inventé. Le juge l'accepte (`src/catalog/juge.mjs`, garde `tests/catalog-390.test.mjs`) ; le guide est `docs/CATALOG.md` | — | ✅ par `Import a book` (Layers) |
 
 ## ⚠️ La fixture française est figée — lot 379, ARCHI 35, 30/09
 
