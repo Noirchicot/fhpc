@@ -11624,6 +11624,13 @@ le lieu porte s'allume, et `Delete` l'efface de ce lieu (Dropbox, ou l'appareil)
 📍 `menu-layers-import-a-book` · vivante · 30/09
 ⚖️ **`Import a book` (Layers, options) ouvre le choix d'un fichier. Le livre est JUGÉ avant d'être rangé — par le juge qui le montera (`readLayer`, la forme `fh-layer/1`) et la table des livres que l'app connaît (`LIVRES_DU_JOUEUR`) ; un fichier refusé se dit, avec la raison du juge, et rien n'est rangé. Le livre se range dans le lieu choisi dans Vault — Dropbox : `Apps/SOWLREACH/books/<id>.layer.json` ; le fichier (aucun lieu en ligne) : l'appareil —, octet pour octet, puis la page redémarre. À chaque ouverture, le livre se monte depuis ce lieu, ÉTEINT (le document du perso dit ce qui est allumé), sur tous les appareils reliés au même lieu. ⛔ Jamais sur le site, jamais dans le dépôt.**
 
+> Eric, 30/09, au soir : **« je veux ce fichier distinct, je peux facilement l'enlever et le remettre dans drop box »**,
+> puis **« si je fais import, je localise ce fichier et c'est bon »**, et à « les sorts du PHB entrent dans le même fichier
+> que ses origines » → **« ok alors c'est bon »**. ⭐ Un livre = UN fichier distinct (`books/<id>.layer.json` dans le lieu
+> choisi), qui grandit à chaque marche. L'enlever à la main du dossier `books`, c'est retirer le livre à la prochaine
+> ouverture ; l'y remettre sous le même nom, c'est le rendre — sans repasser par `Import a book` (le lieu est LISTÉ au
+> démarrage, `librairieDropbox.ids`).
+
 > Eric, 29/09, à « que peut effacer la poubelle ? » : **« N'est-il pas plus avisé de le stocker en ligne afin qu'il
 > soit accessible au navigateur à tout moment, du moins pour le joueur. La poubelle d'un livre efface son contenu de
 > son lieu de stockage. Ce lieu de stockage est décidé par le bouton vault. »** Et le 30/09 : le PHB **« sur son
