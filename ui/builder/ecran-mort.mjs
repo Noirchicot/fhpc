@@ -33,7 +33,7 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=920";
+import { currentStack } from "./universe-step.mjs?v=922";
 /* ⭐ LOT 188 — UN SOUS-ENSEMBLE DE COUCHES EST LÉGITIME, PAS INCONNU. Depuis
    l'écran `Layers`, un joueur coupe Trainings, ou Destiny, une par une ;
    `currentStack` ne sait nommer que les deux piles entières et rend `null` sur
@@ -41,18 +41,18 @@ import { currentStack } from "./universe-step.mjs?v=920";
    Fate's Hand pour défaire ce qu'il vient de choisir. `compositionFh` lit le
    document interrupteur par interrupteur : seule une composition qu'AUCUN
    interrupteur ne peut produire reste innommable. */
-import { compositionFh } from "./layers-ecran.mjs?v=920";
+import { compositionFh } from "./layers-ecran.mjs?v=922";
 /* LOT 191 — le nom d'un record absent : l'id humanisé, jamais l'id ; et
    l'interrupteur qui le porte, pour que la phrase nomme la bonne ligne. */
-import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=920";
-import { interrupteurDUnId } from "./interrupteurs.mjs?v=920";
+import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=922";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=922";
 /* 🌱 LOT 198 — les six clefs se LISENT au moteur (la même liste que `derive`
    exige), jamais recopiées ici ; et le numéro du cran où aller se lit sur la
    ceinture, jamais écrit en dur (la loi d'`etapeParId`). */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=920";
-import { etapeParId } from "./etapes.mjs?v=920";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=922";
+import { etapeParId } from "./etapes.mjs?v=922";
 /* ⚖️ LOT 367 — les refs morts, lus par l'organe du lot 359 (`parcours.mjs` n'importe rien). */
-import { refsMortsDeLEtape } from "./parcours.mjs?v=920";
+import { refsMortsDeLEtape } from "./parcours.mjs?v=922";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -162,7 +162,11 @@ export function motDesChoixNonResolus(refs) {
   const sortie = nommes === 0
     ? "Open Menu, the first tab, and turn that ruleset back on in Layers"
     : `switch ${nommes > 1 || total > 1 ? "them" : "it"} on in Layers (Menu, the first tab)`;
-  return `${liste(clauses)} — ${sortie}, or change your mind and pick again. Nothing you chose has been erased.`;
+  /* ⚖️ LOT 371 — « change your mind » nommait un bouton mort (`Cancel` depuis le 05/09). ✍️ BROUILLON d'ARCHI 35
+     (Eric, 30/09 : « a) propose des mots »), ADAPTÉ : la tête « X comes with Y — switch it on in Layers » est la
+     phrase citée par deux règles (`voyant-un-choix-mort-se-nomme-meme-sans-classe`,
+     `menu-layers-fate-s-hand-tout-ou-rien`) — elle ne bouge pas ; seule la voie morte est remplacée. */
+  return `${liste(clauses)} — ${sortie}, or use Cancel to clear this step and pick again. Nothing you chose has been erased.`;
 }
 
 /** LE MOT DU 2026-08-20, REPRIS À LA LETTRE — il n'avait aucun défaut.

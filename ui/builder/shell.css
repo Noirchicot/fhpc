@@ -1304,6 +1304,12 @@ body {
    ce qui réussit (`--positive`), la même que le voyant d'une étape signée. */
 .sortie-bouton.sortie-done[data-lit="true"] { --bouton-fond: var(--positive); }
 .sortie-bouton.sortie-annule[data-arme="true"] { --bouton-fond: var(--critical); }
+/* 🔵 LOT 371 — `BACK` EST BLEU, ET PAS SEULEMENT DANS UN PIED DE PARCOURS (`bouton-back-bleu-done-vert`,
+   `bouton-trois-verbes` : Back NAVIGUE). 📏 Mesuré au lot 370 : sur les rangs B du Menu (Layers, Display,
+   Dungeon Master) il rendait `--bouton-fond: transparent` — la règle bleue ne vivait que sous
+   `.parcours-pied`. ⭐ Même spécificité que les deux états ci-dessus : un seul producteur (`renderSortieEtape`),
+   une seule règle, tous les `Back` de la coquille d'un geste. */
+.sortie-bouton.sortie-back { --bouton-fond: var(--info); }
 
 /* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
    « Certaines fiches auront EN PLUS une navigation interne, fixe elle
@@ -3108,7 +3114,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=920") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=922") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3437,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=920") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=922") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5089,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=920") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=922") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6111,8 +6117,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    · `ligne-familles` — *« engine · world · catalog (en italique t0) »* : ce que la source
      apporte, lu, jamais réglé. */
 .ligne-tete { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-4); }
+/* ⚖️ LOT 371 — T1, PAS T0 : « Aucun texte ne peut passer sous T1 » (`ecriture-aucun-texte-sous-t1`,
+   `panneau-plancher`). ⛔ Seules les FAMILLES restent en T0 : c'est la dictée d'Eric (« en italique t0 »),
+   une cote donnée ; l'étiquette est un brouillon du plan v10, elle n'en a aucune. */
 .ligne-etiquette {
-  font-size: var(--t0); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  font-size: var(--t1); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   color: var(--accent); background: var(--accent-wash);
   border-radius: var(--radius-pill); padding: var(--sp-2) var(--sp-4);
 }
@@ -9317,6 +9326,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 button.gear-porte[data-organe="companions"][data-porte] {
   font-size: var(--t1); padding-inline: var(--sp-4);
 }
+/* ⚖️ LOT 371 — LA SORTIE DE GEAR (`Done`, puis `Next`) : le corps d'un bouton à libellé, 16 / 600
+   (`bouton-deux-largeurs`) — ⛔ pas le cran serré de la rangée, dont l'exception est nommée pour elle seule ;
+   et la couleur de son VERBE : `Done` valide → vert (`bouton-trois-verbes`), `Next` navigue → le bleu de la
+   famille. Même forme de sélecteur que Companions : il gagne par l'ordre, pas par un artifice. */
+button.gear-porte[data-organe="done"][data-porte] { font-size: var(--t4); }
+button.gear-porte[data-organe="done"][data-porte="done"] { --bouton-fond: var(--positive); }
 
 /* ══ LOT 363 — LE `?` DU PIED À 8 DU BORD, ET LE RÉCAP DE L'ÉTAPE ════════════════════════════════
    ⚖️ Eric, 30/09 : *« pousse le ? à droite »*, puis *« ? à 8 blg du bord droit »*. ⭐ LES TROIS PIEDS
@@ -9356,9 +9371,9 @@ button.gear-porte[data-organe="companions"][data-porte] {
 .gear-recap-liste[data-vide] { font-style: italic; color: var(--text-soft); }
 .gear-recap-pied { display: flex; justify-content: center; gap: var(--sp-8); }
 .gear-recap-pied > .gear-porte { inline-size: var(--bouton-petit); }
-/* 🔴 `Cancel` PORTE LE ROUGE DE CE QUI ABANDONNE — Eric, 03/09 : *« cancel annule donc rouge »*. Ici il
-   n'efface rien (il referme pour « tweaker ») ; il garde la couleur de son MOT, comme partout. */
-.gear-porte[data-porte="annuler"] { --bouton-fond: var(--critical); }
+/* 🔵 LOT 371 — le récap porte `Back` (Eric, 30/09 : « a) »), qui prend le bleu de la famille : aucune règle à lui.
+   La phrase qui invite à retoucher : l'encre douce d'une proposition, au-dessus de la paire. */
+.gear-recap-invite { margin: 0; font-size: var(--t2); font-style: italic; color: var(--text-soft); text-align: center; }
 
 /* ══ LOT 311 — LE PIED D'ÉQUIPEMENT : TROIS CARRÉS, SEND CENTRÉ, LE `?` À DROITE ══════════════
    ⚖️ Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le

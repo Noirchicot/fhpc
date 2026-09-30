@@ -68,8 +68,9 @@ export const ORGANES = [
   { nom: "NOTICE",      sorte: "bande",    x:      0, y:     44, l:    375, h:   451, mot: "le panneau du mode edit" },
   { nom: "COLLECTEUR",  sorte: "collecteur", x:    144, y:    348, l:     87, h:    48, cible: { x: 144, y: 348, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
   /* ⚖️ LOT 363 — la bourse dans l'axe de la colonne du pied, centrée entre Send et le `?` (Eric, 30/09 :
-     « bourse done et Companions alignés verticalement » → « Centrée Send ↔ ? ») — cote commune aux trois écrans */
-  { nom: "PURSE",       sorte: "bouton",   x:  260.5, y:    345, l:     50, h:    50, cible: { x: 260.5, y: 345, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
+     « bourse done et Companions alignés verticalement » → « Centrée Send ↔ ? ») — cote commune aux trois écrans ;
+     ⚖️ LOT 371 : à 8 du haut de la dalle du pied (344, plus 345), pour les deux écarts à 8 de la colonne de Gear */
+  { nom: "PURSE",       sorte: "bouton",   x:  260.5, y:    344, l:     50, h:    50, cible: { x: 260.5, y: 344, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
   { nom: "PARTY TALLY", sorte: "bouton",   x:     32, y:    404, l:     40, h:    40, cible: { x: 30, y: 402, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
   { nom: "TALLY",       sorte: "bouton",   x:     80, y:    404, l:     40, h:    40, cible: { x: 78, y: 402, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "LUNE",        sorte: "lune",     x:      4, y:    355, l:     30, h:    30, cible: { x: 0, y: 348, l: 44, h: 44 }, mot: "Screens", grandEcran: true },

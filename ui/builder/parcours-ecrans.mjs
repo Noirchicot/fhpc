@@ -71,11 +71,17 @@ function saignee() {
    *« This step is settled. Change your mind if you want to start it
    over. »* au-dessus de `Cancel` · `Next`. ⏳ Le lot 369 ne touche que des
    commentaires : réécrire la phrase appartient à un lot de texte, et le mot
-   à Eric. */
+   à Eric. ✅ Réécrite au lot 371 le même
+   jour : `MOTS_ETAPE_REGLEE`, ci-dessous. */
+/* ⚖️ LOT 371 — LA PHRASE D'UNE ÉTAPE RÉGLÉE, ÉCRITE UNE FOIS : « change your mind » nommait un bouton mort depuis le
+   05/09 (`I changed my mind` → `Cancel`). Eric, 30/09 : « a) propose des mots » ; ✍️ BROUILLON d'ARCHI 35, repris
+   tel quel. ⭐ Elle avait DEUX écrivains (la conclusion et la bande de l'aiguilleur) : un seul, désormais. */
+export const MOTS_ETAPE_REGLEE = Object.freeze({
+  peutAvancer: "This step is settled. Move on when you are ready. Cancel clears this step so you can choose again.",
+  revenu: "This step is settled. Cancel clears this step so you can choose again."
+});
 function conclusion(peutAvancer) {
-  const phrase = peutAvancer
-    ? "This step is settled. Move on when you are ready — or change your mind and start it over."
-    : "This step is settled. Change your mind if you want to start it over.";
+  const phrase = peutAvancer ? MOTS_ETAPE_REGLEE.peutAvancer : MOTS_ETAPE_REGLEE.revenu;
   return [saignee(), el("p", "parcours-conclu", [text(phrase)])];
 }
 
@@ -207,9 +213,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
   const motGuide = manque
     ? String(manque)
     : acheve
-      ? (conclu
-          ? "This step is settled. Change your mind if you want to start it over."
-          : "This step is settled. Move on when you are ready — or change your mind and start it over.")
+      ? (conclu ? MOTS_ETAPE_REGLEE.revenu : MOTS_ETAPE_REGLEE.peutAvancer)
       : String(texte || "");
   const bandeAiguilleur = motGuide.split(/\n{2,}/)
     .map((para) => para.trim())
