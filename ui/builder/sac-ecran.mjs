@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=932";
-import { versionQuery } from "./version.mjs?v=932";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=932";
+import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=933";
+import { versionQuery } from "./version.mjs?v=933";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=933";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=932";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=933";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=932";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=933";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=932";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=933";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=932";
+import { portesCarrees } from "./porte-carree.mjs?v=933";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=932";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=933";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=932";
+import { facteurZoomCourant } from "./echelle.mjs?v=933";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=932";
+import { armerEngrenage } from "./engrenage.mjs?v=933";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -893,11 +893,18 @@ function notice(options) {
 function encart(options) {
   const e = el("div", "sac-encart");
   e.dataset.organe = "encart";
-  const ligne = (clef, signe, texte) => {
+  /* 📏 LOT 381 — UNE LIGNE PEUT PORTER PLUSIEURS SIGNES (`[[clef, signe], …]`) : `←` et `→` disaient la même
+     chose sur deux lignes, ils la disent sur une. ⭐ Les signes gardent leur ORDRE de pose (`/ × ← →`) et chacun
+     sa couleur ; la colonne des signes est large de deux (la feuille), et le texte commence au même x. */
+  const ligne = (signes, texte) => {
     const li = el("li");
-    const s2 = el("span", "sac-notice-signe", signe);
-    s2.dataset.signe = clef;
-    li.append(s2, el("span", "sac-notice-quoi", texte));
+    const boite = el("span", "sac-notice-signes");
+    for (const [clef, signe] of signes) {
+      const s2 = el("span", "sac-notice-signe", signe);
+      s2.dataset.signe = clef;
+      boite.append(s2);
+    }
+    li.append(boite, el("span", "sac-notice-quoi", texte));
     return li;
   };
   const liste = el("ul", "sac-notice-liste");
@@ -905,16 +912,17 @@ function encart(options) {
     /* 🖐️ LOT 380 — *« / modifier ou remplacer le nom »* (Eric, 30/09) : les deux gestes, dits. La forme est celle
        du 20/09 (`poserLesDalles`) : le nom s'ouvre SÉLECTIONNÉ — la première frappe le remplace, un toucher dans
        le champ y pose le curseur. ⚠️ Brouillon anglais à Eric. */
-    ligne("editer", "/", "Rename it: type to replace the name, or tap in it to fix a letter."),
+    ligne([["editer", "/"]], "Rename it: type to replace the name, or tap in it to fix a letter."),
     /* 🗑️ LOT 380 — LA LÉGENDE DIT CE QUE `×` FAIT (`equipement-sections-renommer-et-effacer`) : elle promettait
        *« Whatever it holds comes back to you first »* — faux deux fois : une section pleine REFUSE de partir
        (18/09, *« vide-la d'abord »*), et sous cinq sections `×` VIDE le nom, la place reste (19/09). ⚠️ Brouillon
        anglais à Eric ; « Empty it » reprend le mot du refus qui existe (`supprimerSection`). */
     /* 📏 UNE LIGNE CHACUNE À 375 (mesuré le 30/09) : l'encart DÉBORDE DÉJÀ sur `main` à 375 (390 pour 358, sa
        dernière ligne coupée) — ce lot ne l'aggrave pas (387), il le signale. */
-    ligne("effacer", "\u00d7", "Delete it once it is empty. Five sections or fewer: clears the name."),
-    ligne("reculer", "\u2190", "Move it one place left\u2026"),
-    ligne("avancer", "\u2192", "\u2026 or one place right."),
+    ligne([["effacer", "\u00d7"]], "Delete it once it is empty. Five sections or fewer: clears the name."),
+    /* 📏 LOT 381 — à 375 l'encart débordait de 29 (387 pour 358, mesuré) : cette fusion en rend 28, les mots
+       restent ceux d'avant, joints. */
+    ligne([["reculer", "\u2190"], ["avancer", "\u2192"]], "Move it one place left\u2026 or one place right."),
   );
   e.append(el("p", "sac-encart-titre", "Editing your sections"), liste);
   /* \u2696\ufe0f LES DEUX CR\u00c9ATIONS, ET CE QU'ELLES IMPLIQUENT \u2014 la dict\u00e9e d'Eric du 20/09. */

@@ -6140,8 +6140,18 @@ letter. »* · `×` *« Delete it once it is empty. Five sections or fewer: clea
 la première frappe le remplace, un toucher y pose le curseur.
 ⭐ **LA DÉCISION DE `×` EST PURE ET UNE** (`gesteDuX`, `sectionPleine`, `ecritureDeLaDestruction`,
 equipment-step.mjs) : l'écran et la coquille (le dernier rempart) la lisent ; elle vivait en deux morceaux.
-⚠️ **Relevé en passant, hors du lot** : à 375, l'encart de la notice déborde déjà sur `main` (390 pour 358, sa
-dernière ligne coupée) ; les mots du lot tiennent chacun sur une ligne et ne l'aggravent pas (387).
+🗄️ **Relevé au lot 380** : à 375, l'encart de la notice débordait déjà sur `main` (390 pour 358, sa dernière ligne
+coupée) ; les mots du lot 380 ne l'aggravaient pas (387).
+✅ **RÉPARÉ AU LOT 381 (ARCHI 35, 30/09), SANS RIEN COUPER** de ce qu'Eric a dicté le 20/09 (*« légendes des 4
+poignées, explication des couleurs, ce qui s'efface ce qui ne s'efface pas »*) — ce qui était EN TROP : ① `←` et `→`
+disaient la même chose sur deux lignes ; ils la disent sur une, leurs deux signes côte à côte, les mots d'avant
+joints (*« Move it one place left… or one place right. »*) — 28 de gagnés ; ② la marge sous le DERNIER `dd` de
+chaque liste ne séparait rien (l'encart porte déjà son écart entre les blocs) — 8. 📏 Mesuré au banc, 375 × 812 :
+387 → 350,7 pour 358 ; à 1280, 272 (rien ne bouge). ⭐ Le texte des trois lignes commence au même x (54 ; la
+colonne des signes est large de deux, `--sp-24` × 2 + `--sp-2`, puis `--sp-4` jusqu'au texte — regardé : à 2 le `→`
+collait au mot, à 8 la ligne de `×` passait sur deux étages).
+🛡️ `tests/encart-381.test.mjs` (E1 : le budget — la structure lue dans le code, les textes mesurés au banc et datés,
+qui redonne 386,7 avant et 350,7 après ; E2 : rien de perdu) — 5 mutations vues rouges.
 🛡️ `tests/sections-380.test.mjs` (P1 à P3, X1 à X4, L1) — 12 mutations vues rouges, dont `main` rejoué (P2).
 
 ---

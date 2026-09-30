@@ -3114,7 +3114,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=932") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=933") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3437,7 +3437,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=932") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=933") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5089,7 +5089,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=932") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=933") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -12385,7 +12385,15 @@ button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-ete
   overflow: hidden;
 }
 .sac-notice-liste { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--sp-4); }
-.sac-notice-liste li { display: grid; grid-template-columns: var(--touch) 1fr; align-items: center; gap: var(--sp-8); }
+.sac-notice-liste li {
+  display: grid; align-items: center;
+  /* 📏 LOT 381 — LA COLONNE DES SIGNES EST LARGE DE DEUX (24 + 2 + 24) pour porter `←` et `→` sur une ligne. L'écart
+     vers le texte tombe à 4 : le texte commence à 54 (52 avant), et aucune ligne ne passe à la ligne (mesuré à 375).
+     ⛔ Pas 2 : REGARDÉ à l'écran, le `→` collait à « Move » ; 4 contre les 2 entre les deux flèches les sépare en
+     deux groupes. ⛔ Pas 8 : la ligne de `×` passait sur deux étages. */
+  grid-template-columns: calc(var(--sp-24) * 2 + var(--sp-2)) 1fr; column-gap: var(--sp-4);
+}
+.sac-notice-signes { display: flex; gap: var(--sp-2); }
 /* ⭐ LE SIGNE EST PEINT COMME LA POIGNÉE QU'IL NOMME, et il prend sa couleur à la même
    source — ⛔ une teinte recopiée ici divergerait du bouton au premier réglage. */
 .sac-notice-signe {
@@ -12414,6 +12422,9 @@ button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-ete
   margin: 0 0 var(--sp-4);
   color: color-mix(in srgb, var(--bouton-encre) 76%, transparent);
 }
+/* 📏 LOT 381 — la marge SOUS LE DERNIER `dd` d'une liste ne sépare rien (l'encart porte déjà son `gap` entre les
+   blocs) : elle ne faisait que pousser la dernière ligne hors de la boîte à 375. */
+.sac-encart-deux dd:last-child, .sac-encart-figees dd:last-child { margin-block-end: 0; }
 .sac-encart-fige { margin: 0; color: color-mix(in srgb, var(--bouton-encre) 76%, transparent); }
 /* ⚖️ LES DEUX CRÉATIONS PORTENT LEUR PHRASE SUR DEUX ÉTAGES — Eric, 19/09 : *« au-dessus
    et en dessous du + vert : backpack / + / Storage »* · *« au-dessus et en dessous du +
