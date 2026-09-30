@@ -61,7 +61,18 @@
    générateur la CHERCHE dans la couche SRD, il ne la décide pas) ; sinon elle
    porte un POINTEUR vers la page du livre chez D&D Beyond (`source`). Le texte
    entier reste dans le livre d'Eric, à l'adresse que porte le record
-   (`data.book_link`, la loi des liens).                                        */
+   (`data.book_link`, la loi des liens).
+
+   🪄 LOT 389 (ARCHI 35, 30/09) — LES SORTS, MÊMES LOIS. L'instantané `sources-livres/phb-2024-
+   spells.json` porte les faits de TOUS les sorts du livre (niveau, école, lettres des composantes,
+   temps, portée, durée, concentration, rituel, jet ou sauvegarde) ; un sort que le SRD porte aussi
+   n'est pas réémis, il est COMPARÉ — y compris quand le livre le nomme autrement : le nom SRD d'un
+   sort renommé est une DONNÉE de l'instantané (`srd_name`), jamais une table écrite ici. Un sort
+   propre au livre entre avec ses listes de classes, ses dés et types (`damage`, `healing`, des
+   DONNÉES que le moteur ne lit pas encore : il déclare les dégâts de sort non dérivés pour tous),
+   son mode de résolution (`cast_type`, le nom ratifié du contrat) et un résumé marqué ; son
+   pointeur est son `book_link`. ⛔ La matière d'une composante, l'aire et la montée en niveau ne
+   sont que dans le résumé ou dans le livre.                                                      */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -506,6 +517,116 @@ export function construireOrigines(source, { srd, meca }) {
   };
 }
 
+/* ══ 🪄 LOT 389 — LES SORTS DU PHB ═════════════════════════════════════════════════════════════════ */
+
+/** Les formes du compendium, ramenées à celles de la couche SRD. ⛔ Ce sont des RÈGLES d'écriture
+ *  (« 1 Action » s'écrit « Action » au SRD, « 60 ft. » s'écrit « 60 feet »), pas des phrases du livre. */
+const apostrophe = (s) => String(s).replace(/’/g, "'");
+const tempsDuSrd = (t) => String(t).replace(/ or Ritual$/, "").replace(/,.*$/s, "").replace(/^(Action|Bonus Action|Reaction)$/, "1 $1").toLowerCase();
+const tempsDuLivre = (t) => String(t).replace(/\s*\*$/, "").toLowerCase();
+const dureeDuSrd = (d) => String(d).replace(/^Concentration,? up to /, "").replace(/^Up to /, "").toLowerCase();
+const porteeDuSrd = (p) => String(p).replace(/ feet$/, " ft.").toLowerCase();
+const lettresDuSrd = (c) => String(c).replace(/\s*\(.*$/s, "");
+/** et dans l'autre sens : la forme du compendium écrite comme la couche SRD écrit ses sorts */
+const tempsEcrit = (t, rituel) => {
+  const base = String(t).replace(/\s*\*$/, "").replace(/^1 (Action|Bonus Action|Reaction)$/, "$1")
+    .replace(/^(\d+) (Minute|Hour)s?$/, (m, n, u) => `${n} ${u.toLowerCase()}${n === "1" ? "" : "s"}`);
+  return rituel ? `${base} or Ritual` : base;
+};
+const dureeEcrite = (d, concentration) => {
+  const base = /^(\d+) (Round|Minute|Hour|Day)s?$/.test(d) ? d.toLowerCase() : d.replace(/^Until Dispelled/, "Until dispelled");
+  return concentration ? `Concentration, up to ${base}` : base;
+};
+const porteeEcrite = (p) => String(p).replace(/^(\d+) ft\.$/, "$1 feet");
+const CARAC_DE_SAUVEGARDE = /^(STR|DEX|CON|INT|WIS|CHA) Save$/;
+
+/**
+ * Construit les SORTS du PHB. PURE : ni disque ni horloge.
+ * @param {object} source l'instantané des faits (`sources-livres/phb-2024-spells.json`)
+ * @param {{srd: object}} base la couche SRD, lue telle quelle
+ * @returns {{records:object, comptes:object, ecarts:string[], renommes:string[], restes:string[]}}
+ */
+export function construireSorts(source, { srd }) {
+  const livre = LIVRES["phb-2024"];
+  if (!source || !Array.isArray(source.spells)) fail("source des sorts absente ou illisible.");
+  if (!srd || !srd.records || !srd.records.spell) fail("la couche SRD est requise : c'est elle qu'on compare.");
+  const sigle = livre.sigle.toLowerCase();
+  const parNom = new Map(Object.values(srd.records.spell).map((r) => [apostrophe(r.name), r]));
+  const nomsDeClasse = new Set(Object.values(srd.records.class || {}).map((c) => c.name));
+  const ecarts = [];
+  const renommes = [];
+  const vus = new Set();
+  const spell = {};
+  const parNiveau = {};
+  let sansDes = 0;
+  for (const s of source.spells) {
+    const nomSrd = apostrophe(s.srd_name || s.name);
+    const frere = parNom.get(nomSrd);
+    if (frere) {
+      /* ⭐ PARTAGÉ : pas réémis — comparé, fait par fait */
+      if (vus.has(nomSrd)) fail(`deux sorts du livre répondent au même sort SRD « ${nomSrd} ».`);
+      vus.add(nomSrd);
+      if (s.srd_name) renommes.push(`${s.name} = ${frere.name} (SRD)`);
+      const d = frere.data || {};
+      const E = (champ, srdV, phbV) => { if (srdV !== phbV) ecarts.push(`${s.name} · ${champ} : SRD « ${srdV} » / PHB « ${phbV} »`); };
+      E("niveau", d.level, s.level);
+      E("école", d.school, s.school);
+      E("concentration", d.concentration, s.concentration);
+      E("rituel", d.ritual, s.ritual);
+      E("composantes", lettresDuSrd(d.components), s.components.join(", "));
+      /* « Special * » : le compendium abrège un temps conditionnel — rien à comparer */
+      if (!/^Special/.test(s.casting_time)) E("temps d'incantation", tempsDuSrd(d.casting_time), tempsDuLivre(s.casting_time));
+      E("durée", dureeDuSrd(d.duration), String(s.duration).toLowerCase());
+      E("portée", porteeDuSrd(d.range), String(s.range).toLowerCase());
+      continue;
+    }
+    if (s.srd_name) fail(`« ${s.name} » dit s'appeler « ${s.srd_name} » au SRD, qui ne porte pas ce nom.`);
+    for (const champ of ["url", "classes", "resume"]) {
+      if (!s[champ] || (Array.isArray(s[champ]) && s[champ].length === 0)) fail(`le sort propre au livre « ${s.name} » n'a pas de « ${champ} » dans l'instantané.`);
+    }
+    for (const c of s.classes) if (!nomsDeClasse.has(c)) fail(`« ${s.name} » : la classe « ${c} » n'est pas une classe de la pile.`);
+    const slug = slugDuNom(s.name);
+    const sauvegarde = typeof s.attack_save === "string" && s.attack_save.match(CARAC_DE_SAUVEGARDE);
+    const data = {
+      book_link: s.url,
+      cantrip: s.level === 0,
+      cast_type: sauvegarde ? "save" : (s.attack_save === "Melee" || s.attack_save === "Ranged") ? "attack" : "none",
+      casting_time: tempsEcrit(s.casting_time, s.ritual),
+      class_keys: s.classes.slice(),
+      classes: s.classes.slice(),
+      components: s.components.join(", "),
+      concentration: s.concentration,
+      description: s.resume,
+      duration: dureeEcrite(s.duration, s.concentration),
+      level: s.level,
+      name: s.name,
+      range: porteeEcrite(s.range),
+      ritual: s.ritual,
+      school: s.school,
+      school_key: s.school,
+      summary_of: "phb-2024"
+    };
+    if (sauvegarde) data.save_ability = sauvegarde[1].toLowerCase();
+    if (s.attack_save === "Melee" || s.attack_save === "Ranged") data.attack_range = s.attack_save.toLowerCase();
+    if (s.damage) data.damage = s.damage.map((x) => ({ ...x }));
+    if (s.healing) data.healing = { ...s.healing };
+    if (!s.damage && !s.healing) sansDes += 1;
+    spell[`${sigle}:spell:en:${slug}`] = { name: s.name, slug, data };
+    parNiveau[s.level] = (parNiveau[s.level] || 0) + 1;
+  }
+  /* ⚔️ la bijection se relit dans l'autre sens : quand l'instantané DÉCLARE couvrir tout le chapitre
+     (`meta.complet`), chaque sort SRD doit y avoir son frère — un sort perdu à la lecture se nomme */
+  if (source.meta && source.meta.complet === true) {
+    for (const nom of parNom.keys()) if (!vus.has(nom)) ecarts.push(`${nom} : le SRD porte ce sort, l'instantané du livre ne le nomme pas`);
+  }
+  const restes = [
+    `les dés et types de dégâts ou de soin de ${Object.keys(spell).length - sansDes} sorts : posés en données (damage, healing), le moteur ne les lit pas — il déclare les dégâts de sort non dérivés, pour tous les sorts`,
+    "l'aire d'effet, la matière des composantes et la montée en niveau : dans le résumé ou dans le livre, jamais en champ",
+    "le déclencheur d'un temps d'incantation conditionnel (« juste après avoir touché… ») : dans le résumé"
+  ];
+  return { records: { spell }, comptes: { spell: Object.keys(spell).length, par_niveau: parNiveau, partages: vus.size }, ecarts, renommes, restes };
+}
+
 export function generate({ cle = "dmg-2024", dirSources = DIR_SOURCES, dirCouches = DIR_COUCHES } = {}) {
   const livre = LIVRES[cle];
   if (cle === "phb-2024") return genererOrigines({ dirSources, dirCouches });
@@ -538,19 +659,33 @@ function genererOrigines({ dirSources, dirCouches }) {
       "elle vient de la bibliothèque du JOUEUR et n'est pas versionnée.");
   }
   const lire = (p) => JSON.parse(readFileSync(p, "utf8"));
+  const srd = lire(join(REPO_ROOT, "layers", "srd-5.2.1-en.layer.json"));
   const { layer, comptes, ecarts, restes } = construireOrigines(lire(chemin), {
-    srd: lire(join(REPO_ROOT, "layers", "srd-5.2.1-en.layer.json")),
-    meca: lire(join(REPO_ROOT, "layers", "srfh-mecaniques-en.layer.json"))
+    srd, meca: lire(join(REPO_ROOT, "layers", "srfh-mecaniques-en.layer.json"))
   });
+  /* 🪄 LOT 389 — les sorts entrent dans la MÊME couche : un livre, un fichier. Leur instantané absent
+     se DIT dans le message ; il n'efface pas les origines. */
+  const cheminSorts = join(dirSources, "phb-2024-spells.json");
+  let sorts = null;
+  if (existsSync(cheminSorts)) {
+    sorts = construireSorts(lire(cheminSorts), { srd });
+    layer.records.spell = sorts.records.spell;
+    layer.description += ` Chapitre 7 « Spells » : ${sorts.comptes.spell} sorts PROPRES au livre, avec leurs listes de classes ` +
+      `(chapitre 3) ; ${sorts.comptes.partages} sorts partagés avec le SRD comparés, pas réémis (lot 389).`;
+  }
   mkdirSync(dirCouches, { recursive: true });
   const sortie = join(dirCouches, `${livre.id}.layer.json`);
   writeFileSync(sortie, `${JSON.stringify(layer, null, 2)}\n`, "utf8");
   return {
-    sortie, comptes, ecarts, restes,
+    sortie, comptes, ecarts, restes, sorts,
     message:
       `${livre.id} : ${comptes.background} arrière-plans + ${comptes.species} espèce(s) + ${comptes.feat} dons, propres au livre. ` +
       `Partagés comparés : ${ecarts.length} écart(s)${ecarts.length ? ` — ${ecarts.join(" ; ")}` : ""}. ` +
-      `Resté en texte : ${restes.length}.`
+      `Resté en texte : ${restes.length}. ` +
+      (sorts
+        ? `Sorts : ${sorts.comptes.spell} propres au livre, ${sorts.comptes.partages} partagés comparés, ${sorts.ecarts.length} écart(s)` +
+          `${sorts.ecarts.length ? ` — ${sorts.ecarts.join(" ; ")}` : ""}, ${sorts.renommes.length} renommés par le SRD.`
+        : "Sorts : l'instantané « phb-2024-spells.json » est absent — la couche ne porte que les origines.")
   };
 }
 
