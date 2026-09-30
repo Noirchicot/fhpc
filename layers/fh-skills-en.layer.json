@@ -1398,6 +1398,12 @@
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       }
+    },
+    "glossary": {
+      "srd:glossary:en:passive-perception": {
+        "op": "disable",
+        "reason": "Fate's Hand has no Passive Perception: “Perception does not exist in Fate's Hand. It was split into Vigilance, Delve and Survival, each rolled.” (Rules Glossary)"
+      }
     }
   }
 }

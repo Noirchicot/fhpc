@@ -1,14 +1,14 @@
 {
   "schema": "fh-char/1",
-  "id": "example-ilyra-fh-en",
-  "name": "Ilyra Duskleaf",
+  "id": "example-vesna-srd-en",
+  "name": "Vesna Quickthorn",
   "lang": "en",
   "units": {
     "distance": "ft",
     "weight": "lb"
   },
-  "created": "2026-08-09T09:00:00Z",
-  "modified": "2026-08-09T09:00:00Z",
+  "created": "2026-09-30T09:00:00Z",
+  "modified": "2026-09-30T09:00:00Z",
   "build": {
     "layers": [
       {
@@ -28,78 +28,6 @@
         "version": "0.1.0",
         "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
         "name": "SRFH — Mechanics (EN)"
-      },
-      {
-        "id": "fh-species-en",
-        "version": "0.1.0",
-        "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f",
-        "name": "Fate's Hand — Species (EN)"
-      },
-      {
-        "id": "fh-skills-en",
-        "version": "0.1.0",
-        "hash": "c37b5416a1ab056a331e3c4458c4fa8dccb0c9b4a3b76f037e2c80d5fd6eae49",
-        "name": "Fate's Hand — Skills & Tools (EN)"
-      },
-      {
-        "id": "fh-trainings-en",
-        "version": "0.1.0",
-        "hash": "9305a2af6033c53cabed938a336c81c93999a7e78557454d6df6f469ac3e7a20",
-        "name": "Fate's Hand — Trainings (EN)"
-      },
-      {
-        "id": "fh-inheritance-en",
-        "version": "0.1.0",
-        "hash": "22bacd5b087c860140caf2484b25f3092d2b2f1a6be7ad7ecdb6e09420884a9c",
-        "name": "Fate's Hand — Inheritance (EN)"
-      },
-      {
-        "id": "fh-arcana-en",
-        "version": "0.1.0",
-        "hash": "6e367d0e2689a50f0195a242e93ec5ab4903b029eac48798df49a1809926f948",
-        "name": "Fate's Hand — Major Arcana (EN)"
-      },
-      {
-        "id": "fh-feats-en",
-        "version": "0.1.0",
-        "hash": "c2affa9884ccbe370e1722cad4b6281252022cc712b29d97b80851268f3d3871",
-        "name": "Fate's Hand — Feats (EN)"
-      },
-      {
-        "id": "fh-spells-en",
-        "version": "0.1.0",
-        "hash": "32a7e12207a8a66f88e9fc3026e739877f5957b3d4623ae3a29b221787f706e3",
-        "name": "Fate's Hand — Spells (EN)"
-      },
-      {
-        "id": "fh-soulforging-en",
-        "version": "0.1.0",
-        "hash": "34c7ce5880a26b138a4f1cf67aeba3a6880b31cdd7896eed9986043f2cd82a0f",
-        "name": "Fate's Hand — Soulforging (EN)"
-      },
-      {
-        "id": "fh-gems-en",
-        "version": "0.1.0",
-        "hash": "64165285345cd52158e4cf006ac152ae8befddbea9995622f27759f977dd1778",
-        "name": "Fate's Hand — Gems (EN)"
-      },
-      {
-        "id": "fh-munitions-en",
-        "version": "0.1.0",
-        "hash": "93e2cfbb89ae07d43dae1ab331e8493fba691cf33dbc8b37ee2942531f5bd12c",
-        "name": "Fate's Hand — Munitions (EN)"
-      },
-      {
-        "id": "fh-fiche-en",
-        "version": "0.1.0",
-        "hash": "115ac365bfa936538e7d7358ca17c89906a6e39a15bbeb4607a265c7876c7bce",
-        "name": "Fate's Hand — Fiche (EN)"
-      },
-      {
-        "id": "fh-lore-en",
-        "version": "0.1.0",
-        "hash": "eef39c3215144d29ef11fc580a61706bc863f81a85252ac5defd793977e16e7d",
-        "name": "Fate's Hand — Lore (EN)"
       }
     ],
     "choices": [
@@ -135,30 +63,25 @@
         "label": "Elven Lineage: Intelligence"
       },
       {
-        "path": "species.skillBudget.survival",
-        "value": "novice",
-        "label": "Keen Senses: Survival (Novice)"
+        "path": "species.skills[0]",
+        "value": "perception",
+        "label": "Keen Senses: Perception"
       },
       {
-        "path": "species.skillBudget.vigilance",
-        "value": "novice",
-        "label": "Keen Senses: Vigilance (Novice)"
+        "path": "background",
+        "ref": {
+          "kind": "background",
+          "id": "srd:background:en:criminal"
+        },
+        "label": "Criminal"
       },
       {
         "path": "background.originFeat[0]",
         "ref": {
           "kind": "feat",
-          "id": "fh:feat:en:auspicious"
+          "id": "srd:feat:en:alert"
         },
-        "label": "Origin feat"
-      },
-      {
-        "path": "fh.destiny.arcana",
-        "ref": {
-          "kind": "arcana",
-          "id": "fh:arcana:en:the-hermit"
-        },
-        "label": "The Hermit"
+        "label": "Alert"
       },
       {
         "path": "abilities.mode",
@@ -194,16 +117,16 @@
         "value": 2
       },
       {
-        "path": "background.boost.con",
+        "path": "background.boost.dex",
         "value": 1
       },
       {
-        "path": "class.skillBudget.arcana",
-        "value": "novice"
+        "path": "class.skills[0]",
+        "value": "arcana"
       },
       {
-        "path": "class.skillBudget.investigation",
-        "value": "novice"
+        "path": "class.skills[1]",
+        "value": "investigation"
       },
       {
         "path": "class.cantrips[0]",
@@ -223,7 +146,7 @@
         "path": "class.cantrips[2]",
         "ref": {
           "kind": "spell",
-          "id": "srd:spell:en:prestidigitation"
+          "id": "srd:spell:en:mage-hand"
         }
       },
       {
@@ -255,20 +178,6 @@
         }
       },
       {
-        "path": "background.languages[0]",
-        "ref": {
-          "kind": "training",
-          "id": "fh:training:en:language-elf"
-        }
-      },
-      {
-        "path": "background.languages[1]",
-        "ref": {
-          "kind": "training",
-          "id": "fh:training:en:language-human"
-        }
-      },
-      {
         "path": "gear[0]",
         "ref": {
           "kind": "weapon",
@@ -277,7 +186,7 @@
       },
       {
         "path": "gear[0].quantity",
-        "value": 1
+        "value": 2
       },
       {
         "path": "gear[0].equipped",
@@ -286,8 +195,8 @@
       {
         "path": "gear[1]",
         "ref": {
-          "kind": "weapon",
-          "id": "srd:weapon:en:quarterstaff"
+          "kind": "gear",
+          "id": "srd:gear:en:backpack"
         }
       },
       {
@@ -314,91 +223,16 @@
         "value": false
       },
       {
-        "path": "gear[3]",
-        "ref": {
-          "kind": "gear",
-          "id": "srd:gear:en:component-pouch"
-        }
-      },
-      {
-        "path": "gear[3].quantity",
-        "value": 1
-      },
-      {
-        "path": "gear[3].equipped",
-        "value": true
-      },
-      {
-        "path": "gear[4]",
-        "ref": {
-          "kind": "tool",
-          "id": "srd:tool:en:calligrapher-s-supplies"
-        }
-      },
-      {
-        "path": "gear[4].quantity",
-        "value": 1
-      },
-      {
-        "path": "gear[4].equipped",
-        "value": false
-      },
-      {
-        "path": "gear[5]",
-        "ref": {
-          "kind": "gear",
-          "id": "srd:gear:en:backpack"
-        }
-      },
-      {
-        "path": "gear[5].quantity",
-        "value": 1
-      },
-      {
-        "path": "gear[5].equipped",
-        "value": true
-      },
-      {
-        "path": "gear[6]",
-        "ref": {
-          "kind": "gear",
-          "id": "srd:gear:en:rations"
-        }
-      },
-      {
-        "path": "gear[6].quantity",
-        "value": 5
-      },
-      {
-        "path": "gear[6].equipped",
-        "value": false
-      },
-      {
-        "path": "gear[7]",
-        "ref": {
-          "kind": "gear",
-          "id": "srd:gear:en:torch"
-        }
-      },
-      {
-        "path": "gear[7].quantity",
-        "value": 2
-      },
-      {
-        "path": "gear[7].equipped",
-        "value": false
-      },
-      {
         "path": "currency.cp",
-        "value": 4
+        "value": 0
       },
       {
         "path": "currency.sp",
-        "value": 12
+        "value": 0
       },
       {
         "path": "currency.gp",
-        "value": 8
+        "value": 16
       },
       {
         "path": "currency.pp",
@@ -406,41 +240,26 @@
       }
     ],
     "budgets": {},
-    "overrides": [
-      {
-        "path": "resolved.vitals.hpMax",
-        "value": 9,
-        "note": "The GM grants one extra hit point: the night of study counts as a Long Rest here.",
-        "by": "gm"
-      },
-      {
-        "path": "resolved.gear[torch].quantity",
-        "value": 4,
-        "note": "Two more torches bought on the road.",
-        "by": "player"
-      }
-    ],
+    "overrides": [],
     "confirmed": [
       "background",
       "background.boost",
-      "background.languages",
-      "background.originFeat[0]",
       "class",
       "class.cantrips",
       "class.prepared",
-      "class.skillBudget",
+      "class.skills",
       "species",
       "species.lineage",
-      "species.skillBudget"
+      "species.skills"
     ]
   },
   "generator": {
-    "name": "src/tools/exemple-fh-en",
+    "name": "src/tools/exemple-srd-en",
     "version": "1.0.0"
   },
   "resolved": {
     "derivation": {
-      "at": "2026-08-09T09:00:00Z",
+      "at": "2026-09-30T09:00:00Z",
       "stack": [
         {
           "id": "srd-5.2.1-en",
@@ -459,78 +278,6 @@
           "version": "0.1.0",
           "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
           "name": "SRFH — Mechanics (EN)"
-        },
-        {
-          "id": "fh-species-en",
-          "version": "0.1.0",
-          "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f",
-          "name": "Fate's Hand — Species (EN)"
-        },
-        {
-          "id": "fh-skills-en",
-          "version": "0.1.0",
-          "hash": "c37b5416a1ab056a331e3c4458c4fa8dccb0c9b4a3b76f037e2c80d5fd6eae49",
-          "name": "Fate's Hand — Skills & Tools (EN)"
-        },
-        {
-          "id": "fh-trainings-en",
-          "version": "0.1.0",
-          "hash": "9305a2af6033c53cabed938a336c81c93999a7e78557454d6df6f469ac3e7a20",
-          "name": "Fate's Hand — Trainings (EN)"
-        },
-        {
-          "id": "fh-inheritance-en",
-          "version": "0.1.0",
-          "hash": "22bacd5b087c860140caf2484b25f3092d2b2f1a6be7ad7ecdb6e09420884a9c",
-          "name": "Fate's Hand — Inheritance (EN)"
-        },
-        {
-          "id": "fh-arcana-en",
-          "version": "0.1.0",
-          "hash": "6e367d0e2689a50f0195a242e93ec5ab4903b029eac48798df49a1809926f948",
-          "name": "Fate's Hand — Major Arcana (EN)"
-        },
-        {
-          "id": "fh-feats-en",
-          "version": "0.1.0",
-          "hash": "c2affa9884ccbe370e1722cad4b6281252022cc712b29d97b80851268f3d3871",
-          "name": "Fate's Hand — Feats (EN)"
-        },
-        {
-          "id": "fh-spells-en",
-          "version": "0.1.0",
-          "hash": "32a7e12207a8a66f88e9fc3026e739877f5957b3d4623ae3a29b221787f706e3",
-          "name": "Fate's Hand — Spells (EN)"
-        },
-        {
-          "id": "fh-soulforging-en",
-          "version": "0.1.0",
-          "hash": "34c7ce5880a26b138a4f1cf67aeba3a6880b31cdd7896eed9986043f2cd82a0f",
-          "name": "Fate's Hand — Soulforging (EN)"
-        },
-        {
-          "id": "fh-gems-en",
-          "version": "0.1.0",
-          "hash": "64165285345cd52158e4cf006ac152ae8befddbea9995622f27759f977dd1778",
-          "name": "Fate's Hand — Gems (EN)"
-        },
-        {
-          "id": "fh-munitions-en",
-          "version": "0.1.0",
-          "hash": "93e2cfbb89ae07d43dae1ab331e8493fba691cf33dbc8b37ee2942531f5bd12c",
-          "name": "Fate's Hand — Munitions (EN)"
-        },
-        {
-          "id": "fh-fiche-en",
-          "version": "0.1.0",
-          "hash": "115ac365bfa936538e7d7358ca17c89906a6e39a15bbeb4607a265c7876c7bce",
-          "name": "Fate's Hand — Fiche (EN)"
-        },
-        {
-          "id": "fh-lore-en",
-          "version": "0.1.0",
-          "hash": "eef39c3215144d29ef11fc580a61706bc863f81a85252ac5defd793977e16e7d",
-          "name": "Fate's Hand — Lore (EN)"
         }
       ]
     },
@@ -543,7 +290,8 @@
         }
       ],
       "species": "Elf",
-      "size": "medium"
+      "size": "medium",
+      "background": "Criminal"
     },
     "abilities": {
       "str": {
@@ -551,12 +299,12 @@
         "mod": -1
       },
       "dex": {
-        "score": 14,
+        "score": 15,
         "mod": 2
       },
       "con": {
-        "score": 14,
-        "mod": 2
+        "score": 13,
+        "mod": 1
       },
       "int": {
         "score": 17,
@@ -574,8 +322,8 @@
     "proficiency": 2,
     "ac": 12,
     "vitals": {
-      "hpMax": 9,
-      "hpCurrent": 9,
+      "hpMax": 7,
+      "hpCurrent": 7,
       "tempHp": 0,
       "conditions": []
     },
@@ -588,29 +336,29 @@
         "name": "Darkvision",
         "value": 60,
         "unit": "ft"
+      },
+      {
+        "id": "perception-passive",
+        "name": "Passive Perception",
+        "value": 13
       }
     ],
     "initiative": {
       "name": "Initiative",
-      "bonus": 2,
+      "bonus": 4,
       "score": 12,
       "parts": [
         {
           "name": "DEX",
           "value": 2
+        },
+        {
+          "name": "Alert",
+          "value": 2
         }
       ]
     },
-    "languages": [
-      {
-        "id": "language-elf",
-        "name": "Elf"
-      },
-      {
-        "id": "language-human",
-        "name": "Human"
-      }
-    ],
+    "languages": [],
     "saves": {
       "str": {
         "bonus": -1,
@@ -621,7 +369,7 @@
         "proficient": false
       },
       "con": {
-        "bonus": 2,
+        "bonus": 1,
         "proficient": false
       },
       "int": {
@@ -639,13 +387,6 @@
     },
     "skills": [
       {
-        "id": "academics",
-        "name": "Academics",
-        "ability": "int",
-        "bonus": 3,
-        "proficiency": "none"
-      },
-      {
         "id": "acrobatics",
         "name": "Acrobatics",
         "ability": "dex",
@@ -660,18 +401,11 @@
         "proficiency": "none"
       },
       {
-        "id": "appraise",
-        "name": "Appraise",
-        "ability": "int",
-        "bonus": 3,
-        "proficiency": "none"
-      },
-      {
         "id": "arcana",
         "name": "Arcana",
         "ability": "int",
-        "bonus": 4,
-        "proficiency": "novice"
+        "bonus": 5,
+        "proficiency": "adept"
       },
       {
         "id": "athletics",
@@ -688,24 +422,10 @@
         "proficiency": "none"
       },
       {
-        "id": "delve",
-        "name": "Delve",
-        "ability": "wis",
-        "bonus": 1,
-        "proficiency": "none"
-      },
-      {
         "id": "history",
         "name": "History",
         "ability": "int",
         "bonus": 3,
-        "proficiency": "none"
-      },
-      {
-        "id": "hunting",
-        "name": "Hunting",
-        "ability": "wis",
-        "bonus": 1,
         "proficiency": "none"
       },
       {
@@ -726,15 +446,8 @@
         "id": "investigation",
         "name": "Investigation",
         "ability": "int",
-        "bonus": 4,
-        "proficiency": "novice"
-      },
-      {
-        "id": "leadership",
-        "name": "Leadership",
-        "ability": "cha",
-        "bonus": 0,
-        "proficiency": "none"
+        "bonus": 5,
+        "proficiency": "adept"
       },
       {
         "id": "medicine",
@@ -744,18 +457,18 @@
         "proficiency": "none"
       },
       {
-        "id": "might",
-        "name": "Might",
-        "ability": "str",
-        "bonus": -1,
-        "proficiency": "none"
-      },
-      {
         "id": "nature",
         "name": "Nature",
         "ability": "int",
         "bonus": 3,
         "proficiency": "none"
+      },
+      {
+        "id": "perception",
+        "name": "Perception",
+        "ability": "wis",
+        "bonus": 3,
+        "proficiency": "adept"
       },
       {
         "id": "performance",
@@ -782,46 +495,33 @@
         "id": "sleight-of-hand",
         "name": "Sleight of Hand",
         "ability": "dex",
-        "bonus": 2,
-        "proficiency": "none"
+        "bonus": 4,
+        "proficiency": "adept"
       },
       {
         "id": "stealth",
         "name": "Stealth",
         "ability": "dex",
-        "bonus": 2,
-        "proficiency": "none"
-      },
-      {
-        "id": "streetwise",
-        "name": "Streetwise",
-        "ability": "cha",
-        "bonus": 0,
-        "proficiency": "none"
+        "bonus": 4,
+        "proficiency": "adept"
       },
       {
         "id": "survival",
         "name": "Survival",
         "ability": "wis",
-        "bonus": 2,
-        "proficiency": "novice"
-      },
-      {
-        "id": "tactics",
-        "name": "Tactics",
-        "ability": "int",
-        "bonus": 3,
+        "bonus": 1,
         "proficiency": "none"
-      },
-      {
-        "id": "vigilance",
-        "name": "Vigilance",
-        "ability": "wis",
-        "bonus": 2,
-        "proficiency": "novice"
       }
     ],
-    "tools": [],
+    "tools": [
+      {
+        "id": "thieves-tools",
+        "name": "Thieves’ Tools",
+        "ability": "dex",
+        "bonus": 4,
+        "proficiency": "adept"
+      }
+    ],
     "training": {
       "armor": [
         {
@@ -877,15 +577,15 @@
           "concentration": false
         },
         {
-          "id": "prestidigitation",
-          "name": "Prestidigitation",
+          "id": "mage-hand",
+          "name": "Mage Hand",
           "level": 0,
           "prepared": true,
-          "range": "10 feet",
+          "range": "30 feet",
           "castingTime": "Action",
-          "duration": "Up to 1 hour",
+          "duration": "1 minute",
           "ritual": false,
-          "text": "You create a magical effect within range. Choose the effect from the options below. If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.\n\nSensory Effect. You create an instantaneous, harmless sensory effect, such as a shower of sparks, a puff of wind, faint musical notes, or an odd odor. Fire Play. You instantaneously light or snuff out a candle, a torch, or a small campfire.\n\nClean or Soil. You instantaneously clean or soil an object no larger than 1 cubic foot.\n\nMinor Sensation. You chill, warm, or flavor up to 1 cubic foot of nonliving material for 1 hour.\n\nMagic Mark. You make a color, a small mark, or a symbol appear on an object or a surface for 1 hour.\n\nMinor Creation. You create a nonmagical trinket or an illusory image that can fit in your hand. It lasts until the end of your next turn. A trinket can deal no damage and has no monetary worth.",
+          "text": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration. The hand vanishes if it is ever more than 30 feet away from you or if you cast this spell again.\n\nWhen you cast the spell, you can use the hand to manipulate an object, open an unlocked door or container, stow or retrieve an item from an open container, or pour the contents out of a vial.\n\nAs a Magic action on your later turns, you can control the hand thus again. As part of that action, you can move the hand up to 30 feet.\n\nThe hand can’t attack, activate magic items, or carry more than 10 pounds.",
           "concentration": false
         },
         {
@@ -986,7 +686,7 @@
         "id": "keen-senses",
         "name": "Keen Senses",
         "source": "Elf",
-        "text": "You have proficiency in the Survival, Delve, or Vigilance skill."
+        "text": "You have proficiency in the Insight, Perception, or Survival skill."
       },
       {
         "id": "trance",
@@ -995,48 +695,19 @@
         "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
       },
       {
-        "id": "background:fh:feat:en:auspicious",
-        "name": "Auspicious (fh)",
+        "id": "background:srd:feat:en:alert",
+        "name": "Alert",
         "category": "feat",
-        "text": "+2 Destiny · fate leans toward you (replaces Lucky)"
-      },
-      {
-        "id": "splinter-of-anon",
-        "name": "Splinter of Anon",
-        "source": "Elf",
-        "text": "Your Destiny Base increases by 2, for a Destiny Base of 4 at character creation."
+        "source": "Criminal",
+        "text": "You gain the following benefits.\n\nInitiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll.\n\nInitiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can’t make this swap if you or the ally has the Incapacitated condition."
       }
     ],
     "gear": [
       {
         "id": "dagger",
         "name": "Dagger",
-        "quantity": 1,
+        "quantity": 2,
         "equipped": true
-      },
-      {
-        "id": "quarterstaff",
-        "name": "Quarterstaff",
-        "quantity": 1,
-        "equipped": true
-      },
-      {
-        "id": "book",
-        "name": "Book",
-        "quantity": 1,
-        "equipped": false
-      },
-      {
-        "id": "component-pouch",
-        "name": "Component Pouch",
-        "quantity": 1,
-        "equipped": true
-      },
-      {
-        "id": "calligrapher-s-supplies",
-        "name": "Calligrapher’s Supplies",
-        "quantity": 1,
-        "equipped": false
       },
       {
         "id": "backpack",
@@ -1045,87 +716,20 @@
         "equipped": true
       },
       {
-        "id": "rations",
-        "name": "Rations",
-        "quantity": 5,
-        "equipped": false
-      },
-      {
-        "id": "torch",
-        "name": "Torch",
-        "quantity": 4,
+        "id": "book",
+        "name": "Book",
+        "quantity": 1,
         "equipped": false
       }
     ],
     "currency": {
-      "cp": 4,
-      "sp": 12,
-      "gp": 8,
+      "cp": 0,
+      "sp": 0,
+      "gp": 16,
       "pp": 0
     },
     "craft": [],
-    "stats": [
-      {
-        "id": "fh:destiny",
-        "flag": "fh.destiny",
-        "name": "Destiny Score",
-        "value": 10,
-        "breakdown": [
-          {
-            "label": "Proficiency Bonus",
-            "value": 2
-          },
-          {
-            "label": "Destiny Base · Elf",
-            "value": 2,
-            "source": {
-              "kind": "species",
-              "id": "srd:species:en:elf"
-            }
-          },
-          {
-            "label": "Splinter of Anon",
-            "value": 2,
-            "source": {
-              "kind": "species",
-              "id": "srd:species:en:elf"
-            }
-          },
-          {
-            "label": "The Hermit",
-            "value": 2,
-            "source": {
-              "kind": "arcana",
-              "id": "fh:arcana:en:the-hermit"
-            }
-          },
-          {
-            "label": "Auspicious (fh)",
-            "value": 2,
-            "source": {
-              "kind": "feat",
-              "id": "fh:feat:en:auspicious"
-            }
-          }
-        ]
-      },
-      {
-        "id": "fh:skill-points",
-        "flag": "fh.skills",
-        "name": "Skill Points",
-        "value": 10,
-        "breakdown": [
-          {
-            "label": "Class Pool · Wizard",
-            "value": 10,
-            "source": {
-              "kind": "class",
-              "id": "srd:class:en:wizard"
-            }
-          }
-        ]
-      }
-    ],
+    "stats": [],
     "notes": [],
     "effects": {
       "applied": [],

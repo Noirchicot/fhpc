@@ -30,10 +30,14 @@
        a dérivé une liste vide : un Guerrier n'a pas de sorts) ;
      · elle est pleine mais le moteur en déclare une partie → la liste, plus
        « Some entries are not derived yet ».
-   Jamais un tiret muet, jamais un zéro inventé. Et deux lignes qu'une fiche de
-   D&D porte et que le contrat n'a pas (l'initiative, la Perception passive)
-   disent « not derived yet » elles aussi — un joueur qui les cherche doit
-   savoir qu'elles manquent, pas croire qu'il les a mal lues.
+   Jamais un tiret muet, jamais un zéro inventé.
+   🧾 LOT 379 — L'INITIATIVE ET LA PERCEPTION PASSIVE NE SONT PLUS ÉCRITES ICI. Elles
+   disaient « not derived yet » en dur, sous un nom écrit dans l'écran ; elles se lisent
+   maintenant dans la PILE, comme le reste : `resolved.initiative` et
+   `resolved.senses[perception-passive]` quand le moteur les calcule, sa déclaration
+   (`underived`, nom du record compris) quand il ne sait pas, et RIEN quand la pile ne
+   porte pas le score — Fate's Hand n'a pas de Perception passive (Rules Glossary :
+   « Nowhere »), et une ligne « not derived yet » y mentirait.
    📌 Les RAISONS du moteur (`underived[].key`) ne sont pas recopiées ici : elles
    parlent au développeur (« contract §3 », « law §0.13 »). La fiche dit
    « not derived yet », et Expert view dit pourquoi — la ligne de pied le dit.
@@ -59,9 +63,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=933";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=933";
-import { etapeParId } from "./etapes.mjs?v=933";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=934";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=934";
+import { etapeParId } from "./etapes.mjs?v=934";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -94,8 +98,6 @@ export const MOTS_FICHE = {
   pvTemp: "Temporary HP",
   etats: "Conditions",
   vitesse: "Speed",
-  initiative: "Initiative",
-  perceptionPassive: "Passive Perception",
   maitriseSauvegarde: "proficient",
   caracDeSort: "Ability",
   ddSort: "Save DC",
@@ -148,7 +150,9 @@ const estVide = (v) => v === null || v === undefined
    Une déclaration porte sur la rubrique ENTIÈRE quand rien ne suit la tête
    que `rubriqueDe` lit (`tools`), ou une parenthèse (`traits (classe, don,
    arrière-plan)`) ; elle porte sur un SOUS-CHAMP quand la tête est suivie d'un
-   `.` ou d'un `[` (`senses[perception-passive]`, `identity.background`). */
+   `.` ou d'un `[` (`senses[perception-passive]`, `identity.background`).
+   🧾 LOT 379 — les entrées elles-mêmes sont gardées (`.entrees`) : une ligne qui manque
+   se NOMME par le `params.name` que le moteur lit dans la pile. */
 function lireDeclarations(report) {
   const underived = report && Array.isArray(report.underived) ? report.underived : [];
   const rubriques = new Set();
@@ -162,6 +166,7 @@ function lireDeclarations(report) {
     if (!/^[.[]/.test(suite)) rubriques.add(tete);
   }
   rubriques.champs = champs;
+  rubriques.entrees = underived.filter((entree) => entree && typeof entree.field === "string");
   return rubriques;
 }
 
@@ -293,7 +298,7 @@ function blocCaracteristiques(r, etat, reg) {
 
 /** La rangée du combat : maîtrise, CA, PV, vitesse, initiative. Pas de titre de
  *  rubrique : chaque case porte le sien, et chacune vient d'une rubrique à elle. */
-function blocCombat(r, reg, unite) {
+function blocCombat(r, reg, unite, declarees) {
   const grille = el("div", "perso-grille perso-grille-combat");
   const nombre = (v) => (Number.isInteger(v) ? v : null);
   const p = nombre(r.proficiency);
@@ -317,8 +322,19 @@ function blocCombat(r, reg, unite) {
   grille.append(cellule(MOTS_FICHE.vitesse, marche === null ? null : `${marche}${unite ? ` ${unite}` : ""}`,
     { note: autres.length > 0 ? autres.join(" · ") : null,
       provenance: reg.provenance("resolved.speeds.walk"), chemin: "resolved.speeds.walk" }));
-  /* ⚠️ Le contrat n'a pas de champ d'initiative : la case le DIT. */
-  grille.append(cellule(MOTS_FICHE.initiative, null));
+  /* 🧾 LOT 379 — l'Initiative : le chiffre du moteur et son détail (DEX, un don), ou la
+     déclaration du moteur sous le nom qu'il a lu, ou RIEN si la pile ne porte pas le score. */
+  const ini = estObjet(r.initiative) ? r.initiative : null;
+  if (ini && Number.isInteger(ini.bonus)) {
+    const parts = Array.isArray(ini.parts) ? ini.parts.filter(estObjet) : [];
+    grille.append(cellule(ini.name, signe(ini.bonus), {
+      note: parts.length > 0 ? parts.map((x) => `${x.name} ${signe(x.value)}`).join(" · ") : null,
+      provenance: reg.provenance("resolved.initiative.bonus"), chemin: "resolved.initiative.bonus"
+    }));
+  } else {
+    const d = declarees.entrees.find((e) => e.field === "initiative" && e.params && typeof e.params.name === "string");
+    if (d) grille.append(cellule(d.params.name, null, { chemin: "resolved.initiative.bonus" }));
+  }
   const enfants = [grille];
   if (v && Array.isArray(v.conditions) && v.conditions.length > 0) {
     enfants.push(el("p", "perso-texte", [text(`${MOTS_FICHE.etats}: ${v.conditions.join(", ")}`)]));
@@ -360,20 +376,29 @@ function blocMaitrises(cle, r, etat, reg, paliers) {
   return bloc(cle, titre, [liste, etat === "partielle" ? motPartiel() : null]);
 }
 
-function blocSens(r, etat, unite) {
+function blocSens(r, etat, declarees) {
   const enfants = [];
   if (etat === "absente" || etat === "vide") enfants.push(motDAbsence(etat));
   const liste = el("ul", "perso-liste");
   if (Array.isArray(r.senses)) {
     for (const s of r.senses) {
       if (!estObjet(s)) continue;
-      liste.append(ligne(s.name, Number.isInteger(s.value) ? `${s.value} ${s.unit || unite || ""}`.trim() : ""));
+      /* 🧾 LOT 379 — le contrat : « `unit` absent = score sans unité ». ⛔ Jamais l'unité du document
+         en repli : la Perception passive (un score) s'affichait « 13 ft ». */
+      liste.append(ligne(s.name, Number.isInteger(s.value) ? `${s.value} ${s.unit || ""}`.trim() : ""));
     }
   }
-  /* ⚠️ Le contrat n'a pas de ligne de Perception passive : elle le DIT. */
-  const passive = ligne(MOTS_FICHE.perceptionPassive, MOTS_FICHE.pasDerive);
-  passive.dataset.absence = "non-derive";
-  liste.append(passive);
+  /* 🧾 LOT 379 — un sens que le moteur DÉCLARE sans le calculer (`senses[<id>]`, la Perception
+     passive d'une pile qui la porte sans sa formule) se nomme par la pile : « not derived yet ». */
+  const ids = new Set(Array.isArray(r.senses) ? r.senses.filter(estObjet).map((x) => x.id) : []);
+  for (const d of declarees.entrees) {
+    const id = /^senses\[([^\]]+)\]$/.exec(d.field)?.[1];
+    if (!id || ids.has(id) || !d.params || typeof d.params.name !== "string") continue;
+    ids.add(id);
+    const li = ligne(d.params.name, MOTS_FICHE.pasDerive);
+    li.dataset.absence = "non-derive";
+    liste.append(li);
+  }
   enfants.push(liste);
   if (etat === "partielle") enfants.push(motPartiel());
   return bloc("senses", LIBELLES_EN.senses, enfants);
@@ -595,10 +620,10 @@ export function renderFicheTemporaire(ctx) {
   const fiche = el("div", "perso-fiche");
   fiche.append(blocIdentite(r, { ...ctx, flags }));
   fiche.append(blocCaracteristiques(r, etat("abilities"), reg));
-  fiche.append(blocCombat(r, reg, unite));
+  fiche.append(blocCombat(r, reg, unite, declarees));
   fiche.append(blocSauvegardes(r, etat("saves"), reg));
   fiche.append(blocMaitrises("skills", r, etat("skills"), reg, paliers));
-  fiche.append(blocSens(r, etat("senses"), unite));
+  fiche.append(blocSens(r, etat("senses"), declarees));
   fiche.append(blocNoms("languages", r, etat("languages"), (l) => [estObjet(l) ? l.name : l]));
   fiche.append(blocMaitrises("tools", r, etat("tools"), reg, paliers));
   fiche.append(blocTraining(r, etat("training")));

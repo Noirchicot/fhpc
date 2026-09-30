@@ -435,6 +435,10 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "craft",
     "gear[].weight",
     "identity.species (lignage)",
+    /* 🧾 LOT 379 — l'Initiative ENTRE : la pile française porte le glossaire `initiative`, mais aucune
+       couche n'y déclare la formule (`srfh-mecaniques` n'est pas montée ici). Le moteur NOMME ce qu'il ne
+       sait pas, au lieu de taire la ligne ; la Perception passive reste, pour la même raison. */
+    "initiative",
     "languages",
     "notes",
     "resources",

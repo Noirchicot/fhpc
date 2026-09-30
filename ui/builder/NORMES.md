@@ -10090,6 +10090,69 @@ fichier serait vert pour rien)*.
 
 ---
 
+## 6 pré undecies. 🧾 LA FICHE DIT VRAI — l'Initiative et la Perception passive se lisent dans la pile *(lot 379, 2026-09-30)*
+📍 `sheet-un-score-de-fiche-se-lit-dans-la-pile` · vivante · 30/09
+⚖️ **Un score de fiche (l'Initiative, la Perception passive) se calcule depuis la formule que la pile DÉCLARE sur le record de glossaire qui le nomme (`data.sheet_score`, extrait du texte à l'appui) ; son nom est celui du record. Une pile qui ÉTEINT le record n'a ni valeur, ni déclaration, ni ligne. Une pile qui porte le record SANS formule le DÉCLARE (`underived`, avec le nom du record), et la fiche dit « not derived yet » sous ce nom. Un don qui touche un score le déclare aussi (`data.initiative_bonus`). ⛔ Jamais un test sur le nom d'une pile ou d'un don.**
+
+> ARCHI 35, 30/09, mandat du lot 379 : *« FH : aucune Perception passive sur la fiche, ni valeur ni “not derived yet”. La
+> décision se lit dans la pile, jamais dans un test sur le nom du maître. »* · *« SRD : la Perception passive et
+> l'Initiative sont calculées par `derive`, depuis le texte SRD 5.2.1 cité (don Alert compris). »* · et, sur « None » ou
+> « not derived yet » : *« “None” quand il n'y a rien, “not derived yet” quand le moteur ne sait pas »*.
+> **Les textes, à la lettre** — SRD 5.2.1, glossaire : *« Your Initiative score equals 10 plus your Dexterity modifier. »* ·
+> *« A creature’s Passive Perception equals 10 plus the creature’s Wisdom (Perception) check bonus. »* · don Alert :
+> *« Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. »* · Fate's Hand,
+> Rules Glossary (l. 27) : *« Passive Perception — Nowhere — Perception does not exist in Fate's Hand. It was split into
+> Vigilance, Delve and Survival, each rolled. »*
+> **Le silence, cité** — Fate's Hand, Battlefield Rules : l'initiative n'y paraît que sous la surprise (*« Advantage to
+> players on initiative »*, *« Monsters take a flat 8 on initiative »*). Ce sont des règles de TABLE, pas un chiffre de
+> fiche : elles restent où elles sont. Le chapitre ne dit rien du modificateur, et la formule SRD s'applique.
+
+📏 **CE QUI SE PASSAIT** (état des lieux du lot 378, v929) : la fiche FH montrait une ligne « Passive Perception — not
+derived yet » pour un score qui n'existe pas en FH ; la fiche SRD disait « not derived yet » pour deux scores que le
+texte définit. Les deux lignes étaient écrites EN DUR dans l'écran, sous des noms écrits dans l'écran.
+⭐ **CE QUI LE TIENT** :
+· `fh-skills-en` ÉTEINT `srd:glossary:en:passive-perception` (généré par `gen-fh-skills-layer.mjs`, raison citée). Le
+  découpage de la Perception et la fin de sa forme passive sont une seule décision, portée par la même couche.
+· `srfh-mecaniques-en` DÉCLARE les deux formules et le bonus d'Alert — la couche qui « déclare en forme lisible une
+  mécanique que le texte SRD énonce déjà ».
+· `derive` écrit `resolved.initiative` (`{name, bonus, score, parts}`, rubrique neuve et facultative du schéma) et le sens
+  `perception-passive`. ⚖️ Le SCORE suit la lettre : 10 + le modificateur de DEX, sans Alert, qui s'ajoute « to the
+  roll » ; le BONUS est le jet. ⛔ Jamais un chiffre à moitié : sans bonus de maîtrise, l'Initiative d'un porteur
+  d'Alert n'est pas écrite du tout, elle est déclarée.
+· La fiche temporaire les lit : la case Initiative porte son détail (`DEX +2 · Alert +2`) ; un sens sans `unit` est un
+  score, et ⛔ il ne prend plus l'unité du document (la Perception passive s'affichait « 13 ft »).
+🔴 **LE DÉFAUT DÉCOUVERT EN CHEMIN** : `derive` remettait `resolved` dans l'ordre du schéma par une LISTE PAR NOM, et
+jetait EN SILENCE toute rubrique qu'elle ne nommait pas — l'Initiative, calculée, disparaissait là sans un mot. La liste
+est inversée : une rubrique dérivée absente de l'ordre JETTE.
+
+📍 `sheet-un-choix-mort-se-nomme-avec-son-etape` · vivante · 30/09 · prolonge `socle-perso-sauve-s-ouvre-toujours`
+⚖️ **Quand la fiche manque parce que des choix ne se résolvent plus (`choice.ref-missing`), Sheet (et Skills) nomment CHAQUE choix mort avec l'étape qui le pose, lue sur son CHEMIN : un cran pose les choix dont la racine est son id, et DÉCLARE les autres (`STEPS[].ecrit`). Un chemin qu'aucune étape montée ne pose le dit (« which no step asks any more »). Le mot de l'étape est celui de la ceinture montée. ⛔ Le contrat de `rebuild` ne bouge pas : un ref mort jette.**
+
+> ARCHI 35, 30/09 : *« Q1 → (a), le contrat ne bouge pas »* · *« gear[…] → Equipment. feat.* : l'étape qui pose ce choix
+> aujourd'hui, s'il y en a une. Sinon ton mot “no step asks this choice any more”. C'est un brouillon pour Eric. »*
+> L'autre voie — un ref mort FEUILLE qui ne jette plus — est versée comme option NON TRANCHÉE à `A-TRANCHER §C34`.
+
+📏 **MESURÉ** (l'exemple SRD français ouvert par `Open a file…`, 1280 × 800) : la prémisse du mandat ne tenait pas. Les
+vieux chemins `species.lineage` et `species.keenSenses` ne cassent rien (ils ressortent non consommés). Ce qui casse,
+ce sont trois refs vers une couche absente de l'app (`gear[8]`, `feat.extra`, `feat.magicInitiate.cantrip`) ; `validate`
+les nommait avec leur chemin, et Sheet disait seulement *« something in this character does not follow the rules »*.
+✍️ **BROUILLON pour Eric** (aucun mot de NORMES ne le disait) : *« This screen reads your character sheet, and some of its
+choices are not in this ruleset: Lanterne pliante on Equipment; Chuchotement des pages and Lecteur de marges, which no
+step asks any more. Change it on that step; Save character keeps it safe, New character starts over. »*
+
+📍 `socle-deux-exemples-generes-une-fixture-figee` · vivante · 30/09
+⚖️ **`examples/` porte deux personnages GÉNÉRÉS qui s'ouvrent dans l'app — Fate's Hand (`exemple-fh-en.mjs`) et SRD (`exemple-srd-en.mjs`, sur la pile SRD que l'app monte) —, nés par une seule mécanique (`plierUnExemple`) et gardés octet pour octet. L'exemple SRD français est une FIXTURE FIGÉE de la pile française, graine du personnage d'acceptation : il ne s'ouvre pas dans l'app, et `examples/README.md` le dit (le schéma n'admet aucun champ libre à la racine du document).**
+
+> ARCHI 35, 30/09 : *« Q2 → (c) : l'exemple FR est figé et dit ce qu'il est […]. Un exemple SRD anglais est généré […].
+> C'est lui qui s'ouvre par Open a file… et prouve l'Initiative et la Perception passive. »*
+
+📌 **CE QUI LES TIENT** : `tests/fiche-vraie.test.mjs` (FH sans Perception passive ; la couche et non le nom ; les cas du
+texte — un Elfe qui prend Perception, un Criminal avec Alert ; Alert lu dans sa déclaration ; la pile française
+déclarée ; le choix mort nommé avec son étape, le mot de l'étape suivant la pile ; chaque chemin écrit par un écran a son
+étape ; l'exemple SRD octet pour octet et ses trois chiffres).
+
+---
+
 ## 7 bis. 👻 LE FANTÔME A LA BOÎTE DE CE QU'IL COPIE — **quoi qu'il copie** *(lot 205, 2026-09-13)*
 📍 `geste-fantome-a-la-boite-de-ce-qu-il-copie` · vivante · 13/09
 ⚖️ **Un fantôme rend la largeur ET la hauteur de la boîte SAISIE, pour tout ce qui peut être saisi — pas pour une classe. Il est `position: fixed`, donc il n'a pas de cellule : aucune déclaration qui suppose une rangée ne s'adresse à lui.**

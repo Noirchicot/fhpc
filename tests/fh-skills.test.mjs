@@ -1314,8 +1314,15 @@ test("🔴 LOT 184 — `fh-skills-en` porte `skill`, `tool`, `class` et le RANGE
      ⛔ La règle que ce garde défend n'a pas bougé : UN interrupteur par couche.
      `shelving` n'en est pas un — il décrit où vont les records de CETTE couche,
      et il s'éteint avec eux. */
-  assert.deepEqual(Object.keys(couche.records).sort(), ["class", "shelving", "skill", "tool"],
+  /* 🧾 LOT 379 — `glossary` ENTRE, et ce n'est PAS un second interrupteur non plus. Il n'y éteint
+     qu'UN record, `srd:glossary:en:passive-perception`, et pour la raison même de cette couche : le
+     Rules Glossary d'Eric, « Perception does not exist in Fate's Hand. It was split into Vigilance,
+     Delve and Survival, each rolled. » Le découpage de la Perception et la fin de sa forme passive sont
+     une seule décision ; les porter dans deux couches permettrait de monter l'une sans l'autre. */
+  assert.deepEqual(Object.keys(couche.records).sort(), ["class", "glossary", "shelving", "skill", "tool"],
     "un genre de plus ici, et la couche recommence à porter plus d'un interrupteur");
+  assert.deepEqual(Object.entries(couche.records.glossary).map(([id, r]) => [id, r.op]),
+    [["srd:glossary:en:passive-perception", "disable"]], "⛔ un seul glossaire, et il est ÉTEINT, jamais réécrit");
   const ranges = Object.values(couche.records.shelving);
   assert.equal(ranges.length, 11, "les onze outils NEUFS, et eux seuls");
   for (const r of ranges) {

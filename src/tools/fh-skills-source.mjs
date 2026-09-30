@@ -129,6 +129,23 @@ export const SKILLS_REWRITTEN = [
   }
 ];
 
+/* ══ 🧾 LOT 379 — LA PERCEPTION PASSIVE N'EXISTE PAS EN FATE'S HAND ═══════════════════
+   ⭐ LA « CONSÉQUENCE CONNUE » CI-DESSUS EST TRAITÉE ICI, par la donnée. Le chapitre d'Eric le
+   tranche (`5.RPG/Fate's Hand/0. D&D 5+ Rules/2. At the Table/Rules Glossary.md`, ligne 27) :
+   *« Passive Perception — Nowhere — Perception does not exist in Fate's Hand. It was split into
+   Vigilance, Delve and Survival, each rolled. »*
+   ⭐ LA PILE LE DIT, LA FICHE LE LIT : cette couche ÉTEINT le record de glossaire qui nomme la
+   Perception passive. Une pile qui le porte en calcule le score (la déclaration vit dans
+   `srfh-mecaniques-en`, qui monte dans les deux piles) ; une pile qui l'éteint n'a rien à
+   calculer ni à déclarer « non dérivé ». ⛔ Jamais un test sur le nom de la pile ou du maître. */
+export const GLOSSARY_DISABLED = [
+  {
+    target: "srd:glossary:en:passive-perception",
+    reason: "Fate's Hand has no Passive Perception: “Perception does not exist in Fate's Hand. It was split " +
+      "into Vigilance, Delve and Survival, each rolled.” (Rules Glossary)"
+  }
+];
+
 /* ══ LES HUIT COMPÉTENCES NEUVES ═══════════════════════════════════════
    ⛔ VIGILANCE N'EST PLUS ICI — 2026-09-09, et c'est le piège central du lot.
    Elle EST désormais `srd:skill:en:perception`, réécrit (voir juste au-dessus).

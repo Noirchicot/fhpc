@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "7212d2a5ae525751bbcc8e09d2a411134d3bc0ded1576669ae381f22778744ae",
+  "layer_run": "5d1edef7f5af83452c70dbc83ac14a80614a3f61dafaabb3740dbdc66bc04d73",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -18,7 +18,7 @@
     {
       "id": "srfh-mecaniques-en",
       "version": "0.1.0",
-      "hash": "7f79e95deed3263df5be39f78ac6b503548f309809b47ea985d123f670eca8e6"
+      "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa"
     },
     {
       "id": "fh-species-en",
@@ -28,7 +28,7 @@
     {
       "id": "fh-skills-en",
       "version": "0.1.0",
-      "hash": "fabe1079921775c3c9ca659f92c9af2950793b65b05f62d356ff1c7b1e5d124e"
+      "hash": "c37b5416a1ab056a331e3c4458c4fa8dccb0c9b4a3b76f037e2c80d5fd6eae49"
     },
     {
       "id": "fh-trainings-en",
@@ -167,6 +167,7 @@
       ],
       "patched": [
         "Ability Score Improvement",
+        "Alert",
         "Defense",
         "Magic Initiate",
         "Skilled"
@@ -232,8 +233,12 @@
     },
     "glossary": {
       "added": [],
-      "patched": [],
-      "removed": [],
+      "patched": [
+        "Initiative"
+      ],
+      "removed": [
+        "Passive Perception"
+      ],
       "renamed": []
     },
     "item": {

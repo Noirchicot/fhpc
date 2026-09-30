@@ -141,7 +141,7 @@ export const STEPS = [
      loi). Les arcanes majeures n'existent que dans Fate's Hand ; sans
      elles, l'écran tirerait dans un paquet vide (mesuré : `drawArcana([])`
      rend `null`, et le bouton `Draw` ne fait rien, en silence). */
-  { id: "destiny",    label: "Destiny", exige: "fh.destiny" },
+  { id: "destiny",    label: "Destiny", exige: "fh.destiny", ecrit: ["fh.destiny"] },
   { id: "class",      label: "Class" },
   { id: "abilities",  label: "Abilities" },
   /* 🔴 LOT 189 — LE SECOND CRAN CONDITIONNEL, ET IL L'ÉTAIT DÉJÀ SANS LE DIRE.
@@ -159,7 +159,10 @@ export const STEPS = [
      Gear » — ce qui renverse l'hypothèse du lot 207). Le chapitre DÉCLARE son
      mot ici ; la coquille le lit quand rien d'autre n'a été écrit
      (`fenetreOuverte`, shell.mjs). ⛔ Pas un `if` sur le cran dans le belt. */
-  { id: "equipment",  label: "Equipment", fenetre: "Gear" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
+  /* 🧾 LOT 379 — `ecrit` : les racines des CHOIX que ce chapitre pose, quand elles ne sont pas
+     son id (voir `etapeDuChemin`). Relevées dans les verbes de l'écran et de la coquille : le sac
+     (`gear[…]`, `backpack.…`), le panier de Wares (`cart[…]`), la bourse (`currency.…`). */
+  { id: "equipment",  label: "Equipment", fenetre: "Gear", ecrit: ["gear", "cart", "currency", "backpack"] }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
   /* 🔴 LE SEUL CRAN QUI DÉCLARE UNE LECTURE — Eric, 10/09 : un seul chapitre
      déduit. Un second `lit` ici serait un chapitre qui meurt de ce qu'il ne
      déduit pas (garde : tests/naitre-derivable.test.mjs, B1). */
@@ -279,4 +282,30 @@ export function cransAlignes(drapeaux) {
 export function etapeParId(id, drapeaux) {
   const cran = ceinture(drapeaux).find((step) => step.id === id);
   return cran ? { numero: cran.numero, mot: cran.mot } : null;
+}
+
+/** 🧾 LOT 379 — L'ÉTAPE QUI POSE UN CHOIX, LUE SUR SON CHEMIN — `{ id, numero, mot }`, ou `null`.
+ *
+ *  📏 LA MESURE QUI LA FAIT NAÎTRE : l'exemple SRD du dépôt, ouvert par `Open a file…`, porte trois
+ *  choix que la pile montée ne résout plus (`gear[8]`, `feat.extra`, `feat.magicInitiate.cantrip`).
+ *  `validate` les nomme avec leur CHEMIN (`choice.ref-missing`), et Sheet disait seulement *« something
+ *  in this character does not follow the rules »* — sans dire où aller. Le chemin du refus mène
+ *  maintenant à son étape (`socle-perso-sauve-s-ouvre-toujours` : « ce qui ne se résout plus se nomme
+ *  sur son étape »).
+ *
+ *  ⭐ LA RÉPONSE EST UNE DÉCLARATION, PAS UNE TABLE ICI : chaque cran pose les choix dont la racine est
+ *  son id (`species`, `class.skills[0]`), et DÉCLARE les autres (`ecrit`). ⛔ Pas un `if` sur un nom de
+ *  chemin : un chapitre qui écrira demain une racine neuve la déclare sur sa ligne de `STEPS`.
+ *  ⛔ UN CHEMIN QU'AUCUN CRAN MONTÉ NE POSE rend `null` (un vieux chemin comme `feat.extra`, ou le
+ *  chemin d'un cran que la pile ne monte pas) : c'est à l'appelant de le DIRE, jamais d'inventer une
+ *  étape.
+ *  @param {string} chemin le chemin d'un choix (`gear[8]`, `background.originFeat[0]`)
+ *  @param {string[]} drapeaux les drapeaux levés par la pile montée
+ *  @returns {{id:string, numero:number, mot:string}|null} */
+export function etapeDuChemin(chemin, drapeaux) {
+  const c = String(chemin === null || chemin === undefined ? "" : chemin);
+  const sous = (racine) => c === racine || c.startsWith(`${racine}.`) || c.startsWith(`${racine}[`);
+  const pas = STEPS.find((step) => (Array.isArray(step.ecrit) ? [step.id, ...step.ecrit] : [step.id]).some(sous));
+  const cran = pas ? etapeParId(pas.id, drapeaux) : null;
+  return cran ? { id: pas.id, ...cran } : null;
 }

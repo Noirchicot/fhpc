@@ -59,8 +59,16 @@ test("le document reconstruit valide le schéma fh-char/1", () => {
      tests/naitre-derivable.test.mjs, E3) : il reste inclus dans les clefs
      écrites, il ne les définit plus. */
   const resolvedDef = readJson("schemas/fh-char.schema.json").$defs.resolved;
-  assert.deepEqual(Object.keys(out.resolved).sort(), Object.keys(resolvedDef.properties).sort(),
+  /* 🧾 LOT 379 — UNE RUBRIQUE NE S'ÉCRIT PAS : `initiative`. La pile française porte le glossaire
+     `initiative`, mais aucune couche n'y déclare la formule (`srfh-mecaniques`, qui la déclare, n'est
+     pas montée ici) : la rubrique est ABSENTE et DÉCLARÉE, jamais devinée. La liste des absentes est
+     exacte ; `tests/fiche-vraie.test.mjs` prouve l'autre versant (pile anglaise, rubrique écrite). */
+  const absentes = ["initiative"];
+  assert.deepEqual(Object.keys(out.resolved).sort(),
+    Object.keys(resolvedDef.properties).filter((clef) => !absentes.includes(clef)).sort(),
     "un personnage qui dérive tout écrit chaque rubrique du contrat, ni plus ni moins");
+  assert.deepEqual(out.underived.filter((entry) => absentes.includes(entry.field)).map((entry) => entry.key),
+    ["underived.sheet-score-undeclared"], "et l'absente est déclarée, avec sa raison");
   for (const clef of resolvedDef.required) assert.ok(clef in out.resolved, `la rubrique exigée « ${clef} » est écrite`);
 });
 

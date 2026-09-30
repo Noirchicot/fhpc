@@ -33,7 +33,7 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=933";
+import { currentStack } from "./universe-step.mjs?v=934";
 /* ⭐ LOT 188 — UN SOUS-ENSEMBLE DE COUCHES EST LÉGITIME, PAS INCONNU. Depuis
    l'écran `Layers`, un joueur coupe Trainings, ou Destiny, une par une ;
    `currentStack` ne sait nommer que les deux piles entières et rend `null` sur
@@ -41,18 +41,18 @@ import { currentStack } from "./universe-step.mjs?v=933";
    Fate's Hand pour défaire ce qu'il vient de choisir. `compositionFh` lit le
    document interrupteur par interrupteur : seule une composition qu'AUCUN
    interrupteur ne peut produire reste innommable. */
-import { compositionFh } from "./layers-ecran.mjs?v=933";
+import { compositionFh } from "./layers-ecran.mjs?v=934";
 /* LOT 191 — le nom d'un record absent : l'id humanisé, jamais l'id ; et
    l'interrupteur qui le porte, pour que la phrase nomme la bonne ligne. */
-import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=933";
-import { interrupteurDUnId } from "./interrupteurs.mjs?v=933";
+import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=934";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=934";
 /* 🌱 LOT 198 — les six clefs se LISENT au moteur (la même liste que `derive`
    exige), jamais recopiées ici ; et le numéro du cran où aller se lit sur la
    ceinture, jamais écrit en dur (la loi d'`etapeParId`). */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=933";
-import { etapeParId } from "./etapes.mjs?v=933";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=934";
+import { etapeParId, etapeDuChemin } from "./etapes.mjs?v=934";
 /* ⚖️ LOT 367 — les refs morts, lus par l'organe du lot 359 (`parcours.mjs` n'importe rien). */
-import { refsMortsDeLEtape } from "./parcours.mjs?v=933";
+import { refsMortsDeLEtape } from "./parcours.mjs?v=934";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -326,14 +326,65 @@ export function causeDeLaClasseDisparue(violations) {
   return mot === null ? null : `${mot} On Class, Cancel lets you pick another class.`;
 }
 
+/** 🧾 LOT 379 — LES CHOIX QUE LA PILE NE RÉSOUT PLUS, NOMMÉS AVEC LEUR ÉTAPE.
+ *
+ *  📏 MESURÉ AU NAVIGATEUR (v931, l'exemple SRD du dépôt ouvert par `Open a file…`) : trois refs vers
+ *  une couche absente de l'appareil (`gear[8]`, `feat.extra`, `feat.magicInitiate.cantrip`). `derive`
+ *  jette sur le premier — le contrat le veut, « ref mort → jette » (contracts/build.md), ARCHI 35,
+ *  30/09 : *« le contrat ne bouge pas »*. `validate` les nommait tous les trois, avec leur chemin, et
+ *  Sheet disait seulement *« something in this character does not follow the rules »* : ni quoi, ni où.
+ *  ⭐ LE CHEMIN DU REFUS MÈNE À SON ÉTAPE (`etapeDuChemin`, lu sur la ceinture montée) : *« Lanterne
+ *  pliante on Equipment »*. Un chemin qu'aucune étape ne pose plus (un vieux chemin, `feat.extra`) le
+ *  DIT, au lieu d'envoyer le joueur sur une étape qui ne le montre pas.
+ *  ⛔ Le nom, jamais l'id (`motHumainDeLId`, lot 191) ; ⛔ rien n'est réparé ni effacé.
+ *  ✍️ BROUILLON pour Eric (ARCHI 35 : *« c'est un brouillon pour Eric »*) — aucun mot de NORMES ne
+ *  le disait déjà (cherché : « no step asks », « asks this choice »). Les sorties reprennent les deux
+ *  portes du mot ratifié au lot 367 (`Save character`, `New character`).
+ *  @param {Array} [violations] les refus qui tiennent sans fiche (lot 359)
+ *  @param {string[]} [drapeaux] les drapeaux de la pile montée (le mot et la présence d'une étape en dépendent)
+ *  @returns {string|null} */
+export function causeDesChoixMorts(violations, drapeaux = []) {
+  const morts = (Array.isArray(violations) ? violations : [])
+    .filter((v) => v && v.key === "choice.ref-missing" && typeof v.path === "string");
+  const groupes = [];
+  for (const v of morts) {
+    const nom = motHumainDeLId(v.params && v.params.id);
+    if (!nom) continue;
+    const cran = etapeDuChemin(v.path, drapeaux);
+    const clef = cran ? cran.mot : null;
+    let groupe = groupes.find((g) => g.clef === clef);
+    if (!groupe) { groupe = { clef, noms: [] }; groupes.push(groupe); }
+    if (!groupe.noms.includes(nom)) groupe.noms.push(nom);
+  }
+  if (groupes.length === 0) return null;
+  const liste = (noms) => (noms.length === 1 ? noms[0] : `${noms.slice(0, -1).join(", ")} and ${noms[noms.length - 1]}`);
+  /* les étapes d'abord, dans l'ordre des refus ; ce qu'aucune étape ne pose, en dernier */
+  const ordonnes = [...groupes.filter((g) => g.clef), ...groupes.filter((g) => !g.clef)];
+  const clauses = ordonnes.map(({ clef, noms }) => (clef
+    ? `${liste(noms)} on ${clef}`
+    : `${liste(noms)}, which no step asks any more`));
+  const total = groupes.reduce((n, g) => n + g.noms.length, 0);
+  /* le pronom compte ce qui SE CHANGE sur une étape, jamais le total (« Change them » couvrait aussi
+     les choix qu'aucune étape ne pose — vu à la sonde, corrigé) */
+  const avecEtape = groupes.filter((g) => g.clef);
+  const aChanger = avecEtape.reduce((n, g) => n + g.noms.length, 0);
+  const sortie = avecEtape.length > 0
+    ? `Change ${aChanger > 1 ? "them" : "it"} on ${avecEtape.length > 1 ? "their steps" : "that step"}`
+    : `No step can change ${total > 1 ? "them" : "it"}`;
+  return `${total > 1 ? "some of its choices are" : "one of its choices is"} ${MOT_HORS_PILE}: ${clauses.join("; ")}. `
+    + `${sortie}; Save character keeps it safe, New character starts over.`;
+}
+
 /** ⚖️ LOT 367 — POURQUOI LA FICHE N'EXISTE PAS : UN SEUL ÉCRIVAIN, POUR L'ÉCRAN MORT ET POUR
  *  LE CHAPITRE QUI VIT SANS FICHE (Skills). Dans l'ordre : ce que le document ne porte pas
  *  (`motDuManque`, lot 198), puis ce que la pile ne porte plus (la classe), puis le mot de ce
  *  qui ne suit pas les règles. ⛔ Jamais `null` : chaque chemin a sa cause et sa sortie.
  *  @param {object} doc          le document vivant
  *  @param {Array}  [violations] `state.violations` (les refus qui tiennent sans fiche, lot 359) */
-export function causeDeLaFicheAbsente(doc, violations) {
-  return motDuManque(doc) ?? causeDeLaClasseDisparue(violations) ?? CAUSE_HORS_DES_REGLES;
+export function causeDeLaFicheAbsente(doc, violations, drapeaux = []) {
+  /* 🧾 LOT 379 — entre la classe disparue et le mot général : les choix morts, avec leur étape. */
+  return motDuManque(doc) ?? causeDeLaClasseDisparue(violations) ?? causeDesChoixMorts(violations, drapeaux)
+    ?? CAUSE_HORS_DES_REGLES;
 }
 
 /** LA PHRASE DE L'ÉCRAN MORT, pour un document donné.
@@ -364,7 +415,7 @@ export function causeDeLaFicheAbsente(doc, violations) {
  *  @param {object} doc le document `fh-char/1` vivant
  *  @returns {string} la phrase à poser dans l'écran
  */
-export function motDeLEcranMort(doc, violations) {
+export function motDeLEcranMort(doc, violations, drapeaux = []) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
   /* ⭐ LOT 188 — `currentStack` accuse tout ce qui n'est pas l'une des deux
      piles entières ; `compositionFh` ne retient l'accusation que si aucun
@@ -374,5 +425,5 @@ export function motDeLEcranMort(doc, violations) {
   if (layers.length > 0 && currentStack(doc) === null && !compositionFh(doc).legitime) return MOT_PILE_INCONNUE;
   /* 🌱 LOT 198 — la tête, puis LE MÊME manque que celui qu'un chapitre vivant
      nomme (`motDuManque`) : un seul écrivain de la cause et de la sortie. */
-  return TETE + causeDeLaFicheAbsente(doc, violations);
+  return TETE + causeDeLaFicheAbsente(doc, violations, drapeaux);
 }

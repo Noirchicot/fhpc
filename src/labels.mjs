@@ -236,9 +236,17 @@ export const FR_UNDERIVED = {
     `le document ne dit pas son unité de distance (\`units.distance\` = ${d.distanceUnit}).`,
   "underived.species-no-senses": () =>
     "le record d'espèce ne porte pas de `senses` — trois espèces sur neuf n'en ont aucun, et c'est un fait, pas un trou.",
-  "underived.passive-perception-unnamed": () =>
-    "la perception passive se calcule (10 + le bonus de la compétence correspondante) mais son NOM ne vit dans " +
-    "aucun record — ce n'est pas un sens d'espèce, c'est une ligne de fiche, et l'interface la nomme.",
+  /* 🧾 LOT 379 — un score de fiche (Initiative, Perception passive) se calcule depuis la formule que la pile
+     déclare sur son glossaire (`data.sheet_score`, couche srfh-mecaniques). Quand la pile ne porte pas le
+     glossaire, rien ne se déclare : c'est un « rien », pas un trou (Fate's Hand n'a pas de Perception passive). */
+  "underived.sheet-score-undeclared": (d) =>
+    `le glossaire \`${d.record}\` est dans la pile, mais aucune couche n'y déclare la formule du score (\`sheet_score\`).`,
+  "underived.sheet-score-ability-missing": (d) =>
+    `la formule du score lit la caractéristique \`${d.ability}\`, qui n'est pas encore dérivée.`,
+  "underived.proficiency-not-derived-initiative": () =>
+    "un don ajoute le bonus de maîtrise à l'Initiative, mais le bonus de maîtrise n'est pas encore dérivé.",
+  "underived.passive-perception-skill-missing": (d) =>
+    `la Perception passive vaut 10 + le bonus de la compétence \`${d.skill}\`, qui n'est pas encore dérivé.`,
   /* 🔴 REMPLACE `underived.no-language-genre`, RETIRÉ LE 2026-08-20. L'ancien
      disait « aucun genre `language` parmi les 14 » — vrai en son temps, faux
      depuis le lot 36 : les langues sont des trainings (genre 16). Le motif a
@@ -413,9 +421,14 @@ export const EN_UNDERIVED = {
     `the document does not say its distance unit (\`units.distance\` = ${d.distanceUnit}).`,
   "underived.species-no-senses": () =>
     "the species record carries no `senses` — three of nine species have none, and that is a fact, not a gap.",
-  "underived.passive-perception-unnamed": () =>
-    "passive perception is computable (10 + the matching skill's bonus) but no record carries a NAME for it — " +
-    "it is not a species sense, it is a sheet line, and the interface names it.",
+  "underived.sheet-score-undeclared": (d) =>
+    `the glossary \`${d.record}\` is in the stack, but no layer declares the score's formula (\`sheet_score\`).`,
+  "underived.sheet-score-ability-missing": (d) =>
+    `the score's formula reads the \`${d.ability}\` ability, which is not derived yet.`,
+  "underived.proficiency-not-derived-initiative": () =>
+    "a feat adds the Proficiency Bonus to Initiative, but the Proficiency Bonus is not derived yet.",
+  "underived.passive-perception-skill-missing": (d) =>
+    `Passive Perception equals 10 plus the \`${d.skill}\` skill bonus, which is not derived yet.`,
   "underived.no-language-chosen": () =>
     "no language is chosen: your Inheritance grants two at creation, and nothing has been set on " +
     "`background.languages[n]` yet.",
