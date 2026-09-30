@@ -237,17 +237,19 @@ test("7 — chaque extrait déclaré par le lot est recopié du record qu'il cit
       for (const u of Array.isArray(valeur) ? valeur : [valeur]) {
         const f = classe.find((x) => x.name === u.feature);
         assert.ok(f, `${id} : l'aptitude « ${u.feature} » existe`);
-        assert.ok(f.description.includes(u.extrait), `${id} ${cle} : ${u.extrait}`);
-        if (u.action && !u.action.spell) assert.ok(f.description.includes(u.action.extrait), `${id} : ${u.action.extrait}`);
-        if (u.action && u.action.spell) {
-          assert.ok(f.description.includes(u.action.extrait), `${id} : ${u.action.extrait}`);
-          assert.equal(srd.spell[u.action.spell].data.casting_time, u.action.economy_extrait);
-        }
+        /* 🗡️ LOT 384 — toutes les formes d'extrait d'un usage : le compte, l'action, `awaits` (Q3),
+           et ceux de Martial Arts (`extraits`, `requires.extraits`) */
+        const extraits = [u.extrait, u.action && u.action.extrait, u.awaits && u.awaits.extrait,
+          ...Object.values(u.extraits || {}), ...((u.requires && u.requires.extraits) || [])].filter((x) => typeof x === "string");
+        assert.ok(extraits.length > 0, `${id} ${cle} : au moins un extrait`);
+        for (const e of extraits) assert.ok(f.description.includes(e), `${id} ${cle} : ${e}`);
+        if (u.action && u.action.spell) assert.equal(srd.spell[u.action.spell].data.casting_time, u.action.economy_extrait);
         verifies.push(`${id} ${u.feature}`);
       }
     }
   }
-  assert.equal(verifies.length, 11, `témoin : ${verifies.join(" · ")}`);
+  /* 🗡️ LOT 384 — 11 → 16 : Bardic Inspiration, Innate Sorcery, Lay On Hands, Arcane Recovery, Martial Arts */
+  assert.equal(verifies.length, 16, `témoin : ${verifies.join(" · ")}`);
 });
 
 /* ══ 8 — `current` = `max` ══════════════════════════════════════════════════════════════════════ */

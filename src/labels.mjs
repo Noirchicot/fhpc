@@ -310,6 +310,19 @@ export const FR_UNDERIVED = {
     `le sort \`${d.spell}\` qu'un compteur fait lancer n'est pas dans la pile.`,
   "underived.pact-magic-columns-missing": (d) =>
     `la table de \`${d.classId}\` déclare sa magie de pacte, mais ses colonnes d'emplacements ne donnent pas de nombre à ce niveau.`,
+  /* 🗡️ LOT 384 — les usages mis en données (espèces, lignées, dons, aptitudes sans colonne) */
+  "underived.awaits-economy-q3": (d) =>
+    `${d.name} se joue hors des trois cases d'économie (action, action bonus, réaction) : elle attend la question ${d.question}, reportée au dessin du Companion V2.`,
+  "underived.proficiency-not-derived-uses": (d) =>
+    `le nombre d'usages de ${d.name} suit le bonus de maîtrise, qui n'est pas encore dérivé.`,
+  "underived.usage-count-unreadable": (d) =>
+    `la déclaration de ${d.name} ne donne pas un nombre d'usages lisible.`,
+  "underived.usage-name-missing": (d) =>
+    `le glossaire \`${d.record}\` qui nomme cette ressource n'est pas dans la pile.`,
+  "underived.martial-arts-undeclared": (d) =>
+    `${d.name} ne trouve pas de quoi composer son attaque à mains nues (le glossaire, le dé de la table ou les caractéristiques déclarés).`,
+  "underived.martial-arts-condition-unmet": (d) =>
+    `${d.name} ne vaut que sans armure ni bouclier, et avec des armes de moine seulement : ce personnage porte autre chose, l'attaque à mains nues garde sa forme de base.`,
   "underived.actions-in-prose": () =>
     "les actions qui n'existent qu'en prose — traits d'espèce, dons, aptitudes sans colonne de table, usages de l'équipement — ne sont pas encore lues.",
   "underived.class-missing-spellcasting-key": () =>
@@ -506,6 +519,18 @@ export const EN_UNDERIVED = {
     `the spell \`${d.spell}\` a counter casts is not in the stack.`,
   "underived.pact-magic-columns-missing": (d) =>
     `the table of \`${d.classId}\` declares its Pact Magic, but its slot columns give no number at this level.`,
+  "underived.awaits-economy-q3": (d) =>
+    `${d.name} is played outside the three economy boxes (action, Bonus Action, Reaction): it awaits question ${d.question}, deferred to the Companion V2 design.`,
+  "underived.proficiency-not-derived-uses": (d) =>
+    `the number of uses of ${d.name} follows the Proficiency Bonus, which is not derived yet.`,
+  "underived.usage-count-unreadable": (d) =>
+    `the declaration of ${d.name} does not give a readable number of uses.`,
+  "underived.usage-name-missing": (d) =>
+    `the glossary \`${d.record}\` that names this resource is not in the stack.`,
+  "underived.martial-arts-undeclared": (d) =>
+    `${d.name} finds nothing to build its Unarmed Strike from (the glossary, the table die or the declared abilities).`,
+  "underived.martial-arts-condition-unmet": (d) =>
+    `${d.name} only applies without armor or a Shield and with Monk weapons only: this character carries something else, and the Unarmed Strike keeps its basic form.`,
   "underived.actions-in-prose": () =>
     "actions that exist only in prose — species traits, feats, features without a table column, equipment uses — are not read yet.",
   "underived.class-missing-spellcasting-key": () =>

@@ -1811,44 +1811,183 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       resources.push({ id: des.record.slug, name: des.record.name, max, current: max, recharge: decl.recharge, die: `d${face}` });
     }
   }
-  /* les compteurs des tables : la COLONNE déclarée (`resource_uses`), jamais une liste de noms */
-  const usages = progression && progression.record.data && Array.isArray(progression.record.data.resource_uses)
-    ? progression.record.data.resource_uses : [];
-  const colonnes = progression && Array.isArray(progression.record.data.resource_columns) ? progression.record.data.resource_columns : [];
-  const aptitudes = Array.isArray(classData.features) ? classData.features : [];
-  for (const u of usages) {
-    const colonne = colonnes.find((c) => c && c.key === u.column);
-    const max = levelRow && levelRow.resources ? levelRow.resources[u.column] : undefined;
-    const aptitude = aptitudes.find((f) => f && f.name === u.feature && Number.isInteger(f.level) && f.level <= level);
-    if (!aptitude) continue;                            // l'aptitude n'est pas encore acquise à ce niveau
-    if (!colonne || typeof colonne.label !== "string" || !Number.isInteger(max) || max < 0) {
-      underived.declare(`resources[${u.column}]`, "underived.resource-column-missing", { classId: classView.id, column: u.column });
-      continue;
+  /* ══ 🗡️ LOT 384 — UN USAGE, D'OÙ QU'IL VIENNE ═════════════════════════════════════════════════
+     Mandat d'ARCHI 35 (30/09), deuxième marche : la prose SRD à économie standard, mise en données.
+     UNE forme de déclaration, lue à quatre endroits — la progression de classe (`resource_uses`), l'espèce
+     (`trait_uses`), l'option de lignée (`lineage_effects[<id>].uses`), le don (`sheet_uses`, `spell_uses`) :
+     · le COMPTE — une colonne de table (lot 383), ou une formule (`max`) : `fixed` (« twice »),
+       `proficiency` (« a number of times equal to your Proficiency Bonus »), `ability` + `minimum`
+       (« equal to your Charisma modifier (minimum of once) »), `per_class_level` (« five times your
+       Paladin level ») ;
+     · la RECHARGE, le DÉ (`die_column`), l'ACTION qu'il nourrit — chacun avec son extrait ;
+     · ou `awaits` : l'économie hors des trois cases (Q3, reportée au dessin du Companion V2) — la
+       source se DÉCLARE avec cette raison, sans chiffre (ARCHI 35 : « sans chiffre inventé »).
+     ⛔ Jamais un nom de classe, d'espèce, de lignée ou de don testé : la déclaration seule. */
+  const ECONOMIES_DE_FICHE = ["action", "bonus", "reaction"];
+  const maxDeLaFormule = (f) => {
+    if (!f || typeof f !== "object") return undefined;
+    if (Number.isInteger(f.fixed)) return f.fixed;
+    if (Number.isInteger(f.proficiency)) return proficiency === null ? null : f.proficiency * proficiency;
+    if (ABILITY_KEYS.includes(f.ability)) {
+      const mod = abilities[f.ability].mod;
+      return Number.isInteger(f.minimum) ? Math.max(mod, f.minimum) : mod;
     }
-    const ressource = { id: u.column, name: colonne.label, max, current: max, recharge: u.recharge };
-    /* Q4 → a) : la recharge partielle, une donnée que le repos lira (« You regain one expended use
-       when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest ») */
-    if (Number.isInteger(u.short_regain) && u.short_regain > 0) ressource.shortRegain = u.short_regain;
-    resources.push(ressource);
+    if (Number.isInteger(f.per_class_level)) return f.per_class_level * level;
+    return undefined;
+  };
+  const DES_DE_DEGATS = /^([0-9]{1,3}d[0-9]{1,3}([+-][0-9]{1,3})?|[0-9]{1,3})$/;
+  /** Pose la ressource (si un compte est déclaré) et l'action (si une économie standard l'est).
+   *  `max` : `undefined` = pas de compte, `null` = le bonus de maîtrise manque. */
+  const poserUsage = ({ id, name, nomAction, max, u, die }) => {
+    if (u.awaits) {
+      underived.declare(`actions[${id}]`, "underived.awaits-economy-q3",
+        { name: nomAction || name, question: typeof u.awaits.question === "string" ? u.awaits.question : "Q3" });
+      return;
+    }
+    let resourceId = null;
+    if (max !== undefined) {
+      if (max === null) { underived.declare(`resources[${id}]`, "underived.proficiency-not-derived-uses", { name }); return; }
+      if (!Number.isInteger(max) || max < 0) { underived.declare(`resources[${id}]`, "underived.usage-count-unreadable", { name }); return; }
+      const ressource = { id, name, max, current: max, recharge: u.recharge };
+      /* Q4 → a) : la recharge partielle (« You regain one expended use when you finish a Short Rest… ») */
+      if (Number.isInteger(u.short_regain) && u.short_regain > 0) ressource.shortRegain = u.short_regain;
+      if (typeof die === "string") ressource.die = die;
+      resources.push(ressource);
+      resourceId = id;
+    }
     const a = u.action;
-    if (!a || !["action", "bonus", "reaction"].includes(a.economy)) continue;
+    if (!a || !ECONOMIES_DE_FICHE.includes(a.economy)) return;
     const sort = typeof a.spell === "string" ? reader.maybe("spell", a.spell) : null;
     if (typeof a.spell === "string" && !sort) {
-      underived.declare(`actions[${u.column}]`, "underived.resource-action-spell-missing", { spell: a.spell });
-      continue;
+      underived.declare(`actions[${id}]`, "underived.resource-action-spell-missing", { spell: a.spell });
+      return;
     }
-    const action = { id: sort ? sort.record.slug : u.column, name: sort ? sort.record.name : aptitude.name,
-      economy: a.economy, category: a.category, resourceId: u.column };
+    const action = { id: sort ? sort.record.slug : id, name: sort ? sort.record.name : (nomAction || name),
+      economy: a.economy, category: a.category };
+    if (resourceId) action.resourceId = resourceId;
     /* Q5 → a) : le soin — « regain Hit Points equal to 1d10 plus your Fighter level » */
     if (a.category === "healing" && a.healing && typeof a.healing.dice === "string") {
       action.healing = { dice: signeDes(a.healing.dice, a.healing.adds === "class_level" ? level : 0) };
     }
+    /* des dégâts déclarés, tels quels (Storm's Thunder : « deal 1d8 Thunder damage ») */
+    if (Array.isArray(a.damage) && a.damage.length > 0 && a.damage.every((d) => d && DES_DE_DEGATS.test(d.dice) && typeof d.type === "string")) {
+      action.damage = a.damage.map((d) => ({ dice: d.dice, type: d.type }));
+    }
     if (typeof a.extrait === "string") action.text = a.extrait;
     actions.push(action);
+  };
+
+  /* les usages de la CLASSE : une colonne de table (lot 383), ou une formule (lot 384) */
+  const usages = progression && progression.record.data && Array.isArray(progression.record.data.resource_uses)
+    ? progression.record.data.resource_uses : [];
+  const colonnes = progression && Array.isArray(progression.record.data.resource_columns) ? progression.record.data.resource_columns : [];
+  const aptitudes = Array.isArray(classData.features) ? classData.features : [];
+  const aptitudeAcquise = (nom) => aptitudes.find((f) => f && f.name === nom && Number.isInteger(f.level) && f.level <= level) || null;
+  const colonneDeTable = (cle) => (levelRow && levelRow.resources ? levelRow.resources[cle] : undefined);
+  for (const u of usages) {
+    const aptitude = aptitudeAcquise(u.feature);
+    if (!aptitude) continue;                            // l'aptitude n'est pas encore acquise à ce niveau
+    let id; let name; let max;
+    if (typeof u.column === "string") {
+      const colonne = colonnes.find((c) => c && c.key === u.column);
+      max = colonneDeTable(u.column);
+      if (!colonne || typeof colonne.label !== "string" || !Number.isInteger(max) || max < 0) {
+        underived.declare(`resources[${u.column}]`, "underived.resource-column-missing", { classId: classView.id, column: u.column });
+        continue;
+      }
+      id = u.column; name = colonne.label;
+    } else {
+      if (typeof u.id !== "string") continue;
+      id = u.id; name = aptitude.name;
+      max = u.max ? maxDeLaFormule(u.max) : undefined;
+      if (u.max && max === undefined) { underived.declare(`resources[${id}]`, "underived.usage-count-unreadable", { name }); continue; }
+    }
+    /* le dé d'une ressource, lu dans sa colonne (« Bardic Die » : « D6 ») */
+    const face = typeof u.die_column === "string" ? colonneDeTable(u.die_column) : undefined;
+    const die = typeof face === "string" && /^[dD][0-9]{1,3}$/.test(face) ? face.toLowerCase() : undefined;
+    poserUsage({ id, name, nomAction: aptitude.name, max, u, die });
   }
-  /* ⚠️ CE QUI RESTE EN PROSE se déclare avec sa vraie raison : les traits d'espèce, les dons, les
-     aptitudes sans colonne de table (Bardic Inspiration, Lay On Hands, Arcane Recovery…) et les
-     usages de l'équipement n'existent qu'en phrases — le moteur ne les lit pas. */
+
+  /* Martial Arts : l'Unarmed Strike qu'elle modifie (le dé de la colonne, For ou Dex) et celle
+     qu'elle ajoute en action bonus — SI sa condition, déclarée, tient : ni armure ni bouclier, et
+     rien d'autre que des armes de moine. ⛔ Sinon, pas un chiffre faux : une déclaration. */
+  const arts = progression && progression.record.data && progression.record.data.martial_arts;
+  const aptitudeArts = arts ? aptitudeAcquise(arts.feature) : null;
+  if (aptitudeArts) {
+    const cible = typeof arts.applies_to === "string" ? reader.maybe("glossary", arts.applies_to) : null;
+    const mainsNues = cible ? actions.find((a) => a.id === cible.record.slug) : null;
+    const exige = arts.requires || {};
+    const armeDeMoine = ({ view }) => (Array.isArray(exige.monk_weapons) ? exige.monk_weapons : []).some((m) => {
+      const d = view.record.data || {};
+      const proprietesDeLArme = Array.isArray(d.property_list) ? d.property_list.map((p) => p && p.key) : [];
+      return d.weapon_category === m.category && d.weapon_range === m.range && (!m.property || proprietesDeLArme.includes(m.property));
+    });
+    const tenue = !(exige.no_armor && armorPieces.length > 0) && armesEquipees.every(armeDeMoine);
+    const face = colonneDeTable(arts.die_column);
+    const candidates = Array.isArray(arts.abilities) ? arts.abilities.filter((k) => ABILITY_KEYS.includes(k)) : [];
+    if (!mainsNues || !Array.isArray(mainsNues.damage) || typeof face !== "string" || !/^[0-9]{1,3}d[0-9]{1,3}$/.test(face) || candidates.length === 0) {
+      underived.declare(`actions[${cible ? cible.record.slug : "unarmed-strike"}:bonus]`, "underived.martial-arts-undeclared", { name: aptitudeArts.name });
+    } else if (!tenue) {
+      underived.declare(`actions[${mainsNues.id}:bonus]`, "underived.martial-arts-condition-unmet", { name: aptitudeArts.name });
+    } else {
+      /* « You can use your Dexterity modifier instead of your Strength modifier » : la fiche montre
+         le meilleur des deux (For à égalité), comme Finesse (lot 383) ; « You can roll 1d6 in place of
+         the normal damage » : le dé, toujours au-dessus du 1 fixe. */
+      const ability = candidates.reduce((best, k) => (abilities[k].mod > abilities[best].mod ? k : best), candidates[0]);
+      const mod = abilities[ability].mod;
+      Object.assign(mainsNues, { ability, bonus: mod + proficiency, damage: [{ dice: signeDes(face, mod), type: mainsNues.damage[0].type }] });
+      actions.push({ ...mainsNues, id: `${mainsNues.id}:bonus`, economy: "bonus",
+        text: typeof arts.extraits === "object" && arts.extraits && typeof arts.extraits.bonus === "string" ? arts.extraits.bonus : mainsNues.text });
+    }
+  }
+
+  /* les usages de l'ESPÈCE : par TRAIT — un trait que la pile a retiré (Twice-Born retire
+     Resourceful à l'Humain FH, `"remove"` de la couche) ne pose rien */
+  const traitsDEspece = Array.isArray(speciesData.traits) ? speciesData.traits : [];
+  for (const u of Array.isArray(speciesData.trait_uses) ? speciesData.trait_uses : []) {
+    const trait = traitsDEspece.find((t) => t && t.id === u.trait);
+    if (!trait || typeof trait.id !== "string") continue;
+    const nomDuGlossaire = typeof u.name_from === "string" ? reader.maybe("glossary", u.name_from) : null;
+    if (typeof u.name_from === "string" && !nomDuGlossaire) {
+      underived.declare(`resources[${trait.id}]`, "underived.usage-name-missing", { record: u.name_from });
+      continue;
+    }
+    const max = u.max ? maxDeLaFormule(u.max) : undefined;
+    poserUsage({ id: trait.id, name: nomDuGlossaire ? nomDuGlossaire.record.name : trait.name, nomAction: trait.name, max, u });
+  }
+
+  /* les usages de la LIGNÉE choisie (Forest Gnome, les ascendances du Goliath) */
+  const usageDeLignee = optionLignee && effetsLignee && effetsLignee.uses && typeof effetsLignee.uses === "object" ? effetsLignee.uses : null;
+  if (usageDeLignee) {
+    const id = `${typeof speciesData.lineage_trait === "string" ? speciesData.lineage_trait : "lineage"}:${optionLignee.id}`;
+    const sortDeLignee = usageDeLignee.action && typeof usageDeLignee.action.spell === "string" ? reader.maybe("spell", usageDeLignee.action.spell) : null;
+    const max = usageDeLignee.max ? maxDeLaFormule(usageDeLignee.max) : undefined;
+    poserUsage({ id, name: sortDeLignee ? sortDeLignee.record.name : optionLignee.name, nomAction: optionLignee.name, max, u: usageDeLignee });
+  }
+
+  /* les usages des DONS d'origine : ce qu'ils déclarent (`sheet_uses`), et le sort qu'ils font lancer
+     une fois sans emplacement (`spell_uses` : Magic Initiate), relié au sort de `spellSources` */
+  const sortsParSlug = new Map(reader.all("spell").map((v) => [v.record.slug, v]));
+  for (const { racine, view } of donsDOrigine) {
+    const d = view.record.data || {};
+    for (const u of Array.isArray(d.sheet_uses) ? d.sheet_uses : []) {
+      if (typeof u.id !== "string") continue;
+      poserUsage({ id: `${racine}:${u.id}`, name: view.record.name, max: u.max ? maxDeLaFormule(u.max) : undefined, u });
+    }
+    const su = d.spell_uses;
+    if (!su || typeof su !== "object") continue;
+    const source = (Array.isArray(resolved.spellSources) ? resolved.spellSources : []).find((x) => x && x.id === `${racine}:${view.id}`);
+    for (const sp of (source && Array.isArray(source.spells) ? source.spells : []).filter((x) => x && x.level === su.level)) {
+      const vue = sortsParSlug.get(sp.id);
+      const temps = vue && vue.record.data ? vue.record.data.casting_time : undefined;
+      const economie = su.economy_from_casting_time && typeof temps === "string" ? su.economy_from_casting_time[temps] : undefined;
+      poserUsage({ id: `${racine}:${sp.id}`, name: sp.name, max: maxDeLaFormule(su.max),
+        u: { recharge: su.recharge, action: economie ? { economy: economie, category: "utility", extrait: su.extrait } : null } });
+    }
+  }
+  /* ⚠️ CE QUI RESTE EN PROSE se déclare avec sa vraie raison : ce qu'aucune déclaration ne couvre
+     encore (les aptitudes des niveaux suivants, Fate's Hand, les usages de l'équipement — Q8) n'existe
+     qu'en phrases, et le moteur ne lit pas les phrases. */
   resolved.actions = actions;
   underived.declare("actions (prose)", "underived.actions-in-prose", {});
   resolved.resources = resources;

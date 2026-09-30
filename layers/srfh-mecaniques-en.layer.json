@@ -82,6 +82,19 @@
               "cha"
             ],
             "extrait": "Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat’s spells (choose when you select this feat)"
+          },
+          "data[spell_uses]": {
+            "level": 1,
+            "max": {
+              "fixed": 1
+            },
+            "recharge": "long",
+            "extrait": "You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest.",
+            "economy_from_casting_time": {
+              "Action": "action",
+              "Bonus Action": "bonus",
+              "Reaction": "reaction"
+            }
           }
         },
         "note": "⚖️ ERIC, 2026-09-10 : *« Reproduis exactement dans backgrounds ce que tu trouves pour Magic Initiate dans FH, rien ne change. Fais-le ! »*\n\n🔴 CE QUE « RIEN NE CHANGE » VEUT DIRE, ET C'EST LITTÉRAL : le moteur et l'écran étaient DÉJÀ prêts. `src/build/decisions.mjs` lit `data.spell_list_choice` sur le record du don, sans aucun cas particulier — ⛔ aucun `if (id === \"magic-initiate\")` nulle part, la loi des lots 39/42. Ce qui manquait n'était pas du code : c'était la DÉCLARATION du côté SRD. La voici, et rien d'autre ne bouge.\n\n📏 CE QUI A ÉTÉ MESURÉ AVANT DE CHOISIR CETTE COUCHE, en trois temps :\n  ① `layers/srd-5.2.1-en.layer.json` est GÉNÉRÉE (`src/tools/gen-srd-layer.mjs`) depuis `~/tools/fh-srd/exports`, et l'export amont NE PORTE PAS ce champ. ⛔ L'y écrire à la main serait un no-op silencieux : la prochaine génération l'écraserait sans un mot.\n  ② `layers/srfh-shelving-en.layer.json` est GÉNÉRÉE elle aussi (`src/tools/gen-srfh-layer.mjs`), depuis `exports/srfh/en/shelving.json`, et son générateur REFUSE tout ce qui n'est pas le genre `shelving`. Elle ne peut donc pas accueillir un `feat` — et même si elle le pouvait, un enrichissement décidé ici dans un fichier copié d'une source serait une source INVENTÉE.\n  ③ ⇒ Une couche `srfh` NEUVE, écrite à la main, et c'est le rang que le lot 95 a défini pour exactement ce cas : *« ce qui est AMBIGU, ni SRD ni FH, et qui monte dans LES DEUX piles »*.\n\n⭐ ET C'EST BIEN DU `srfh`, PAS DU FH — le test d'Eric porte sur le NOM : *« si on change ça, est-ce que ça s'appelle encore le SRD ? »*. Les trois listes, les deux tours mineurs et le sort de niveau 1 SONT le texte du don (« Choose a class: Cleric, Druid, or Wizard […] Two Cantrips […] Level 1 Spell »). Rien n'est ajouté au SRD : on le réécrit dans la forme que la machine sait lire. Mais la FORME, elle, est une décision d'ici — le SRD ne connaît pas `spell_list_choice`. Ni le livre, ni Fate's Hand : `srfh`.\n\n📌 LES IDENTIFIANTS SONT DES RECORDS DE CLASSE, jamais des noms d'affichage — c'est la forme que `fh-feats-en` portait depuis le 20/08 et elle est reprise à l'octet : le croisement des sorts se fait sur `spell.classes` (des NOMS), et c'est le moteur qui traduit l'un dans l'autre, une fois, là où `classSpellPlans` le fait déjà. Les OPTIONS ne sont pas déclarées ici : elles se déduisent de la liste choisie (`spell.classes` × `spell.level`). Les mots `cantrips` et `prepared` sont ceux que la classe emploie déjà (`class.cantrips[n]`, `class.prepared[n]`) — un sort toujours préparé EST un sort préparé, et un troisième vocabulaire pour la même chose est la divergence garantie.\n\n⛔ UN SEUL ÉCRIVAIN. `fh-feats-en` posait ce champ jusqu'au lot 196 ; il ne le pose plus. Deux couches qui déclarent la même valeur sur le même record sont vertes tant que les deux disent la même chose, et divergent en silence le jour où l'une bouge — la couche du dessus gagnerait sans que personne ne l'ait décidé. `fh-feats-en` ne garde donc que `data.blurb`, qui est un champ FH (un texte d'écran), pendant que la MÉCANIQUE vit ici, une fois, sous le SRD comme sous Fate's Hand.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n♻️ LOT 364 — LA REPRISE, DÉCLARÉE. Le texte SRD : « Repeatable. You can take this feat more than once, but you must choose a different spell list each time. » La couche le déclare (`data[repeatable]`, `distinct: \"spell_list_choice\"` — la déclaration qui doit différer d'un exemplaire à l'autre) ; le carnet ne lit que la déclaration, et une garde confronte chaque déclaration au paragraphe « Repeatable. » de son texte.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; une option de lignée porte `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
@@ -138,6 +151,21 @@
             "add": "proficiency",
             "extrait": "Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll."
           }
+        }
+      },
+      "srd:feat:en:savage-attacker": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_uses]": [
+            {
+              "id": "savage-attacker",
+              "awaits": {
+                "question": "Q3",
+                "why": "on-hit",
+                "extrait": "Once per turn when you hit a target with a weapon, you can roll the weapon’s damage dice twice and use either roll against the target."
+              }
+            }
+          ]
         }
       }
     },
@@ -1368,7 +1396,21 @@
                   "id": "srd:spell:en:speak-with-animals",
                   "extrait": "You also always have the Speak with Animals spell prepared."
                 }
-              ]
+              ],
+              "uses": {
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "extrait": "You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.",
+                "action": {
+                  "spell": "srd:spell:en:speak-with-animals",
+                  "economy": "action",
+                  "economy_extrait": "Action or Ritual",
+                  "category": "utility",
+                  "extrait": "You also always have the Speak with Animals spell prepared."
+                }
+              }
             },
             "rock-gnome": {
               "cantrips": [
@@ -1467,7 +1509,17 @@
               "damage-resistance"
             ],
             "extrait": "Your choice affects your Breath Weapon and Damage Resistance traits"
-          }
+          },
+          "data[trait_uses]": [
+            {
+              "trait": "breath-weapon",
+              "awaits": {
+                "question": "Q3",
+                "why": "replaces-an-attack",
+                "extrait": "When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy"
+              }
+            }
+          ]
         },
         "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Dragonborn demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 10 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
@@ -1526,7 +1578,93 @@
               "chemin": "species.lineage"
             }
           },
-          "data[lineage_trait]": "giant-ancestry"
+          "data[lineage_trait]": "giant-ancestry",
+          "data[lineage_effects]": {
+            "cloud": {
+              "uses": {
+                "extrait": "As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see.",
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "count_trait": "giant-ancestry",
+                "count_extrait": "a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest",
+                "action": {
+                  "economy": "bonus",
+                  "category": "utility",
+                  "extrait": "As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see."
+                }
+              }
+            },
+            "stone": {
+              "uses": {
+                "extrait": "When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total.",
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "count_trait": "giant-ancestry",
+                "count_extrait": "a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest",
+                "action": {
+                  "economy": "reaction",
+                  "category": "utility",
+                  "extrait": "When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total."
+                }
+              }
+            },
+            "storm": {
+              "uses": {
+                "extrait": "When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature.",
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "count_trait": "giant-ancestry",
+                "count_extrait": "a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest",
+                "action": {
+                  "economy": "reaction",
+                  "category": "damage",
+                  "damage": [
+                    {
+                      "dice": "1d8",
+                      "type": "thunder"
+                    }
+                  ],
+                  "extrait": "When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature."
+                }
+              }
+            },
+            "fire": {
+              "uses": {
+                "extrait": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target.",
+                "awaits": {
+                  "question": "Q3",
+                  "why": "on-hit",
+                  "extrait": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target."
+                }
+              }
+            },
+            "frost": {
+              "uses": {
+                "extrait": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target",
+                "awaits": {
+                  "question": "Q3",
+                  "why": "on-hit",
+                  "extrait": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target"
+                }
+              }
+            },
+            "hill": {
+              "uses": {
+                "extrait": "When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition.",
+                "awaits": {
+                  "question": "Q3",
+                  "why": "on-hit",
+                  "extrait": "When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition."
+                }
+              }
+            }
+          }
         },
         "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Goliath demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 6 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
@@ -1634,7 +1772,18 @@
                 "extrait": "Small (about 2–4 feet tall)"
               }
             ]
-          }
+          },
+          "data[trait_uses]": [
+            {
+              "trait": "resourceful",
+              "name_from": "srd:glossary:en:heroic-inspiration",
+              "max": {
+                "fixed": 1
+              },
+              "recharge": "long",
+              "extrait": "You gain Heroic Inspiration whenever you finish a Long Rest."
+            }
+          ]
         },
         "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 364 (ARCHI 35, 29/09) — VERSATILE A SA PORTE. « You gain an Origin feat of your choice » : l'espèce déclare `data[feat_choice]`, la forme même de l'Inheritance (`{from: \"origin\"}`), plus le TRAIT qu'elle réalise (`trait: \"versatile\"`) — le trait quitte « Granted automatically » pour la porte, et la fiche nomme le don sous son nom. Le carnet publie `species.originFeat[0]` ; un don déjà retenu par l'arrière-plan et qui ne se reprend pas n'y est pas offert.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
@@ -1726,6 +1875,54 @@
           }
         },
         "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
+      },
+      "srd:species:en:dwarf": {
+        "op": "patch",
+        "changes": {
+          "data[trait_uses]": [
+            {
+              "trait": "stonecunning",
+              "max": {
+                "proficiency": 1
+              },
+              "recharge": "long",
+              "extrait": "You can use this Bonus Action a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.",
+              "action": {
+                "economy": "bonus",
+                "category": "utility",
+                "extrait": "As a Bonus Action, you gain Tremorsense with a range of 60 feet for 10 minutes."
+              }
+            }
+          ]
+        }
+      },
+      "srd:species:en:orc": {
+        "op": "patch",
+        "changes": {
+          "data[trait_uses]": [
+            {
+              "trait": "adrenaline-rush",
+              "max": {
+                "proficiency": 1
+              },
+              "recharge": "short",
+              "extrait": "You can use this trait a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Short or Long Rest.",
+              "action": {
+                "economy": "bonus",
+                "category": "utility",
+                "extrait": "You can take the Dash action as a Bonus Action. When you do so, you gain a number of Temporary Hit Points equal to your Proficiency Bonus."
+              }
+            },
+            {
+              "trait": "relentless-endurance",
+              "awaits": {
+                "question": "Q3",
+                "why": "triggered",
+                "extrait": "When you are reduced to 0 Hit Points but not killed outright, you can drop to 1 Hit Point instead."
+              }
+            }
+          ]
+        }
       }
     },
     "background": {
@@ -2006,6 +2203,124 @@
             "level_column": "slot_level",
             "recharge": "short",
             "extrait": "You regain all expended Pact Magic spell slots when you finish a Short or Long Rest."
+          }
+        }
+      },
+      "srd:class-progression:en:bard": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "id": "bardic-inspiration",
+              "feature": "Bardic Inspiration",
+              "max": {
+                "ability": "cha",
+                "minimum": 1
+              },
+              "recharge": "long",
+              "die_column": "bardic_die",
+              "extrait": "You can confer a Bardic Inspiration die a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.",
+              "action": {
+                "economy": "bonus",
+                "category": "utility",
+                "extrait": "As a Bonus Action, you can inspire another creature within 60 feet of yourself who can see or hear you."
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:sorcerer": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "id": "innate-sorcery",
+              "feature": "Innate Sorcery",
+              "max": {
+                "fixed": 2
+              },
+              "recharge": "long",
+              "extrait": "You can use this feature twice, and you regain all expended uses of it when you finish a Long Rest.",
+              "action": {
+                "economy": "bonus",
+                "category": "utility",
+                "extrait": "As a Bonus Action, you can unleash that magic for 1 minute"
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:paladin": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "id": "lay-on-hands",
+              "feature": "Lay On Hands",
+              "max": {
+                "per_class_level": 5
+              },
+              "recharge": "long",
+              "extrait": "You have a pool of healing power that replenishes when you finish a Long Rest. With that pool, you can restore a total number of Hit Points equal to five times your Paladin level.",
+              "action": {
+                "economy": "bonus",
+                "category": "healing",
+                "extrait": "As a Bonus Action, you can touch a creature (which could be yourself) and draw power from the pool of healing to restore a number of Hit Points to that creature, up to the maximum amount remaining in the pool."
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:wizard": {
+        "op": "patch",
+        "changes": {
+          "data[resource_uses]": [
+            {
+              "id": "arcane-recovery",
+              "feature": "Arcane Recovery",
+              "awaits": {
+                "question": "Q3",
+                "why": "end-of-rest",
+                "extrait": "When you finish a Short Rest, you can choose expended spell slots to recover."
+              }
+            }
+          ]
+        }
+      },
+      "srd:class-progression:en:monk": {
+        "op": "patch",
+        "changes": {
+          "data[martial_arts]": {
+            "feature": "Martial Arts",
+            "abilities": [
+              "str",
+              "dex"
+            ],
+            "die_column": "martial_arts",
+            "extraits": {
+              "bonus": "You can make an Unarmed Strike as a Bonus Action.",
+              "die": "You can roll 1d6 in place of the normal damage of your Unarmed Strike or Monk weapons.",
+              "dex": "You can use your Dexterity modifier instead of your Strength modifier for the attack and damage rolls of your Unarmed Strikes and Monk weapons."
+            },
+            "applies_to": "srd:glossary:en:unarmed-strike",
+            "requires": {
+              "no_armor": true,
+              "monk_weapons": [
+                {
+                  "category": "simple",
+                  "range": "melee"
+                },
+                {
+                  "category": "martial",
+                  "range": "melee",
+                  "property": "light"
+                }
+              ],
+              "extraits": [
+                "You gain the following benefits while you are unarmed or wielding only Monk weapons and you aren’t wearing armor or wielding a Shield.",
+                "• Simple Melee weapons • Martial Melee weapons that have the Light property"
+              ]
+            }
           }
         }
       }

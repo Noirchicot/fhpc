@@ -1094,7 +1094,7 @@
                 "minimum": 1
               },
               "die": {
-                "$comment": "🗡️ LOT 383 — le dé d'une ressource qui se DÉPENSE en le lançant (les dés de vie : « d10 » pour un Fighter, lu dans `class.hit_die`). Sans lui, le dé ne vivait que dans le nom. FACULTATIF.",
+                "$comment": "🗡️ LOT 383 — le dé d'une ressource qui se DÉPENSE en le lançant (les dés de vie : « d10 » pour un Fighter, lu dans `class.hit_die`). Sans lui, le dé ne vivait que dans le nom. FACULTATIF. ✅ RATIFIÉ par ARCHI 35 (30/09, lot 384) : il porte aussi le dé de Bardic Inspiration (« d6 »), lu dans la colonne « Bardic Die » de la table.",
                 "type": "string",
                 "pattern": "^d[0-9]{1,3}$"
               },

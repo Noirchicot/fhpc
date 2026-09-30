@@ -10194,6 +10194,36 @@ ne lisait pas.
 ⭐ **UNE COLONNE N'EST PAS UN COMPTEUR PAR ELLE-MÊME** : `cantrips`, `rage_damage`, `martial_arts` (« 1d6 ») sont des colonnes
 aussi. C'est la déclaration qui dit laquelle compte des usages, et comment elle revient.
 
+📍 `sheet-un-usage-se-lit-dans-sa-declaration` · vivante · 30/09 · prolonge `sheet-un-compteur-se-lit-dans-sa-colonne-declaree`
+⚖️ **Un usage écrit en prose au SRD se calcule depuis UNE forme de déclaration, lue là où vit son texte — la progression (`resource_uses`), l'espèce (`trait_uses`, par id de trait), l'option de lignée (`lineage_effects[<id>].uses`), le don (`sheet_uses`, `spell_uses`) : le compte (une colonne, ou une formule `fixed` · `proficiency` · `ability` + `minimum` · `per_class_level`), la recharge, le dé (`die_column`), l'action à économie standard qu'il nourrit, chacun avec son extrait. Un trait que la pile a retiré ne pose rien. Ce qui se joue hors des trois cases d'économie se DÉCLARE `awaits` Q3, sans ressource ni action. ⛔ Jamais un nom de classe, d'espèce, de lignée ou de don testé.**
+
+> ARCHI 35, 30/09, mandat du lot 384 : *« Les sources à économie standard (action, action bonus, réaction), chacune par un
+> extrait typé déclaré dans `srfh-mecaniques-en`, jamais par une liste de noms »* · *« Ce qui attend la question Q3 […] se
+> déclare avec cette raison, sans chiffre inventé : Breath Weapon, les bienfaits de Goliath « au toucher », Savage Attacker,
+> Relentless Endurance, Arcane Recovery. »* · *« Fate's Hand suit sa pile : Twice-Born retire Resourceful à l'Humain FH ».*
+> Et : *« Le champ `die` d'une ressource […] est ratifié : il porte le d6 de Bardic Inspiration. »*
+> **Les textes**, à la lettre : Bardic Inspiration *« equal to your Charisma modifier (minimum of once) »* ; Innate Sorcery
+> *« You can use this feature twice »* ; Lay On Hands *« five times your Paladin level »* ; Stonecunning, Adrenaline Rush,
+> Speak with Animals, Giant Ancestry *« a number of times equal to your Proficiency Bonus »* ; Adrenaline Rush *« when you
+> finish a Short or Long Rest »* ; Resourceful *« You gain Heroic Inspiration whenever you finish a Long Rest »* ; Magic
+> Initiate *« You can cast it once without a spell slot »*.
+
+⭐ **MARTIAL ARTS A SA CONDITION, ET ELLE EST TENUE** : *« while you are unarmed or wielding only Monk weapons and you aren’t
+wearing armor or wielding a Shield »* — déclarée (`requires`), et le moteur la lit sur ce qui est PORTÉ : un moine en armure,
+ou une épée longue en main, garde l'Unarmed Strike de base, et le manque se dit. ⛔ Jamais un chiffre faux.
+⭐ **L'ÉCONOMIE D'UN SORT DE DON** est son temps d'incantation, par une table déclarée (`economy_from_casting_time` :
+« Action », « Bonus Action », « Reaction ») ; un autre temps (*« Reaction, which you take when… »*) ne pose que la ressource.
+📏 **UNE GARDE M'A CORRIGÉ EN CHEMIN** : la phrase de compte du Goliath (*« the chosen benefit »*) vit dans le TRAIT commun,
+pas dans l'option — L1 du lot 373 l'a vu. Elle se déclare à part (`count_trait`, `count_extrait`), sans le mot « chosen »,
+qui aurait ouvert une occurrence de choix non déclarée (garde du lot 360).
+⏳ **CE QUI RESTE HORS DU LOT** : le dé de Martial Arts sur les ARMES de moine (*« or Monk weapons »*) ; les Arcanes et le
+Destin de Fate's Hand (deux réponses d'Eric) ; les usages des objets (Q8).
+
+📌 **CE QUI LA TIENT** : `tests/actions-384.test.mjs` (chaque source contre son extrait ; les formules qui suivent le
+personnage — Charisma, maîtrise, niveau ; Martial Arts et sa condition ; les sept sources Q3 ; l'Humain FH sans Resourceful,
+par la couche ; une couche de scénario qui retire ou change une déclaration ; chaque extrait à la lettre ; la fiche) —
+dix-huit mutations vues rouges.
+
 📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
 ⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**
 
