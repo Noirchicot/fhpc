@@ -959,8 +959,9 @@ async function lireLeReglage(base, clef) {
 }
 
 /* ══ LA BASE — IndexedDB, le rideau le plus fin possible ═════════════════════════════════════
-   ⚠️ NON ÉPROUVÉE PAR UN TEST (Node n'a pas `indexedDB`) : c'est pour ça qu'elle ne prend AUCUNE
-   décision. Trois rayons, cinq verbes, zéro logique — tout ce qui décide est au-dessus, sur une base
+   ⚠️ Node n'a pas `indexedDB` : elle ne prend donc AUCUNE décision. 🔄 LOT 388 — sa MONTÉE est éprouvée
+   sur une fausse IndexedDB aux règles de la vraie (`tests/base-v3-388.test.mjs`, témoin relevé au navigateur).
+   Quatre rayons, cinq verbes, zéro logique — tout ce qui décide est au-dessus, sur une base
    de fixture. ⭐ `echanger` exécute la décision qu'on lui passe DANS la transaction qui lit : c'est
    ce qui rend « comparer la révision, puis écrire » indivisible entre deux onglets. La décision est
    celle de l'appelant ; la base ne fait que la tenir dans la même transaction.

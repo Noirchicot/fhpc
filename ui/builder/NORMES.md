@@ -11597,9 +11597,16 @@ octets ; un PHB qui changerait d'un octet en voyage deviendrait un autre livre p
 ⭐ **LE LIEU DU GESTE** : la librairie se lit au moment du geste (`LIBRAIRIES_DES_LIEUX`, une entrée par lieu câblé,
 comme les adaptateurs) ; le moteur attend l'ouverture du stockage pour monter les livres, et une panne du stockage
 ne suspend pas le démarrage. Un livre du même id se REMPLACE (le joueur vient de choisir ce fichier-là).
+🔴 **LA MONTÉE DE LA BASE (v2 → v3) N'AJOUTE QUE LE RAYON `livres`** : sur l'iPad d'Eric, Ilyra, ses versions
+datées, le lieu, la connexion Dropbox et le commun de synchro sont DANS la base ; `onupgradeneeded` ne crée que les
+rayons qui manquent, n'en efface ni n'en vide aucun. Une base v2 remplie, ouverte en v3, rend chaque valeur aux
+mêmes octets. La copie de travail (`fhpc.base`) vit dans `localStorage`, hors de la base.
+📏 Au navigateur réel (30/09, v938) : un rayon recréé à la montée vide Ilyra et les réglages ; un onglet resté
+ouvert sur l'ancienne version fait ATTENDRE l'onglet neuf (aucune perte), jusqu'à sa fermeture.
 ⏳ Hors du lot : le contenu du PHB (lot 387), la réponse à `A-TRANCHER` §C34, le téléchargement du livre à chaque
 ouverture depuis Dropbox (aucun cache).
 🛡️ `tests/livres-388.test.mjs` (J1, J2, R1, M1 à M3, P1, P2, C1, C2) — 16 mutations vues rouges ;
+`tests/base-v3-388.test.mjs` (B0 à B3, sur `tests/fausse-indexeddb.mjs`) — 6 mutations vues rouges ;
 `tests/ecran-layers.test.mjs` D1, D4, F3.
 
 ### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement
