@@ -11768,6 +11768,16 @@ renvoyées à Claude, au plus 3 tours → le catalog écrit SEULEMENT s'il est a
 existe). ⛔ Aucun second juge : la commande ne vérifie de son côté que sa DEMANDE (l'id et l'auteur donnés). ⛔ Aucune
 clef : la connexion Claude Code du Mac. ⛔ `npm test` n'appelle jamais le vrai Claude (`tests/faux-claude.mjs`).
 Le guide : « Headless, on your own computer ». 🛡️ `tests/catalog-headless-391.test.mjs` H1 à H8.
+🔄 **03/10 — UN CATALOG RANGE SES PROPRES OBJETS DANS WARES** (couche Panam). Eric, 03/10, à « ouvrir le rangement aux
+catalogs pour que Panam apparaisse dans Wares ? » → **« A »**, et *« suggestions de shelvings me conviennent »*.
+📏 Le défaut : Wares ne montre un objet que par un record `shelving` (`lireRangement`) ; le juge refusait ce genre dans
+un catalog — ses armes, armures et objets existaient sans qu'aucun joueur puisse les prendre.
+⭐ `shelving` rejoint les genres d'un catalog, avec son juge propre (`jugerUnRangement`) : `of_kind` parmi
+`GENRES_RANGES` (armure, équipement, objet magique, arme), `shelf.aisle` et `shelf.shelf` en minuscules et tirets
+(les rayons de la table d'Eric, ou une étagère neuve que le catalog nomme), et ⛔ `extends` désigne un record DU MÊME
+fichier, sous son espace de noms — un catalog ne range jamais un record qui existe (le SRD, Fate's Hand, un autre
+livre) : ce serait le changer. Le modèle porte un rangement ; le guide le dit.
+🛡️ `tests/catalog-390.test.mjs` K5b ; `tests/panam-layer.test.mjs` P7.
 
 #### 🔌 UN INTERRUPTEUR DE `LAYERS` NE TOUCHE QUE SON LIVRE (lot 393)
 📍 `menu-layers-un-interrupteur-ne-touche-que-son-livre` · vivante · 30/09

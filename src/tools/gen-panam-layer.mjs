@@ -501,6 +501,79 @@ function construireEquipement({ gear, protheses, accessoires, armesRestantes, sr
   return { equipement, restes, partages };
 }
 
+/* ── LE RANGEMENT DANS WARES ──────────────────────────────────────────────────────────────────────────
+   Wares ne montre un objet que par un record `shelving` (rayon, étagère). ⚖️ Proposé à Eric le 03/10
+   (`rangement-propose.md`, projet « Couche Panam ») :
+   · DÉDUIT, rien à décider : une arme par sa portée (`armory/melee-weapons`, `armory/ranged-weapons`), une armure
+     (`armory/armor`), une munition (`armory/ranged-weapons`, comme l'Ammunition du SRD), un explosif
+     (`arcana/consumables-and-potions`, comme l'Alchemist's Fire) ;
+   · PAR ANALOGIE avec la table d'Eric (`srfh-shelving`) : l'équipement d'aventure, marqué `shelf_provisional` et
+     nommant son modèle (`like`) — ⛔ un modèle rangé ailleurs fait refuser le générateur (la loi du lot 394) ;
+   · TROIS ÉTAGÈRES NEUVES : `mundane/prosthetics`, `marvels/prosthetics` (les prothèses magiques),
+     `armory/firearm-add-ons`.
+   Un objet que rien ne range se NOMME dans `restes` : il existe, mais Wares ne le montre pas. */
+const RAYONS_DEDUITS = Object.freeze({
+  melee: ["armory", "melee-weapons"], ranged: ["armory", "ranged-weapons"], armor: ["armory", "armor"],
+  munition: ["armory", "ranged-weapons"], explosif: ["arcana", "consumables-and-potions"],
+  prothese: ["mundane", "prosthetics"], protheseMagique: ["marvels", "prosthetics"], accessoire: ["armory", "firearm-add-ons"]
+});
+const EXPLOSIF = /\b(bomb|dynamite|gunpowder|grenade|flask)\b/i;
+/** L'équipement d'aventure de Panam, rangé par analogie : slug → [rayon, étagère, modèle déjà rangé là]. */
+export const ANALOGIES = Object.freeze({
+  binoculars: ["adventuring", "watch-and-signal", "spyglass"],
+  compass: ["adventuring", "watch-and-signal", "spyglass"],
+  "pocket-watch": ["adventuring", "watch-and-signal", "spyglass"],
+  wristwatch: ["adventuring", "watch-and-signal", "spyglass"],
+  "photographic-camera": ["adventuring", "watch-and-signal", "magnifying-glass"],
+  lighter: ["adventuring", "light-and-fire", "tinderbox"],
+  match: ["adventuring", "light-and-fire", "tinderbox"],
+  smokestick: ["adventuring", "force-and-trap", "caltrops"],
+  goggles: ["mundane", "clothing", "costume"],
+  hat: ["mundane", "clothing", "costume"],
+  "parasol-silk": ["mundane", "clothing", "costume"],
+  "ink-cartridge-pen": ["mundane", "writing-and-reading", "ink-pen"],
+  "ink-cartridge": ["mundane", "writing-and-reading", "ink"],
+  "photo-plate-1-sheet": ["mundane", "writing-and-reading", "paper"],
+  "steamer-trunk": ["mundane", "containers", "chest"],
+  "tool-utility-belt": ["mundane", "containers", "pouch"]
+});
+
+function construireRangements(records, { rangement, armesRestantes }) {
+  const rangements = {};
+  const restes = [];
+  const ouEst = new Map(Object.values(rangement.records.shelving || {})
+    .map((r) => [String(r.data.extends).split(":").pop(), r.data.shelf]));
+  const depuisLesArmes = new Map(armesRestantes.equipement.map((a) => [idDe("gear", a.nom), a]));
+  const ranger = (genre, id, rec, [aisle, shelf], like = null) => {
+    const sl = id.split(":").pop();
+    const data = { name: rec.name, extends: id, of_kind: genre, shelf: { aisle, shelf } };
+    if (like) {
+      const lieu = ouEst.get(like);
+      if (!lieu || lieu.aisle !== aisle || lieu.shelf !== shelf) {
+        fail(`le modèle « ${like} » de ${rec.name} n'est pas rangé dans ${aisle}/${shelf} (srfh-shelving dit ${lieu ? `${lieu.aisle}/${lieu.shelf}` : "rien"}).`);
+      }
+      data.shelf.shelf_provisional = true;
+      data.like = `srd:gear:en:${like}`;
+    }
+    rangements[`${ID}:shelving:en:${sl}`] = { name: rec.name, data };
+  };
+  for (const [id, rec] of Object.entries(records.weapon || {})) ranger("weapon", id, rec, RAYONS_DEDUITS[rec.data.weapon_range]);
+  for (const [id, rec] of Object.entries(records.armor || {})) ranger("armor", id, rec, RAYONS_DEDUITS.armor);
+  for (const [id, rec] of Object.entries(records.gear || {})) {
+    const d = rec.data;
+    const arme = depuisLesArmes.get(id);
+    if (d.prosthetic_type) ranger("gear", id, rec, /magic/i.test(d.prosthetic_type) ? RAYONS_DEDUITS.protheseMagique : RAYONS_DEDUITS.prothese);
+    else if (d.firearm_addon) ranger("gear", id, rec, RAYONS_DEDUITS.accessoire);
+    else if (arme && EXPLOSIF.test(arme.nom)) ranger("gear", id, rec, RAYONS_DEDUITS.explosif);
+    else if (arme && arme.categories.includes("melee")) ranger("gear", id, rec, RAYONS_DEDUITS.melee);
+    else if (arme && arme.categories.includes("ranged")) ranger("gear", id, rec, RAYONS_DEDUITS.ranged);
+    else if (arme) ranger("gear", id, rec, RAYONS_DEDUITS.munition);
+    else if (ANALOGIES[id.split(":").pop()]) { const [a, sh, like] = ANALOGIES[id.split(":").pop()]; ranger("gear", id, rec, [a, sh], like); }
+    else restes.push(`${rec.name} : aucun rangement (ni déduit, ni par analogie) — il existe, mais Wares ne le montre pas`);
+  }
+  return { rangements, restes };
+}
+
 /* ── CE QU'UN CATALOG NE PORTE PAS ────────────────────────────────────────────────────────────────── */
 
 function nonPortes(classeur) {
@@ -524,7 +597,8 @@ function nonPortes(classeur) {
  * @param {{srd: object, phb?: object|null, edition?: number}} bases
  * @returns {{layer: object, comptes: object, ecarts: string[], restes: string[], identiques: string[], renommes: string[], partages: string[]}}
  */
-export function construireCatalogPanam(classeur, { srd, phb = null, edition = 1 }) {
+export function construireCatalogPanam(classeur, { srd, rangement, phb = null, edition = 1 }) {
+  if (!rangement) fail("la table de rangement (srfh-shelving) manque : sans elle, rien de Panam n'entre dans Wares.");
   const fArmes = feuille(classeur, "Weapons List");
   const armes = construireArmes(fArmes, { srd, edition });
   armes.feuille = fArmes;
@@ -544,6 +618,8 @@ export function construireCatalogPanam(classeur, { srd, phb = null, edition = 1 
   poser("armor", armures.armures);
   poser("spell", sorts.sorts);
   poser("gear", equipement.equipement);
+  const rangements = construireRangements(records, { rangement, armesRestantes: armes });
+  poser("shelving", rangements.rangements);
   const comptes = Object.fromEntries(Object.entries(records).map(([g, r]) => [g, Object.keys(r).length]));
   const styles = Object.values(dons.dons).filter((r) => r.data.category === "fighting-style").length;
   const layer = {
@@ -568,7 +644,7 @@ export function construireCatalogPanam(classeur, { srd, phb = null, edition = 1 
   return {
     layer, comptes,
     ecarts: armes.ecarts,
-    restes: [...armes.restes, ...armures.restes, ...sorts.restes, ...dons.restes, ...equipement.restes, ...nonPortes(classeur)],
+    restes: [...armes.restes, ...armures.restes, ...sorts.restes, ...dons.restes, ...equipement.restes, ...rangements.restes, ...nonPortes(classeur)],
     identiques: dons.identiques,
     renommes: dons.renommes,
     partages: [...armes.partages, ...sorts.partages, ...equipement.partages]
@@ -595,7 +671,8 @@ export function generate({ classeur = dernierClasseur(), sortie = join(DIR_COUCH
   const cheminPhb = join(dirCouches, "xphb-en.layer.json");
   const phb = existsSync(cheminPhb) ? lire(cheminPhb) : null;
   const r = construireCatalogPanam(lireXlsx(classeur), {
-    srd: lire(join(REPO_ROOT, "layers", "srd-5.2.1-en.layer.json")), phb, edition
+    srd: lire(join(REPO_ROOT, "layers", "srd-5.2.1-en.layer.json")),
+    rangement: lire(join(REPO_ROOT, "layers", "srfh-shelving-en.layer.json")), phb, edition
   });
   const octets = `${JSON.stringify(r.layer, null, 2)}\n`;
   const verdict = verifierUnCatalog(octets);

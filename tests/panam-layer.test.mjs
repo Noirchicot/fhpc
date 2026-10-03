@@ -11,6 +11,8 @@
      P4. CE QU'UN CATALOG NE PORTE PAS SE NOMME : une arme de feu (Fire) entre comme équipement, ses dégâts
          écrits ; outils, compétences et véhicules sont dans `restes`.
      P5. LE LECTEUR .xlsx lit un vrai classeur (chaînes partagées, nombres, cellules vides, onglets nommés).
+     P7. CHAQUE OBJET DE PANAM A SON ÉTAGÈRE DANS WARES : déduite (arme, armure, munition, explosif, prothèse,
+         accessoire) ou par analogie avec la table d'Eric, marquée provisoire et nommant son modèle.
      P6. LE GÉNÉRATEUR écrit la couche, montée et allumée par le moteur ; sans classeur, il le dit. */
 
 import test from "node:test";
@@ -28,6 +30,7 @@ const { readLayer } = await import("../src/layers/document.mjs");
 const { REPERTOIRES_HORS_DEPOT } = await import("../src/tools/gen-livre-layer.mjs");
 
 const SRD = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srd-5.2.1-en.layer.json"), "utf8"));
+const RANGEMENT = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srfh-shelving-en.layer.json"), "utf8"));
 const srdDon = (nom) => Object.values(SRD.records.feat).find((r) => r.name === nom);
 
 /* ── LA FIXTURE : un classeur inventé, onglet par onglet ─────────────────────────────────────────── */
@@ -83,7 +86,7 @@ const FEUILLES = {
   Vehicles: [["Vehicle", "Description"], ["Rail Car", null]]
 };
 const classeur = () => ({ feuilles: Object.entries(FEUILLES).map(([nom, lignes]) => ({ nom, lignes: lignes.map((l) => [...l]) })) });
-const construire = () => construireCatalogPanam(classeur(), { srd: SRD, edition: 7 });
+const construire = () => construireCatalogPanam(classeur(), { srd: SRD, rangement: RANGEMENT, edition: 7 });
 const rec = (r, genre, nom) => r.layer.records[genre] && r.layer.records[genre][`${ID}:${genre}:en:${nom}`];
 
 /* ── P1 ───────────────────────────────────────────────────────────────────────────────────────────── */
@@ -95,7 +98,7 @@ test("P1 — 📐 le catalog Panam est accepté par le juge d'Import a book ET p
   assert.equal(v.id, "noirchicot-panam");
   assert.equal(r.layer.version, "7.0.0", "la version suit l'édition du classeur");
   assert.doesNotThrow(() => readLayer(new TextEncoder().encode(octets), "panam"));
-  assert.deepEqual(Object.keys(r.layer.records).sort(), ["armor", "feat", "gear", "spell", "weapon"]);
+  assert.deepEqual(Object.keys(r.layer.records).sort(), ["armor", "feat", "gear", "shelving", "spell", "weapon"]);
   assert.equal(rec(r, "spell", "steam-veil").data.casting_time, "Bonus Action");
   assert.deepEqual(rec(r, "spell", "steam-veil").data.class_keys, ["Wizard", "Artificer"], "les listes de classes de l'onglet");
   assert.equal(rec(r, "spell", "steam-veil").data.duration, "Concentration, up to 1 minute");
@@ -263,4 +266,35 @@ test("P6 — 🔌 le générateur écrit une couche que le moteur monte et allum
   const styles = engine.layers.verbs.query({ kind: "feat" }).filter((v) => v.record.data.category === "fighting-style").map((v) => v.record.name);
   assert.ok(styles.includes("Lantern Guard") && styles.includes("Defense"), "le style de Panam rejoint ceux du SRD");
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+/* ── P7 ───────────────────────────────────────────────────────────────────────────────────────────── */
+test("P7 — 🛒 chaque objet de Panam a son étagère dans Wares : déduite, ou par analogie avec la table d'Eric", () => {
+  const r = construire();
+  const ou = (sl) => { const x = rec(r, "shelving", sl); return x && `${x.data.shelf.aisle}/${x.data.shelf.shelf}`; };
+  assert.equal(ou("gear-pistol"), "armory/ranged-weapons");
+  assert.equal(ou("boiler-plate"), "armory/armor");
+  assert.equal(ou("cog-shield"), "armory/armor");
+  assert.equal(ou("rivets-20"), "armory/ranged-weapons", "une munition, comme l'Ammunition du SRD");
+  assert.equal(ou("steam-lance"), "armory/ranged-weapons", "une arme de feu entrée comme équipement reste à l'armurerie");
+  assert.equal(ou("piston-arm"), "mundane/prosthetics");
+  assert.equal(ou("brass-scope"), "armory/firearm-add-ons");
+  assert.equal(rec(r, "shelving", "pocket-gauge"), undefined, "rien ne le range…");
+  assert.match(r.restes.join("\n"), /Pocket Gauge : aucun rangement/, "…et il se dit");
+  for (const x of Object.values(r.layer.records.shelving)) {
+    const [, genre] = x.data.extends.split(":");
+    assert.equal(x.data.of_kind, genre);
+    assert.ok(r.layer.records[genre][x.data.extends], `${x.data.extends} est un record du catalog`);
+  }
+  /* par analogie : une ligne du classeur d'Eric, inventée ici sous un nom qu'ANALOGIES connaît */
+  const c = classeur();
+  c.feuilles.find((f) => f.nom === "Adventuring Gear").lignes.push(["Compass", "Points north.", "1/4 lb.", "100 Sous d'argent"]);
+  const r2 = construireCatalogPanam(c, { srd: SRD, rangement: RANGEMENT, edition: 7 });
+  const boussole = rec(r2, "shelving", "compass").data;
+  assert.deepEqual([boussole.shelf.aisle, boussole.shelf.shelf, boussole.shelf.shelf_provisional, boussole.like],
+    ["adventuring", "watch-and-signal", true, "srd:gear:en:spyglass"]);
+  /* ⛔ un modèle rangé ailleurs fait refuser le générateur */
+  const faux = JSON.parse(JSON.stringify(RANGEMENT));
+  Object.values(faux.records.shelving).find((x) => x.data.extends === "srd:gear:en:spyglass").data.shelf.shelf = "camp";
+  assert.throws(() => construireCatalogPanam(c, { srd: SRD, rangement: faux, edition: 7 }), /le modèle « spyglass » de Compass n'est pas rangé/);
 });

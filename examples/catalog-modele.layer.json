@@ -131,6 +131,17 @@
         }
       }
     },
+    "shelving": {
+      "example-emberwood:shelving:en:hookblade": {
+        "name": "Hookblade",
+        "data": {
+          "name": "Hookblade",
+          "extends": "example-emberwood:weapon:en:hookblade",
+          "of_kind": "weapon",
+          "shelf": { "aisle": "armory", "shelf": "melee-weapons" }
+        }
+      }
+    },
     "gear": {
       "example-emberwood:gear:en:ash-chalk": {
         "name": "Ash Chalk",

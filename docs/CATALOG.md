@@ -86,6 +86,15 @@ or use it.
 | `weapon` | `cost`, `weight`, `damage` (like `"1d8 Slashing"`), `damage_dice` (like `"1d8"`), `damage_type_key` (`bludgeoning`, `piercing` or `slashing`), `weapon_category` (`simple` or `martial`), `weapon_range` (`melee` or `ranged`), `property_list` (`[]` if none) |
 | `armor` | `armor_category` (`light`, `medium`, `heavy` or `shield`), `ac_base` (a number), `cost`, `weight` |
 | `gear` | `cost`, `weight` |
+| `shelving` | `extends` (the id of one of **your** weapons, armor, gear or magic items), `of_kind` (`weapon`, `armor`, `gear` or `item`), `shelf` (`{ "aisle": "armory", "shelf": "ranged-weapons" }`) |
+
+### Putting your items in Wares
+
+Wares, the shop of the builder, shows an item only when a **shelving** record places it on a shelf. Give each of your
+weapons, armor, gear and magic items one, like the model does for its Hookblade. Use the aisles and shelves the builder
+already has — `armory` (`melee-weapons`, `ranged-weapons`, `armor`, …), `adventuring`, `arcana`, `marvels`, `mundane`,
+`crafting` — or name a new shelf in lowercase with dashes. A catalog only shelves its own records: it never moves an item
+that already exists.
 
 ---
 
@@ -146,7 +155,8 @@ A catalog is ONE JSON file. Follow the model I paste below EXACTLY, and these ru
 2. Set "id" to <my name>-<catalog name>, lowercase with single dashes (for example "noirchicot-mistlands").
    Set "name", "version" ("1.0.0"), "lang" ("en"), and "attribution": { "author": "<my name>", "license": "<licence>" }.
 3. Every record id is "<catalog id>:<type>:en:<name-in-lowercase-with-dashes>", and each id appears only once.
-4. Only these types: species, background, feat, spell, item, weapon, armor, gear. No subclass, no class.
+4. Only these types: species, background, feat, spell, item, weapon, armor, gear, shelving. No subclass, no class.
+   Give each weapon, armor, gear and item a shelving record that places it on a shelf, like the model does.
 5. Only ADD new records. Never reuse an id that begins with srd:, srfh:, fh:, xphb: or xdmg:, and never write "op".
 6. Give every record the fields the model's record of the same type has, with the same kinds of values
    (numbers stay numbers, lists stay lists, true/false stay true/false). Use the same allowed words

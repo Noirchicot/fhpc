@@ -42,6 +42,7 @@ function bonCatalog() {
   m.id = ID; m.name = "The Mists"; m.attribution.author = AUTEUR;
   for (const g of Object.keys(m.records)) m.records[g] = Object.fromEntries(Object.entries(m.records[g]).map(([k, v]) => [k.replace("example-emberwood", ID), v]));
   m.records.background[`${ID}:background:en:lantern-keeper`].data.feat_id = `${ID}:feat:en:ashen-resolve`;
+  m.records.shelving[`${ID}:shelving:en:hookblade`].data.extends = `${ID}:weapon:en:hookblade`;
   return m;
 }
 const fautif = () => { const m = bonCatalog(); delete m.attribution.license; m.flags = ["fh.destiny"]; return m; };
@@ -75,7 +76,7 @@ test("H1 — ✅ UN JSON ACCEPTÉ DU PREMIER COUP est écrit — aux octets que 
     const v = verifierUnCatalog(new Uint8Array(fs.readFileSync(b.sortie)));
     assert.equal(v.etat, "valide", "le fichier écrit est celui que le juge accepte");
     assert.equal(v.id, ID);
-    assert.match(r.stdout, /Accepted on round 1: "The Mists" by Test Author, 8 records/);
+    assert.match(r.stdout, /Accepted on round 1: "The Mists" by Test Author, 9 records/);
   } finally { b.fin(); }
 });
 
@@ -172,6 +173,7 @@ test("H6 — 🧰 LA COMMANDE : mal appelée → 2 ; une sortie existante n'est 
   autre.id = "someone-else";
   for (const g of Object.keys(autre.records)) autre.records[g] = Object.fromEntries(Object.entries(autre.records[g]).map(([k, v]) => [k.replace(ID, "someone-else"), v]));
   autre.records.background["someone-else:background:en:lantern-keeper"].data.feat_id = "someone-else:feat:en:ashen-resolve";
+  autre.records.shelving["someone-else:shelving:en:hookblade"].data.extends = "someone-else:weapon:en:hookblade";
   const c = banc([enTexte(autre), enTexte(autre), enTexte(autre)]);
   try {
     assert.equal(verifierUnCatalog(new TextEncoder().encode(enTexte(autre))).etat, "valide", "témoin : le juge l'accepte");

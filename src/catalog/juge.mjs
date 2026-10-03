@@ -39,7 +39,16 @@ import { readLayer, GENRES, FORBIDDEN_KEYS, PATTERNS, ATTRIBUTION_KEYS } from ".
  *  (`examples/catalog-modele.layer.json`). ⚠️ La SOUS-CLASSE n'y est pas, et ce n'est pas un oubli : elle
  *  vit dans le record de sa classe (`class.data.subclass`), et l'ajouter serait PATCHER la classe. Un genre
  *  « sous-classe » attaché par référence viendra dans un lot à part (ARCHI 35, 30/09). */
-export const GENRES_DU_CATALOG = Object.freeze(["armor", "background", "feat", "gear", "item", "species", "spell", "weapon"]);
+export const GENRES_DU_CATALOG = Object.freeze(["armor", "background", "feat", "gear", "item", "shelving", "species", "spell", "weapon"]);
+
+/** 🛒 LE RANGEMENT D'UN CATALOG (couche Panam, 03/10). Wares ne montre un objet que par un record `shelving` — un
+ *  rayon et une étagère (`equipment-step.mjs`, `lireRangement`) ; sans lui, les armes, armures et objets d'un catalog
+ *  existaient sans qu'aucun joueur puisse les prendre. ⛔ Un catalog ne range QUE SES PROPRES records : `extends`
+ *  porte son espace de noms, et désigne un record du MÊME fichier, d'un genre qui se prend dans Wares — ranger un
+ *  record du SRD ou d'un autre livre serait changer ce qui existe. Le rayon et l'étagère sont des mots en minuscules
+ *  et tirets : ceux de la table d'Eric (`srfh-shelving`), ou une étagère neuve que le catalog nomme. */
+export const GENRES_RANGES = Object.freeze(["armor", "gear", "item", "weapon"]);
+const FORME_D_UN_RAYON = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** Les espaces de noms de l'app — un catalog ne s'appelle pas ainsi, et n'écrit aucun record sous eux. Le
  *  mot dit au créateur À QUI l'id appartient. Une garde tient que chaque couche servie par l'app et chaque
@@ -208,6 +217,32 @@ export function clefsEnDouble(texte) {
   };
   valeur([]);
   return doubles;
+}
+
+/** Un record `shelving` : ce qu'il range (`extends`, `of_kind`) et où (`shelf.aisle`, `shelf.shelf`). */
+function jugerUnRangement(data, cr, recs, idDuCatalog, faute) {
+  const kind = data.of_kind;
+  if (!GENRES_RANGES.includes(kind)) {
+    faute(`${cr}.data.of_kind`, `${typeof kind === "string" ? `"${kind}"` : "Missing:"} — a shelving places one of your ${listeDes(GENRES_RANGES)} records: write its type here.`);
+  }
+  const cible = data.extends;
+  if (typeof cible !== "string" || cible === "") {
+    faute(`${cr}.data.extends`, "Missing. Write the id of the record this shelving places in Wares — one of your own records.");
+  } else if (idDuCatalog && !cible.startsWith(`${idDuCatalog}:`)) {
+    faute(`${cr}.data.extends`, `"${cible}" is not one of your records. A catalog only shelves its own records — it never moves one that already exists.`);
+  } else if (GENRES_RANGES.includes(kind) && !(objet(recs[kind]) && objet(recs[kind][cible]))) {
+    faute(`${cr}.data.extends`, `"${cible}" is not a ${kind} of this catalog. Write the id of one of its records under "${kind}".`);
+  }
+  const shelf = data.shelf;
+  if (!objet(shelf)) {
+    faute(`${cr}.data.shelf`, "Missing. Say where it goes in Wares: { \"aisle\": \"armory\", \"shelf\": \"ranged-weapons\" }.");
+    return;
+  }
+  for (const k of ["aisle", "shelf"]) {
+    if (typeof shelf[k] !== "string" || !FORME_D_UN_RAYON.test(shelf[k])) {
+      faute(`${cr}.data.shelf.${k}`, `Missing or not a name in lowercase with dashes, like ${k === "aisle" ? "\"armory\"" : "\"ranged-weapons\""}.`);
+    }
+  }
 }
 
 /** LE JUGE. Des octets → un verdict.
@@ -382,6 +417,7 @@ export function verifierUnCatalog(octets) {
           }
         }
         if (!objet(e.data)) { faute(`${cr}.data`, "Missing. The record's content goes in \"data\": { … }."); continue; }
+        if (genre === "shelving") { jugerUnRangement(e.data, cr, recs, idSain ? id : null, faute); continue; }
         for (const { champ, types, valeurs, aide } of CHAMPS_EXIGES[genre]) {
           const cc = `${cr}.data.${champ}`;
           if (!(champ in e.data)) { faute(cc, `Missing. A ${genre} needs "${champ}": ${aide}.`); continue; }

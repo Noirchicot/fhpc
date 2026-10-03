@@ -59,7 +59,7 @@ const FAUTIFS = [
   { nom: "sans auteur", fabriquer: (m) => { delete m.attribution.author; },
     chemin: "attribution.author", phrase: /^Missing\. Write your name/ },
   { nom: "un type inconnu", fabriquer: (m) => { m.records.spel = { [`${ID}:spel:en:x`]: { name: "X", data: {} } }; },
-    chemin: "records.spel", phrase: /"spel" is not a type of record\. A catalog can add: armor, background, feat, gear, item, species, spell, weapon\./ },
+    chemin: "records.spel", phrase: /"spel" is not a type of record\. A catalog can add: armor, background, feat, gear, item, shelving, species, spell, weapon\./ },
   { nom: "un type qu'un catalog n'ajoute pas", fabriquer: (m) => { m.records.class = {}; },
     chemin: "records.class", phrase: /A catalog cannot add a "class" yet/ },
   { nom: "un id du SRD", fabriquer: (m) => { m.records.spell["srd:spell:en:fire-bolt"] = m.records.spell[SORT]; },
@@ -131,7 +131,7 @@ async function moteur(livresDuLieuFn) {
 
 test("K1 — 📐 LE MODÈLE est accepté par le juge ET par le juge du montage, et il montre CHAQUE genre qu'un catalog ajoute", () => {
   const v = verifierUnCatalog(octetsDuModele());
-  assert.deepEqual(v, { etat: "valide", id: ID, nom: "Emberwood (model catalog)", auteur: "SOWLREACH", version: "1.0.0", records: 8 });
+  assert.deepEqual(v, { etat: "valide", id: ID, nom: "Emberwood (model catalog)", auteur: "SOWLREACH", version: "1.0.0", records: 9 });
   assert.doesNotThrow(() => readLayer(octetsDuModele(), "modèle"), "⭐ le juge du montage l'accepte aussi");
   assert.deepEqual(Object.keys(modele().records).sort(), [...GENRES_DU_CATALOG].sort(), "un record de CHAQUE genre — le modèle ne tait aucun type");
   assert.deepEqual(validerUnLivre(octetsDuModele()).etat, "valide", "et `Import a book` l'accepte");
@@ -192,7 +192,8 @@ test("K4 — 🔴 CE QUE LE JUGE ACCEPTE, LE MONTAGE NE LE REFUSE JAMAIS — et 
     (m) => { m.records.spell[SORT].source = { id: "my notebook", locator: "p. 3", version: "1" }; },
     (m) => { m.records.gear[OUTIL].op = "add"; m.records.gear[OUTIL].slug = "ash-chalk"; },
     (m) => { delete m.description; delete m.units; delete m.attribution.text; delete m.attribution.url; },
-    (m) => { m.lang = "fr"; for (const [g, e] of Object.entries(m.records)) m.records[g] = Object.fromEntries(Object.entries(e).map(([k, v]) => [k.replace(":en:", ":fr:"), v])); }
+    (m) => { m.lang = "fr"; for (const [g, e] of Object.entries(m.records)) m.records[g] = Object.fromEntries(Object.entries(e).map(([k, v]) => [k.replace(":en:", ":fr:"), v]));
+      for (const r of Object.values(m.records.shelving)) r.data.extends = r.data.extends.replace(":en:", ":fr:"); }
   ];
   for (const [i, v] of variantes.entries()) {
     const m = modele();
@@ -213,8 +214,10 @@ test("K4 — 🔴 CE QUE LE JUGE ACCEPTE, LE MONTAGE NE LE REFUSE JAMAIS — et 
 test("K5 — 📏 `CHAMPS_EXIGES` n'invente rien : chaque champ est porté par TOUS les records SRD du genre, avec ce type ; chaque liste fermée est celle du SRD", () => {
   const srd = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srd-5.2.1-en.layer.json"), "utf8"));
   const typeDe = (v) => (v === null ? "null" : Array.isArray(v) ? "array" : typeof v);
-  assert.deepEqual(Object.keys(CHAMPS_EXIGES).sort(), [...GENRES_DU_CATALOG].sort());
-  for (const g of GENRES_DU_CATALOG) {
+  /* 🛒 le rangement n'est pas un genre du SRD : il a son juge propre (`jugerUnRangement`), tenu par K5b */
+  const GENRES_DE_CONTENU = GENRES_DU_CATALOG.filter((g) => g !== "shelving");
+  assert.deepEqual(Object.keys(CHAMPS_EXIGES).sort(), [...GENRES_DE_CONTENU].sort());
+  for (const g of GENRES_DE_CONTENU) {
     assert.ok(GENRES.includes(g), `${g} est un genre du contrat`);
     const records = Object.values(srd.records[g]).map((r) => r.data);
     for (const { champ, types, valeurs } of CHAMPS_EXIGES[g]) {
@@ -225,6 +228,22 @@ test("K5 — 📏 `CHAMPS_EXIGES` n'invente rien : chaque champ est porté par T
       if (valeurs) assert.deepEqual([...valeurs].sort(), [...new Set(records.map((d) => d[champ]))].sort(), `${g}.${champ} : la liste fermée est celle du SRD`);
     }
   }
+});
+
+test("K5b — 🛒 LE RANGEMENT D'UN CATALOG a la forme de la table d'Eric, et ne range que ses propres records", () => {
+  /* la forme lue par Wares (`lireRangement`) : chaque rangement de `srfh-shelving` porte extends, of_kind, shelf.aisle, shelf.shelf */
+  const table = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srfh-shelving-en.layer.json"), "utf8"));
+  for (const r of Object.values(table.records.shelving)) {
+    assert.ok(typeof r.data.extends === "string" && typeof r.data.of_kind === "string" && r.data.shelf
+      && typeof r.data.shelf.aisle === "string" && typeof r.data.shelf.shelf === "string", r.name);
+  }
+  const R = `${ID}:shelving:en:hookblade`;
+  const fautes = (fabriquer) => { const m = modele(); fabriquer(m.records.shelving[R].data, m); return verifierUnCatalog(enOctets(m)).fautes || []; };
+  assert.match(fautes((d) => { d.extends = "srd:weapon:en:dagger"; }).map(fauteEnLigne).join("\n"), /is not one of your records\. A catalog only shelves its own records/);
+  assert.match(fautes((d) => { d.extends = `${ID}:weapon:en:nothing`; }).map(fauteEnLigne).join("\n"), /is not a weapon of this catalog/);
+  assert.match(fautes((d) => { d.of_kind = "spell"; }).map(fauteEnLigne).join("\n"), /"spell" — a shelving places one of your armor, gear, item, weapon records/);
+  assert.match(fautes((d) => { d.shelf.aisle = "Armory Room"; }).map(fauteEnLigne).join("\n"), /data\.shelf\.aisle — Missing or not a name in lowercase/);
+  assert.match(fautes((d) => { delete d.shelf; }).map(fauteEnLigne).join("\n"), /data\.shelf — Missing\. Say where it goes in Wares/);
 });
 
 /* ══ K6 — LES NOMS DE L'APP ═════════════════════════════════════════════════════════════════════════ */
