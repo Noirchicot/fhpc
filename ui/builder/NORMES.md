@@ -12118,3 +12118,73 @@ colonne dit COMMENT je le sais : « mesuré » = vu au navigateur par la sonde d
 🛡️ `tests/repeint-ne-casse-rien.test.mjs` (12 gardes : les quatre chaînes rejouées dans l'ordre du navigateur, les
 jumeaux, le câblage, la sauvegarde automatique). Vues rouges par mutation, 20 mutations, sources restaurées à l'empreinte ; et sur le code v912
 (l'organe de `main`, sans retenue), les gardes 1 (le mandat), 2 (l'appui long) et 3 (le bouton) rougissent.
+
+---
+
+## 11. 🃏 LA FICHE V2 DANS SHEET — le hub et la fiche en jeu *(Eric, 2026-10-07 — lot 395)*
+
+> La fiche de personnage V2 a été dessinée au croquis par Eric le 2026-10-05, puis cotée au blg en dix
+> révisions, chaque cote avec sa dictée (vault : `FH-WEB/FHPC/Plan-fiche-V2/` — `Fiche V2 plan coté`,
+> `Fiche V2 cotes`, artefact `WcVS8PjeP8QwuMNusksQFk`). Le 07/10 : **« peux-tu implémenter à
+> l'emplacement Sheet dans le builder ? »** — et à la question du périmètre : **« Maquette seule »**.
+
+### 🃏 SHEET GARDE L'ANCIEN BELT ET MONTRE LA FICHE À 90 %, SUR QUATRE PORTES
+📍 `sheet-hub-apercu-et-quatre-portes` · vivante · 07/10
+⚖️ **Sheet garde l'ancien belt et montre la fiche V2 réduite de 10 %, sans son tambour (337,5 × 464,4), au-dessus d'une rangée de quatre portes : `List` · `Manage` · `Live` · `Export`.**
+
+> Eric, 2026-10-07, à « la fiche fait 375 × 560 avec son propre belt ; le belt du builder est toujours
+> visible et la scène ne fait que 500 — comment se pose-t-elle ? » : **« Quand on appuie sur sheet, on
+> garde encore l'ancien belt. La fiche est réduite de 10 %, ce qui nous laisse de l'espace pour 3
+> boutons — "list" : liste actuelle recensant tous les éléments · "manage" : l'expert qui permettra de
+> faire les level up · "live" : la vraie fiche en jeu avec le nouveau belt qui remplace l'ancien. »**
+> Et à « que deviennent la fiche temporaire, la revue, les portes et Save character ? » : **« L'export
+> peut être un bouton supplémentaire. Mais j'ai déjà tout dit dans les menus précédents. »**
+
+⭐ **CE QUE SHEET MONTRAIT RESTE TEL QUEL, ET RIEN NE SE PERD** : la carte de l'étape `review` (fiche temporaire,
+revue, `Expert view`, `Save character`, `Export HTML`, écran « perso incomplet ») est construite comme
+avant et devient le contenu de `List`, qui défile DANS la place de l'aperçu (§5 bis) — la rangée reste en
+vue. `List` est un interrupteur : allumé (liseré bleu), touché encore, l'aperçu revient.
+📌 **`Manage` ouvre la vue experte** — le seul « expert » qui existe aujourd'hui ; ⏳ le level-up qu'Eric
+lui promet est à construire. **`Export` émet `exportHtml`.** Les deux disent leur refus sans fiche
+(`porteEnPanne`), comme leurs portes d'origine.
+📏 La rangée : 500 − 464,4 = **35,6** ; des cases de 30, alignées sur les bords de l'aperçu (78,375 de
+large, 8 de gouttière), leur cible est la rangée entière — ⚠️ sous les 40 de la fiche, et sous `--touch`.
+🛡️ `tests/fiche-v2-maquette.test.mjs` 2, 5.
+
+### 🌗 EN JEU, LA FICHE REMPLACE L'ANCIEN BELT, ET SA LUNE RAMÈNE
+📍 `sheet-live-remplace-le-belt` · vivante · 07/10
+⚖️ **En jeu (`Live`), la fiche entière (375 × 560) remplace l'ancien belt — c'est son tambour qui est le belt ; sa lune, inversée — jour majoritaire, un croissant de nuit —, est le geste qui ramène à l'ancien.**
+
+> Eric, 2026-10-07 : **« "live" : la vraie fiche en jeu avec le nouveau belt qui remplace l'ancien. La
+> lune sera inversée dans ce nouveau belt, majoritairement jour, un croissant de nuit. Rappuyer sur
+> celle-ci ramène à l'ancien belt »**.
+
+⚖️ **C'est une exception DICTÉE à `cadre-belt-toujours-visible`**, comme le Seuil : l'ancien belt
+s'efface par l'attribut (`belt.racine.hidden = ficheEnJeu()`, dans `paintBelt`), et la feuille le laisse
+agir — `.belt:not([hidden]) { display: flex }`, ⛔ jamais un `display` sans condition.
+⭐ **La lune inversée est le croissant de Sheet retourné** (`--astre-croissant`, `filter: invert(1)
+hue-rotate(180deg)`) : ce qui était nuit devient jour, le mince quartier clair devient la nuit. Sa cible
+fait 44 (0 → 44), son dessin 30, ses bords réels écrits comme la lune de Gear (lot 325).
+🛡️ `tests/fiche-v2-maquette.test.mjs` 4, 6.
+
+### 🖼️ LA MAQUETTE PEINT SES BOUTONS, ELLE N'EN POSE AUCUN
+📍 `sheet-fiche-v2-maquette-sans-faux-magasin` · vivante · 07/10
+⚖️ **La fiche V2 est une maquette : mots du plan, aucune lecture du moteur ; ses boutons sont PEINTS (même famille, même relief) mais ne sont pas des `<button>` — seules les quatre portes du hub et la lune du Live agissent.**
+
+> Eric, 2026-10-07, à « jusqu'où la fiche doit-elle être vivante ? » : **« Maquette seule »**.
+
+⭐ Un bouton de maquette qui ferait semblant d'agir serait le « faux magasin » de B9.5. ⏳ Le lanceur, les
+badges, le stream, la Destinée, les popups (`Rest`, `+🎲`) et le tambour qui tourne sont posés à leurs
+cotes ; leur vie est un chantier à part.
+🛡️ `tests/fiche-v2-maquette.test.mjs` 4 — zéro bouton dans l'aperçu, un seul en jeu (le témoin contraire).
+
+### 📐 LES COTES DE LA FICHE V2 VIENNENT DU VAULT
+📍 `sheet-fiche-v2-cotes-du-vault` · vivante · 07/10
+⚖️ **Les cotes de la fiche V2 sortent du générateur du vault (`fiche_gen.py` → `fiche_declaration.js`, recopié en `fiche-v2-disposition.mjs`) ; ⛔ aucune ne se retape dans le module, qui les pose par une feuille construite.**
+
+> Eric, 2026-10-07 : **« Note bien toutes les dimensions. »**
+
+⭐ La fiche a sa propre règle tactile, dictée le 05/10 : une case de **30** dans une cible de **40**
+(5 · 30 · 5), sauf le belt (**44**), la paire carac / save (carac **36**, save **40**) et les compétences
+(**42**) — elle s'écarte de `--touch`, et la table le dit organe par organe.
+🛡️ `tests/fiche-v2-maquette.test.mjs` 1, 3.

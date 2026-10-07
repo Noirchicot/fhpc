@@ -53,7 +53,7 @@ function etatSale() {
 
 /* ══ A — LE GARDE QUI COMPTE : LES CLEFS RÉELLES, JAMAIS UNE LISTE ═════════ */
 
-test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 43 champs, 9 survivent, 34 tombent (lot 367 : + `recalage` ; lot 374 : le stockage)", () => {
+test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 45 champs, 9 survivent, 36 tombent (lot 367 : + `recalage` ; lot 374 : le stockage ; lot 395 : le hub de Sheet)", () => {
   /* ⚠️ Ce n'est pas un garde de régression sur un chiffre — c'est le RELEVÉ
      daté qui rend la phrase du corpus vérifiable. Si un champ s'ajoute, ce
      test se met à jour AVEC son commentaire ; il ne se supprime pas. */
@@ -64,10 +64,13 @@ test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 43 champs, 9 survivent, 34 tombent
      survivants tous trois) partent ; quatre arrivent : `stockage` et `personnagesListe` (survivants :
      l'organe et sa liste sont de la SESSION), `copieDeLApp` et `envoi` (du PERSONNAGE : ils tombent
      avec lui). 42 − 3 + 4 = 43 ; survivants 10 − 3 + 2 = 9 ; tombent 32 + 2 = 34. */
-  assert.equal(clefs.length, 43, "📏 mesuré le 2026-09-10 sur v620 — 41 champs déclarés ; + `recalage` au lot 367 ; 43 au lot 374");
+  /* 🔄 LOT 395 (07/10) — deux champs d'écran, `sheetVue` et `sheetLive` (le hub de Sheet : l'aperçu ou
+     la liste, la fiche en jeu). Ils tombent avec le personnage : un personnage neuf s'ouvre sur
+     l'aperçu. 43 + 2 = 45 ; survivants 9 ; tombent 34 + 2 = 36. */
+  assert.equal(clefs.length, 45, "📏 mesuré le 2026-09-10 sur v620 — 41 champs déclarés ; + `recalage` au lot 367 ; 43 au lot 374 ; 45 au lot 395");
   assert.equal(Object.keys(CHAMPS_QUI_SURVIVENT).length, 9,
     "la liste des survivants est COURTE, et c'est ce qui la rend relisable");
-  assert.equal(clefs.filter((c) => !(c in CHAMPS_QUI_SURVIVENT)).length, 34,
+  assert.equal(clefs.filter((c) => !(c in CHAMPS_QUI_SURVIVENT)).length, 36,
     "⛔ 18 sur 41 avant ce lot — l'inversion est ce chiffre-là");
 });
 
@@ -225,8 +228,8 @@ test("C1 — ⚔️ LA REMISE À ZÉRO D'AVANT (une liste de quinze noms) FAIT R
   assert.deepEqual(restes.sort(), [
     "abilityBilan", "abilityMethod", "copieDeLApp", "decisions", "derivationImpossible", "destinySeq2",
     "envoi", "inheritanceOpen", "memoireIgnoree", "menuBranche", "ouvertureRefusee", "parcoursItem",
-    "parcoursRefus", "popup", "recalage", "report", "resolved", "stepSecond", "violations"
-  ], "⛔ la liste par nom laisse SEIZE champs debout — quatorze dans l'organe, deux que ses appelants posaient à la main ; DIX-SEPT depuis le lot 367 : le champ ajouté (`recalage`) est vu SANS que personne l'ajoute à la liste — c'est ce que l'inversion achète ; DIX-NEUF depuis le lot 374 (`copieDeLApp`, `envoi`), vus de la même façon");
+    "parcoursRefus", "popup", "recalage", "report", "resolved", "sheetLive", "sheetVue", "stepSecond", "violations"
+  ], "⛔ la liste par nom laisse SEIZE champs debout — quatorze dans l'organe, deux que ses appelants posaient à la main ; DIX-SEPT depuis le lot 367 : le champ ajouté (`recalage`) est vu SANS que personne l'ajoute à la liste — c'est ce que l'inversion achète ; DIX-NEUF depuis le lot 374 (`copieDeLApp`, `envoi`), vus de la même façon ; VINGT-ET-UN depuis le lot 395 (`sheetVue`, `sheetLive`)");
 });
 
 test("C2 — ⚔️ ET UN CHAMP BIDON AJOUTÉ À L'ÉTAT NEUF EST VU PAR LA MÊME MESURE", () => {

@@ -413,7 +413,6 @@ body {
    encres que la matrice des dalles interdit sur du verre. */
 .belt {
   flex: none;
-  display: flex;
   align-items: center;
   /* 🔴 LA BARRE EST TRANSPARENTE, SES CRANS SONT DES DALLES — Eric,
      2026-08-15 : *« vue iPad, rien de transparent ici »*, alors que les
@@ -437,6 +436,10 @@ body {
    été mises en surimpression pour que les dalles glissent dessous ; elles se
    posaient sur le numéro du cran voisin. La ceinture défile et se tape, ce
    qu'Eric a validé — une flèche qui double un geste acquis ne sert à rien. */
+/* 🃏 LOT 395 — `display` SOUS `:not([hidden])` : en jeu, la fiche V2 retire l'ancien belt
+   (`belt.racine.hidden`), et un `display: flex` sans condition battrait le `[hidden]` de
+   l'agent — la leçon du panneau, du chevron et de la carte R, payée ici une quatrième fois. */
+.belt:not([hidden]) { display: flex; }
 .belt-track {
   flex: 1 1 auto;
   min-width: 0;
@@ -3114,7 +3117,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=943") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=944") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3437,7 +3440,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=943") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=944") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5089,7 +5092,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=943") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=944") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8153,6 +8156,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .menu-porte,
 /* LOT 351 — la poubelle, organe au socle (`poubelle-organe.mjs`) : Layers la pose sur chaque
    livre du joueur, My characters sur chaque perso (lot 352). Même entrée PAR LA LISTE. */
+/* LOT 395 — les boutons de la fiche V2 (le hub de Sheet, et la maquette qui peint les siens) : ils
+   entrent par la LISTE, comme les portes de Wares — un seul écrivain du relief. */
+.fiche-v2-bouton,
 .poubelle {
   /* 🔴 LE DÉFAUT EST `transparent` DEPUIS LE 16/09, ET C'EST TOUT LE
      RECÂBLAGE — Eric : *« la couleur du liseré = la couleur du bouton
@@ -8237,6 +8243,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .porte-carree::before,
 .x1-porte::before,
 .menu-porte::before,
+.fiche-v2-bouton::before,
 .poubelle::before {
   content: "";
   position: absolute;
@@ -8319,6 +8326,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .porte-carree::after,
 .x1-porte::after,
 .menu-porte::after,
+.fiche-v2-bouton::after,
 .poubelle::after {
   content: "";
   position: absolute;
@@ -8811,11 +8819,15 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    au-delà de `.stage`, quand `.sac` rend 375 **à fleur** de `.stage`.
    ⭐ C'est la QUATRIÈME fois du lot que la réponse est *« reprendre, ⛔ jamais redessiner »* —
    après `.wares-porte`, les organes d'échange et la tuile. */
-.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .x5, .sac, .wares)) {
+/* 🃏 LOT 395 — la fiche V2 entre dans la famille (même liste que la boîte, lue par le garde des
+   deux `:has()`), et sa carte la porte EN ENFANT DIRECT, sans `.equipment-step` : d'où la seconde
+   branche, dans LA MÊME règle — un seul écrivain de la carte pleine scène. */
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .x5, .sac, .wares, .fiche-v2-hub, .fiche-v2-live)),
+.decision-card:has(> :is(.fiche-v2-hub, .fiche-v2-live)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .x5, .sac, .wares)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .x5, .sac, .wares, .fiche-v2-hub, .fiche-v2-live)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
 /* 🔴 ET `.x2` Y ENTRE AU LOT 242, POUR LA RAISON EXACTE DE `.wares` AU LOT 231 :
@@ -8830,7 +8842,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    mordu (« deux règles portent la boîte de la dalle : deux écrivains pour une
    loi »), et il avait raison. C'est la CINQUIÈME fois de ce chantier que la
    réponse est « entrer dans la liste », ⛔ jamais « ajouter un bloc ». */
-.gear, .x0, .x1, .x2, .x5, .sac, .wares {
+.gear, .x0, .x1, .x2, .x5, .sac, .wares, .fiche-v2-hub, .fiche-v2-live {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));
@@ -13450,3 +13462,105 @@ select.x5-drop {
 @media (prefers-reduced-motion: reduce) { [data-flash] { animation: none; } }
 /* ⛔ l'appui long d'iOS ouvre la bulle du système (copier, partager) : sur un objet glissable, c'est l'armement */
 [data-glissable="true"] { -webkit-touch-callout: none; }
+
+/* ══ 🃏 LOT 395 — LA FICHE V2, MAQUETTE DANS SHEET ══════════════════════════════
+   ⚖️ Eric, 2026-10-05 → 07 (plan : vault `FH-WEB/FHPC/Plan-fiche-V2/`, artefact
+   `WcVS8PjeP8QwuMNusksQFk`). Le module (`fiche-v2-ecran.mjs`) pose chaque organe par une
+   feuille construite depuis la table ; ICI ne vit que l'HABIT, et il vient du site :
+   `dalle-intermediaire` (50 %), `dalle-simple` (35 %), `--dalle-cran` (20 %), la famille des
+   boutons. ⛔ Aucune cote ici : aucune position, aucune taille d'organe. */
+
+/* Le hub : l'aperçu (ou la liste) puis la rangée des boutons. La boîte de la scène vient de
+   la liste partagée (`.gear, .x0, …`) — ⛔ jamais une seconde règle. */
+.fiche-v2-apercu, .fiche-v2-liste { position: absolute; overflow: hidden; }
+/* La liste prend la place de l'aperçu (sa boîte vient de la feuille construite) et défile
+   DEDANS — le défilement interne de §5 bis : la rangée des boutons reste en vue. */
+.fiche-v2-liste {
+  overflow-y: auto; padding-inline: var(--sp-4); box-sizing: border-box;
+  scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent;
+}
+.fiche-v2-hub > .fiche-v2-porte {
+  position: absolute; box-sizing: border-box;
+  border-style: solid; border-color: transparent; border-left-width: 0; border-right-width: 0;
+  --bouton-retrait-v: 0px;
+  font-size: var(--t1); font-weight: 600; padding: 0;
+}
+.fiche-v2-porte[data-lit="true"] { --bouton-fond: var(--info); }
+
+/* La fiche : 375 × 560 dans les deux modes ; l'aperçu la met à l'échelle depuis son coin. */
+.fiche-v2 { position: absolute; left: 0; top: 0; transform-origin: 0 0; color: var(--text); }
+.fiche-v2-live > .fiche-v2 { position: relative; }
+.fiche-v2 > .fiche-v2-organe {
+  position: absolute; box-sizing: border-box; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; line-height: 1.15; cursor: default;
+}
+.fiche-v2-mot[data-cran="t0"] { font-size: var(--t0); }
+.fiche-v2-mot[data-cran="t1"] { font-size: var(--t1); }
+.fiche-v2-mot[data-cran="t2"] { font-size: var(--t2); }
+.fiche-v2-mot[data-cran="t3"] { font-size: var(--t3); }
+.fiche-v2-mot[data-graisse="400"] { font-weight: 400; }
+.fiche-v2-mot[data-graisse="600"] { font-weight: 600; }
+.fiche-v2-mot[data-graisse="700"] { font-weight: 700; }
+
+/* Les tuiles au repos (le tambour, les onglets de catégorie) : 20 %, la tuile posée garde 50 %
+   (`cadre-la-tuile-au-repos-est-voilee`). */
+.fiche-v2 > [data-sorte="onglet"] {
+  background: var(--dalle-cran); border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+.fiche-v2 > [data-sorte="viseur"] { border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px var(--accent); pointer-events: none; }
+/* Une ligne de compétence : nue sur sa dalle, un cerne (« un fond ne prouve pas un bord »). */
+.fiche-v2 > [data-sorte="ligne"] {
+  flex-direction: row; justify-content: flex-start; gap: var(--sp-8);
+  padding-inline: var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+}
+.fiche-v2-mot[data-ancre="car"] { margin-left: auto; color: var(--text-soft); }
+/* Le stream : opaque (multicolore), ses entrées jointives, séparées d'un filet. */
+.fiche-v2 > [data-sorte="journal"], .fiche-v2 > [data-sorte="image"] { background: var(--surface); border-radius: var(--radius-md); }
+.fiche-v2 > [data-sorte="image"] { background: var(--sunken); }
+.fiche-v2 > [data-sorte="log-entree"] {
+  display: grid; grid-template-columns: 1fr auto; align-content: center; justify-items: start;
+  padding-inline: var(--sp-8); border-bottom: 1px solid var(--border); text-align: left;
+}
+.fiche-v2 > [data-sorte="log-entree"] > [data-ancre="end"] { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+/* Les badges de la v1 : une pilule pleine, l'encre qui bascule. */
+.fiche-v2 > [data-sorte="badge-info"], .fiche-v2 > [data-sorte="badge-crit"] {
+  border-radius: var(--radius-pill); color: var(--on-accent);
+}
+.fiche-v2 > [data-sorte="badge-info"] { background: var(--info); }
+.fiche-v2 > [data-sorte="badge-crit"] { background: var(--critical); }
+/* La bande Destiny & Dice Pool de la v1 : opaque, la face des boutons ; le livret et les dés d'or. */
+.fiche-v2 > [data-sorte="bande-destin"] { background: var(--bouton-face); border-radius: var(--radius-md); }
+.fiche-v2 > [data-sorte="livret"] {
+  border: 1px solid var(--accent); border-radius: var(--radius-sm); color: var(--bouton-encre);
+}
+/* ⭐ L'OR DES DÉS DE LA DESTINÉE (v1 : « destinée doré ») — aucun jeton « or » au dépôt : il se
+   tire de `--caution` éclairci vers l'encre fixe des boutons, un reflet en haut à gauche. */
+.fiche-v2 > [data-sorte="de-or-v1"] {
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--bouton-encre), color-mix(in srgb, var(--caution) 55%, var(--bouton-encre)) 45%, var(--caution));
+}
+/* Les dés à lancer : un voyant à 35 %, la couleur du dé dans son cerne. */
+.fiche-v2 > [data-sorte^="de-"]:not([data-sorte="de-or-v1"]) { background: var(--dalle-simple); border-radius: var(--radius-sm); }
+.fiche-v2 > [data-sorte="de-noir"] { box-shadow: inset 0 0 0 2px var(--text); }
+.fiche-v2 > [data-sorte="de-rouge"] { box-shadow: inset 0 0 0 2px var(--critical); }
+.fiche-v2 > [data-sorte="de-vert"] { box-shadow: inset 0 0 0 2px var(--positive); }
+.fiche-v2 > [data-sorte="de-jaune"] { box-shadow: inset 0 0 0 2px var(--caution); }
+.fiche-v2 > [data-sorte="case-vide"] { background: var(--dalle-cran); border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); }
+/* Les boutons peints de la maquette : la famille, dessin = boîte (pas de retrait de 2). */
+.fiche-v2 > .fiche-v2-bouton { --bouton-retrait-v: 0px; }
+.fiche-v2 > .fiche-v2-bouton[data-forme="rond"] { --bouton-rayon: 50%; }
+/* Les astres : la pleine lune et le soleil du belt du builder ; la lune du Live, INVERSÉE —
+   Eric : « majoritairement jour, un croissant de nuit ». ⭐ Le croissant du builder retourné
+   par un filtre : ce qui était nuit devient jour, et le mince quartier clair devient la nuit. */
+.fiche-v2 > [data-sorte="lune"], .fiche-v2 > [data-sorte="soleil"] {
+  border-radius: 50%; background-size: cover; background-position: center; background-repeat: no-repeat;
+}
+.fiche-v2 > [data-sorte="lune"] { background-image: var(--astre-pleine-lune); }
+.fiche-v2 > [data-sorte="soleil"] { background-image: var(--astre-soleil); }
+.fiche-v2 > .fiche-v2-lune {
+  border-style: solid; border-color: transparent; padding: 0; cursor: pointer;
+  background-clip: content-box; background-origin: content-box;
+  background-image: var(--astre-croissant); filter: invert(1) hue-rotate(180deg);
+}

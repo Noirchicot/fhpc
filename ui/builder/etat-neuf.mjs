@@ -54,6 +54,11 @@ export function etatNeuf() {
        ⛔ `stepSecond` ne vaut RIEN quand la vue est simple : c'est le rendu qui
        le lit, jamais le moteur. */
     stepSecond: 0,          // le cran du panneau PASSIF — Menu par défaut (Eric)
+    /* 🃏 LOT 395 — LE HUB DE SHEET (Eric, 07/10). `sheetVue` : ce que la place de la fiche montre —
+       l'aperçu (`fiche`) ou le contenu d'avant (`liste`). `sheetLive` : la fiche en jeu, qui remplace
+       l'ancien belt. ⭐ Remis à zéro avec le personnage : un personnage neuf s'ouvre sur l'aperçu. */
+    sheetVue: "fiche",
+    sheetLive: false,
     engine: null,       // { build, layers, bus } — set once bootEngine() resolves
     document: null,      // the live fh-char/1 document
     decisions: [],        // the last rebuild()'s carnet

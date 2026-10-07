@@ -102,6 +102,11 @@ const SOCLE = [
      livre de `Layers`, puis sur chaque perso de `My characters` (lot 352). Eric : *« juste
      une poubelle à côté comme My Characters »*. Déclarée ici EN LE SACHANT. ⛔ Hors du
      PLANCHER, comme le carré du lot 311 : un carré vaut sa cible (44), pas le gabarit 77. — */
+  /* — LOT 395, 07/10 : les boutons de la FICHE V2 — les quatre portes du hub de Sheet (List ·
+     Manage · Live · Export) et les boutons que la maquette PEINT (Condition, Rest, A, D, +2,
+     +🎲, ROLL). Eric : *« ce qui nous laisse de l'espace pour 3 boutons »*. Déclarée ici EN LE
+     SACHANT. ⛔ Hors du PLANCHER : leur boîte est POSÉE par la table de la fiche (cases de 30). — */
+  ".fiche-v2-bouton",
   ".poubelle"
 ];
 
